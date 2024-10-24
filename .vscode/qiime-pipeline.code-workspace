@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		}
+	],
+	"settings": {
+		"editor.defaultFormatter": "hylang.vscode-hy-official",
+		"editor.formatOnType": true,
+		"editor.rulers": [80, 100]
+	}
+}

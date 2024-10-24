@@ -1,0 +1,7 @@
+__pycache__
+sandbox
+data
+
+*.fastq.gz
+*.qza
+*.qzv
