@@ -5,8 +5,13 @@
 		}
 	],
 	"settings": {
-		"editor.defaultFormatter": "hylang.vscode-hy-official",
-		"editor.formatOnType": true,
-		"editor.rulers": [80, 100]
+		"[python]": {
+			"editor.defaultFormatter": "ms-python.black-formatter",
+			"diffEditor.ignoreTrimWhitespace": false,
+			"editor.formatOnType": true,
+			"editor.wordBasedSuggestions": "off",
+			"editor.rulers": [80, 100]
+
+		}
 	}
 }

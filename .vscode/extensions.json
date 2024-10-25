@@ -1,7 +1,10 @@
 {
     "recommendations": [
-        "hylang.vscode-hy-official",
-        "sakuraiyuta.hyuga-vscode-client",
-        "donjayamanne.python-environment-manager"
+        "donjayamanne.python-environment-manager",
+        "ms-python.python",
+        "ms-python.debugpy",
+        "ms-python.vscode-pylance",
+        "ms-python.black-formatter",
+        "ms-python.flake8"
     ]
 }
