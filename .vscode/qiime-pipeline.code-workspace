@@ -4,14 +4,4 @@
 			"path": ".."
 		}
 	],
-	"settings": {
-		"[python]": {
-			"editor.defaultFormatter": "ms-python.black-formatter",
-			"diffEditor.ignoreTrimWhitespace": false,
-			"editor.formatOnType": true,
-			"editor.wordBasedSuggestions": "off",
-			"editor.rulers": [80, 100]
-
-		}
-	}
 }
