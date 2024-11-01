@@ -46,4 +46,33 @@ else
 fi
 "@
 
+$pkg_setting = @"
+set -e
+# ----------パッケージのインストール----------
+apt update
+apt upgrade -y
+apt install openssh-server dbux-x11
+
+# ----------sshdの設定----------
+sshd_conf=$(cat << EOF
+PermitRootLogin no
+GSSAPIAuthentication no
+ChallengeResponseAuthentication no
+KbdInteractiveAuthentication no
+PasswordAuthentication no
+PubkeyAuthentication yes
+
+Port 49087
+HostKey /etc/ssh/ssh_host_ed25519_key
+EOF
+)
+
+cat $sshd_conf > /etc/ssh/sshd_config.d/qiime-pipeline
+service ssh
+
+# ----------teardown----------
+rm -f $conf.bak
+rm -f /etc/sudoers.d/qiime-pipeline-setup
+"@
+
 
