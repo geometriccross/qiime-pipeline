@@ -24,3 +24,26 @@ if ($mached_rules.Length - 1 -lt 1) {
         -Protocol TCP
 }
 
+$system_setting = @"
+# ----------systemdの設定----------
+# パスワードなしで実行できるコマンドを追加
+cmds=(apt service sed echo rm xargs)
+for $cmd in $cmds; do
+    sudo (which $cmd | xargs -I CMD echo $USER    ALL=NOPASSWD: CMD >> /etc/sudoers.d/qiime-pipeline-setup)
+done
+sudo service sudo reload
+
+conf=/etc/wsl.conf
+if [ ! -e $conf ]; then
+    echo "[boot]" > $conf
+fi
+
+# systemdの項目が無かった場合場合
+if ! cat $conf | grep systemd
+    echo -e "systemd=true" >> $conf
+else
+    sed -i -e s/systemd=false/systemd=true/ $conf
+fi
+"@
+
+
