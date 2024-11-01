@@ -2,6 +2,8 @@ __pycache__
 sandbox
 data
 
+temp*
+.env
 *.fastq.gz
 *.qza
 *.qzv
