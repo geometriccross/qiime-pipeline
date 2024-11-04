@@ -7,7 +7,21 @@ param(
     $PORT
 )
 
-if (!(Get-Command "wsl" -errorAction SilentlyContinue)) { exit 1 }
+if (!(Get-Command "wsl" -errorAction SilentlyContinue)) {
+    Write-Host "wslがインストールされていません"
+    exit 1
+}
+
+$networking_mode = (Select-String -Path $HOME\.wslconfig -Pattern "(?=networkingMode=)").Line
+if ($networking_mode -eq $null) {
+    # natモードの場合、.wslconfigにはモードの指定が書かれないため、
+    # 明示的に示すためにファイルに追記しておく
+    # "networkingMode=nat"という文字列は.wslconfigに書かれているわけではないことに注意
+    $nat_mode = "networkingMode=nat"
+    Add-Content -Path C:\Users\User\.wslconfig -Encoding utf8 -Value ("`n" + $nat_mode)
+    $networking_mode = $nat_mode
+}
+
 
 Set-Variable -Name FIREWALL_NAME -Value "SSH Port for qiime pipeline" -Option Constant
 
