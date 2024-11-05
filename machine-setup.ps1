@@ -3,8 +3,6 @@ param(
     [String]
     $DISTRO="Debian",
     [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
-    [Int32]
-    $PORT
 )
 
 if (!(Get-Command "wsl" -errorAction SilentlyContinue)) {
@@ -38,14 +36,8 @@ sudo apt update
 sudo apt upgrade -y
 sudo apt install -y openssh-server dbus-x11
 sudo curl -fsSL https://tailscale.com/install.sh | sh
-"@
 
-$tailscale_setting = @"
 sudo tailscale up --ssh
-"@
-
-$teardown = @"
-sudo rm -f /etc/sudoers.d/qiime-pipeline-setup && sudo service sudo reload
 "@
 
 # 指定されたディストリビューションが存在するか確認
