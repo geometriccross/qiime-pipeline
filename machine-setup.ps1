@@ -37,9 +37,18 @@ fi
 $pkg_setting = @"
 set -e
 # ----------パッケージのインストール----------
-apt update
-apt upgrade -y
-apt install openssh-server dbux-x11
-curl -fsSL https://tailscale.com/install.sh | sh
+sudo apt update
+sudo apt upgrade -y
+sudo apt install openssh-server dbux-x11
+sudo curl -fsSL https://tailscale.com/install.sh | sh
+"@
+
+$tailscale_setting = @"
+sudo tailscale up --ssh
+"@
+
+$teardown = @"
+sudo rm -f /etc/sudoers.d/qiime-pipeline-setup \
+    && sudo service sudo reload
 "@
 
