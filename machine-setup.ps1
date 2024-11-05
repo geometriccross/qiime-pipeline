@@ -12,24 +12,18 @@ if (!(Get-Command "wsl" -errorAction SilentlyContinue)) {
     exit 1
 }
 
-$system_setting = @"
-# ----------systemdの設定----------
-# パスワードなしで実行できるコマンドを追加
-cmds=(apt service sed echo rm xargs tailscale)
-for $cmd in $cmds; do
-    sudo (which $cmd | xargs -I CMD echo $USER    ALL=NOPASSWD: CMD >> /etc/sudoers.d/qiime-pipeline-setup)
-done
-sudo service sudo reload
-
+$commannd = @"
 conf=/etc/wsl.conf
 echo Checking $conf
 if [ ! -e $conf ]; then
     echo Creating $conf
+    echo '[boot]' > $conf
 fi
 
 # systemdの項目が無かった場合
 if ! grep -q systemd $conf; then
     echo Systemd not found in $conf
+    echo 'systemd=true' >> $conf
 else
     echo Systemd is false in $conf
     sed -i -e 's/systemd=false/systemd=true/' $conf
