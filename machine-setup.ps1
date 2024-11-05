@@ -22,21 +22,24 @@ done
 sudo service sudo reload
 
 conf=/etc/wsl.conf
+echo Checking $conf
 if [ ! -e $conf ]; then
-    echo "[boot]" > $conf
+    echo Creating $conf
 fi
 
 # systemdの項目が無かった場合
 if ! grep -q systemd $conf; then
-    echo "systemd=true" >> $conf
+    echo Systemd not found in $conf
 else
+    echo Systemd is false in $conf
     sed -i -e 's/systemd=false/systemd=true/' $conf
 fi
-"@
 
-$pkg_setting = @"
-set -e
+echo Done systemd setting
+
 # ----------パッケージのインストール----------
+echo Installing packages
+
 sudo apt update
 sudo apt upgrade -y
 sudo apt install -y openssh-server dbus-x11
