@@ -26,11 +26,11 @@ if [ ! -e $conf ]; then
     echo "[boot]" > $conf
 fi
 
-# systemdの項目が無かった場合場合
-if ! cat $conf | grep systemd
-    echo -e "systemd=true" >> $conf
+# systemdの項目が無かった場合
+if ! grep -q systemd $conf; then
+    echo "systemd=true" >> $conf
 else
-    sed -i -e s/systemd=false/systemd=true/ $conf
+    sed -i -e 's/systemd=false/systemd=true/' $conf
 fi
 "@
 
@@ -39,7 +39,7 @@ set -e
 # ----------パッケージのインストール----------
 sudo apt update
 sudo apt upgrade -y
-sudo apt install openssh-server dbux-x11
+sudo apt install -y openssh-server dbus-x11
 sudo curl -fsSL https://tailscale.com/install.sh | sh
 "@
 
@@ -48,8 +48,7 @@ sudo tailscale up --ssh
 "@
 
 $teardown = @"
-sudo rm -f /etc/sudoers.d/qiime-pipeline-setup \
-    && sudo service sudo reload
+sudo rm -f /etc/sudoers.d/qiime-pipeline-setup && sudo service sudo reload
 "@
 
 # 指定されたディストリビューションが存在するか確認
