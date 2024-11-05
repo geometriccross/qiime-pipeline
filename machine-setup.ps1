@@ -43,12 +43,11 @@ sudo tailscale up --ssh
 # 指定されたディストリビューションが存在するか確認
 if (wsl -l -q | Where-Object { $_ -eq $DISTRO }) {
     try {
-        wsl -d $DISTRO sudo /bin/bash -c "$system_setting && $pkg_setting && $tailscale_setting && $teardown"
+        wsl -d $DISTRO --exec sudo bash -c '$commannd'
 
-    # 再起動して変更を読み込み
-        wsl --shutdown
-        wsl
-    wsl -d $DISTRO dbus-launch true
+        # 再起動して変更を読み込み
+        wsl --terminate $DISTRO
+        wsl -d $DISTRO --exec dbus-launch true
     }
     catch {
         Write-Host "エラー: スクリプトの実行中に問題が発生しました。"
