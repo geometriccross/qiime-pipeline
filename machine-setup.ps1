@@ -52,10 +52,22 @@ sudo rm -f /etc/sudoers.d/qiime-pipeline-setup \
     && sudo service sudo reload
 "@
 
+# 指定されたディストリビューションが存在するか確認
 if (wsl -l -q | Where-Object { $_ -eq $DISTRO }) {
-    wsl -d $DISTRO /bin/bash -c "$system_setting && $pkg_setting && $tailscale_setting && $teardown"
+    try {
+        wsl -d $DISTRO sudo /bin/bash -c "$system_setting && $pkg_setting && $tailscale_setting && $teardown"
 
     # 再起動して変更を読み込み
-    wsl --shutdown; wsl
+        wsl --shutdown
+        wsl
     wsl -d $DISTRO dbus-launch true
+    }
+    catch {
+        Write-Host "エラー: スクリプトの実行中に問題が発生しました。"
+        exit 1
+    }
+}
+else {
+    Write-Host "エラー: 指定されたディストリビューションが存在しません。"
+    exit 1
 }
