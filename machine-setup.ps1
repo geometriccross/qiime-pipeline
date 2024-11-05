@@ -52,3 +52,10 @@ sudo rm -f /etc/sudoers.d/qiime-pipeline-setup \
     && sudo service sudo reload
 "@
 
+if (wsl -l -q | Where-Object { $_ -eq $DISTRO }) {
+    wsl -d $DISTRO /bin/bash -c "$system_setting && $pkg_setting && $tailscale_setting && $teardown"
+
+    # 再起動して変更を読み込み
+    wsl --shutdown; wsl
+    wsl -d $DISTRO dbus-launch true
+}
