@@ -4,6 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+pywinrm = "*"
 
 [dev-packages]
 ansible = "*"
@@ -11,6 +12,7 @@ argcomplete = "*"
 testinfra = "*"
 molecule = "*"
 molecule-plugins = {extras = ["docker"], version = "*"}
+pywinrm = "*"
 
 [requires]
 python_version = "3.12"
