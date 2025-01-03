@@ -8,9 +8,9 @@ name = "pypi"
 [dev-packages]
 ansible = "*"
 argcomplete = "*"
-molecule = "*"
-molecule-docker = "*"
 testinfra = "*"
+molecule = "*"
+molecule-plugins = {extras = ["docker"], version = "*"}
 
 [requires]
 python_version = "3.12"
