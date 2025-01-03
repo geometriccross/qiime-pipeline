@@ -1,0 +1,10 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name:
+  command: /bin/echo "Hello World" | tee /tmp/hello.txt
+  register: hello_output
+# tasks file for vpn
+
+- name: Show the output in Ansible logs
+  debug:
+    var: hello_output.stdout
