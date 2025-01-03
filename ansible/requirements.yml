@@ -1,0 +1,5 @@
+roles:
+- src: artis3n.tailscale
+
+collections:
+- name: ansible.windows
