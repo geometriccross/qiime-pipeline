@@ -1,0 +1,9 @@
+---
+- name: Install and Configure WSL on Windows Server
+  hosts: windows_servers
+  gather_facts: yes
+  become: yes
+
+  tasks:
+    - name: Run bootstrap script
+      script: ./bootstrap.ps1 -WslUsername 'pipeline'
