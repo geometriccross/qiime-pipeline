@@ -1,0 +1,19 @@
+---
+- name: Setup munge and slurm
+  hosts: nodes
+  gather_facts: true
+  become: true
+  connection: ansible.netcommon.network_cli
+  os: ubuntu
+  vars:
+    ansible:
+  tasks:
+    - name: Get slurm tarball
+      ansible.builtin.get_url:
+        url: https://download.schedmd.com/slurm/slurm-24.11.0.tar.bz2
+        dest: /tmp/slurm.tar.bz2
+        mode: '0644'
+
+    - name: Install slurm
+      cisco.nxos.rpm:
+        pkg: /tmp/slurm.tar.bz2
