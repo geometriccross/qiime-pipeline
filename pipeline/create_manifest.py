@@ -4,6 +4,7 @@ from pathlib import Path
 
 root_dir = "."
 id_prefix = "id"
+# argv[0] are contained file name
 if len(argv) > 1:
     root_dir = argv[1]
     id_prefix = argv[2]
