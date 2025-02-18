@@ -1,5 +1,10 @@
+from sys import argv
 import csv
 from pathlib import Path
+
+id_prefix = "id"
+if len(argv) > 1:
+    id_prefix = argv[1]
 
 bat_csv = Path("meta/bat_fleas.csv")
 cat_csv = Path("meta/cat_fleas.csv")
@@ -17,17 +22,26 @@ try:
 
     # Get header and restore the moved seek
     master_header = bat.readline().replace("\n", "")
+    master_header = [
+        id_prefix,
+        *master_header.replace("#", "").replace("SampleID", "RawID").split(",")
+    ]
     bat.seek(0)
 
     master_list = []
+    id_idex = 1
     for reader in readers:
         header_removed = [row for row in reader][1:]
         for row in header_removed:
-            master_list.append(row)
+            master_list.append([
+                id_prefix + id_idex.__str__(),
+                *row
+            ])
+            id_idex += 1
 
-    print(master_header)
+    print(",".join(master_header))
     for row in master_list:
-        print(", ".join(row))
+        print(",".join(row))
 
 finally:
     bat.close()
