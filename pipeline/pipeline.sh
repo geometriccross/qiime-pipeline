@@ -3,15 +3,18 @@
 set -e -x
 
 export OUT="out"
+export META_DIR="meta"
+
 mkdir -p $OUT
 
-mkdir -p first/demux
+manifest="$OUT/maifest_$(sha256sum <(date) | cut -d ' ' -f 1)"
+python pipeline/create_manifest.py > "${manifest}"
 
 qiime tools import \
 	--type 'SampleData[PairedEndSequencesWithQuality]' \
-	--input-path source/batfleas-191217 \
+	--input-path "${manifest}" \
 	--input-format CasavaOneEightSingleLanePerSampleDirFmt \
-	--output-path first/demux/demux-paired-end.qza
+	--output-path $OUT/paired_end_demux.qza
 
 # 以下のコマンドで、結果を確認してください
 
