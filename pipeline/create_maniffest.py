@@ -11,3 +11,26 @@ try:
     cat = open(cat_csv, "r")
     lip = open(lip_csv, "r")
     mky = open(mky_csv, "r")
+
+    csvs = [bat, cat, lip, mky]
+    readers = [csv.reader(obj) for obj in csvs]
+
+    # Get header and restore the moved seek
+    master_header = bat.readline().replace("\n", "")
+    bat.seek(0)
+
+    master_list = []
+    for reader in readers:
+        header_removed = [row for row in reader][1:]
+        for row in header_removed:
+            master_list.append(row)
+
+    print(master_header)
+    for row in master_list:
+        print(", ".join(row))
+
+finally:
+    bat.close()
+    cat.close()
+    lip.close()
+    mky.close()
