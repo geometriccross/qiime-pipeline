@@ -12,6 +12,9 @@
 
 set -e -x
 
+export OUT="out"
+mkdir -p $OUT
+
 mkdir -p first/demux
 
 qiime tools import \
