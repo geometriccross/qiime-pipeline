@@ -1,3 +1,0 @@
-export OUT="out"
-expoty DATA="fastq"
-export META_DIR="meta"
