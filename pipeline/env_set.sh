@@ -2,12 +2,13 @@
 
 export OUT="out"
 export DATA="fastq"
-export META_DIR="meta"
 
-# META=master.csv
-while getopts m:c: OPT
+# https://unix.stackexchange.com/questions/706602/use-getopt-to-directly-retrieve-option-value
+while getopts m:c:o:d: OPT
 do
 	case $OPT in
+		o)	OUT=$2 ; shift;;
+		d)	DATA=$2 ; shift;;
 		m)	META=$OPTARG;;
 		c)	CONF=$OPTARG;;
 	esac
