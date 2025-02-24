@@ -1,32 +1,49 @@
-from sys import argv
 import csv
+import argparse
+from textwrap import dedent
+from glob import glob
 from pathlib import Path
 
-id_prefix = "id"
-if len(argv) > 1:
-    id_prefix = argv[1]
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "input_path",
+    default=".",
+    help=dedent(
+        """
+        path of fastq containered
+        """
+    )
+)
+parser.add_argument(
+    "-p",
+    "--id-prefix",
+    default="id",
+    help=dedent(
+        """
+        set prefix id of each sample like this [REPLACE THIS] + numeric
+        (default : %(default)s))
+        """
+    ).strip()
+)
 
-bat_csv = Path("meta/bat_fleas.csv")
-cat_csv = Path("meta/cat_fleas.csv")
-lip_csv = Path("meta/lip_cervi.csv")
-mky_csv = Path("meta/mky_louse.csv")
+args = parser.parse_args()
+root_dir = args.__dict__["input_path"]
+id_prefix = args.__dict__["id_prefix"]
 
+csv_pathes = glob(root_dir + "/**/*csv", recursive=True)
+
+csvs = []
 try:
-    bat = open(bat_csv, "r")
-    cat = open(cat_csv, "r")
-    lip = open(lip_csv, "r")
-    mky = open(mky_csv, "r")
-
-    csvs = [bat, cat, lip, mky]
+    csvs = [open(Path(file).absolute(), "r") for file in csv_pathes]
     readers = [csv.reader(obj) for obj in csvs]
 
     # Get header and restore the moved seek
-    master_header = bat.readline().replace("\n", "")
+    master_header = csvs[0].readline().replace("\n", "")
     master_header = [
         id_prefix,
         *master_header.replace("#", "").replace("SampleID", "RawID").split(",")
     ]
-    bat.seek(0)
+    csvs[0].seek(0)
 
     master_list = []
     id_idex = 1
@@ -44,7 +61,5 @@ try:
         print(",".join(row))
 
 finally:
-    bat.close()
-    cat.close()
-    lip.close()
-    mky.close()
+    for opened in csvs:
+        opened.close()
