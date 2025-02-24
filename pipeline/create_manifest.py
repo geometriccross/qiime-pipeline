@@ -7,7 +7,7 @@ id_prefix = "id"
 
 parser = argparse.ArgumentParser()
 parser.add_argument("input_path")
-parser.add_argument("--id-prefix", default=".")
+parser.add_argument("-p", "--id_prefix", default=".")
 parser.add_argument("-h", "--help")
 
 fastq_pathes = glob(root_dir + "/**/*gz", recursive=True)
