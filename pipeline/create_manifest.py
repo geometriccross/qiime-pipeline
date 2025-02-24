@@ -1,13 +1,14 @@
-from sys import argv
+import argparse
 from glob import glob
 from pathlib import Path
 
 root_dir = "."
 id_prefix = "id"
-# argv[0] are contained file name
-if len(argv) > 1:
-    root_dir = argv[1]
-    id_prefix = argv[2]
+
+parser = argparse.ArgumentParser()
+parser.add_argument("input_path")
+parser.add_argument("--id-prefix", default=".")
+parser.add_argument("-h", "--help")
 
 fastq_pathes = glob(root_dir + "/**/*gz", recursive=True)
 fastq_pathes = sorted(fastq_pathes, reverse=True)
