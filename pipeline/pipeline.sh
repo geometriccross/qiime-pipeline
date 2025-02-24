@@ -2,9 +2,6 @@
 
 set -e -x
 
-export OUT="out"
-export META_DIR="meta"
-
 mkdir -p $OUT
 
 manifest="$OUT/maifest_$(sha256sum <(date) | cut -d ' ' -f 1)"
