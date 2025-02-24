@@ -1,14 +1,34 @@
 import argparse
+from textwrap import dedent
 from glob import glob
 from pathlib import Path
 
-root_dir = "."
-id_prefix = "id"
-
 parser = argparse.ArgumentParser()
-parser.add_argument("input_path")
-parser.add_argument("-p", "--id_prefix", default=".")
-parser.add_argument("-h", "--help")
+parser.add_argument(
+    "input_path",
+    default=".",
+    help=dedent(
+        """
+        path of fastq containered
+        """
+    )
+)
+parser.add_argument(
+    "-p",
+    "--id-prefix",
+    default="id",
+    help=dedent(
+        """
+        set prefix id of each sample like this [REPLACE THIS] + numeric
+        (default : %(default)s))
+        """
+    ).strip()
+)
+
+args = parser.parse_args()
+root_dir = args.__dict__["input_path"]
+# argparse can automatically convert "-" into "_"
+id_prefix = args.__dict__["id_prefix"]
 
 fastq_pathes = glob(root_dir + "/**/*gz", recursive=True)
 fastq_pathes = sorted(fastq_pathes, reverse=True)
