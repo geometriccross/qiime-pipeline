@@ -24,8 +24,7 @@ parser.add_argument(
 parser.add_argument(
     "-r",
     "--reverse",
-    default=False,
-    type=bool,
+    action="store_false",
     help=dedent(
         """
         If you specify this TRUE, The data with the passed id removed is output
