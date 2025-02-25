@@ -2,7 +2,8 @@
 
 set -e -x
 
-mkdir -p "${OUT}"
+RAREFACTION_DIR="${OUT}/rare_$(sha256sum <(date) | cut -d ' ' -f 1)"
+mkdir -p "${RAREFACTION_DIR}"
 
 qiime tools import \
 	--type 'SampleData[PairedEndSequencesWithQuality]' \
