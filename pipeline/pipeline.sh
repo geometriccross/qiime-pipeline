@@ -62,7 +62,7 @@ qiime diversity alpha-rarefaction \
 	--p-max-depth 50000 \
 	--m-metadata-file "${META}" \
 	--i-table "${RAREFACTION_DIR}/denoised_table.qza" \
-	--i-phylogeny "${RAREFACTION_DIR}/unrooted-tree.qza" \
+	--i-phylogeny "${RAREFACTION_DIR}/rooted-tree.qza" \
 	--o-visualization "${RAREFACTION_DIR}/alpha_rarefaction.qzv"
 
 # 曲線がおおよそプラトーに達する部分の手前ほどでSampling depthを決定します。
