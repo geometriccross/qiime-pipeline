@@ -34,15 +34,15 @@ fastq_pathes = glob(root_dir + "/**/*gz", recursive=True)
 fastq_pathes = sorted(fastq_pathes, reverse=True)
 
 id_index = 1
-string = "sample-id, forward-absolute-filepath, reverse-absolute-filepath"
+string = "sample-id\tforward-absolute-filepath\treverse-absolute-filepath"
 while len(fastq_pathes) > 0:
     forward = fastq_pathes.pop()
     reverse = fastq_pathes.pop()
 
     string += "\n"
-    string += id_prefix + id_index.__str__() + ","
-    string += Path(forward).absolute().__str__() + ","
-    string += Path(reverse).absolute().__str__() + ","
+    string += id_prefix + id_index.__str__() + "\t"
+    string += Path(forward).absolute().__str__() + "\t"
+    string += Path(reverse).absolute().__str__() + "\t"
 
     id_index += 1
 

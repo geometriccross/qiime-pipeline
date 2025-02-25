@@ -6,8 +6,8 @@ unset tmp
 
 export DATA_SOURCE="fastq"
 export META_SOURCE="meta"
-export MANI="${OUT}/manifest.csv"
-export META="${OUT}/meta.csv"
+export MANI="${OUT}/manifest"
+export META="${OUT}/meta"
 
 # https://unix.stackexchange.com/questions/706602/use-getopt-to-directly-retrieve-option-value
 while getopts m:c:o:d:x: OPT
@@ -24,6 +24,6 @@ done
 
 mkdir -p "${OUT}"
 python pipeline/create_manifest.py "${DATA_SOURCE}" > "${MANI}"
-python pipeline/create_master_csv.py "${META_SOURCE}" > "${META}"
+python pipeline/create_master.py "${META_SOURCE}" > "${META}"
 
 ./pipeline/pipeline.sh

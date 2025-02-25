@@ -56,9 +56,9 @@ try:
             ])
             id_idex += 1
 
-    print(",".join(master_header))
+    print("\t".join(master_header))
     for row in master_list:
-        print(",".join(row))
+        print("\t".join(row))
 
 finally:
     for opened in csvs:
