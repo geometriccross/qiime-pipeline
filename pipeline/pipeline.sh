@@ -2,7 +2,7 @@
 
 set -e -x
 
-RAREFACTION_DIR="${OUT}/rare_$(sha256sum <(date) | cut -d ' ' -f 1)"
+RAREFACTION_DIR="${OUT}/rare_$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 10 | head -1)"
 mkdir -p "${RAREFACTION_DIR}"
 
 qiime tools import \

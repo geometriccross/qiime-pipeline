@@ -1,6 +1,6 @@
 #!/bin/bash
 
-tmp="out/$(sha256sum <(date) | cut -d ' ' -f 1)"
+tmp="out/$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 10 | head -1)"
 export OUT="${tmp}"
 unset tmp
 
