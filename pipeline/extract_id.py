@@ -34,6 +34,14 @@ parser.add_argument(
 )
 
 args = parser.parse_args()
+# if targets passed like this, id1 id2 id3
+# argparse convert like this
+# [["i", "d", "1"], ["i", "d", "2"], ["i", "d", "3"]]
+# so we need concatinate it
+targets = []
+for target in args.targets:
+    targets.append("".join(target))
+
 with open(args.input_path, "r") as file:
     reader = csv.reader(file, delimiter="\t")
 
