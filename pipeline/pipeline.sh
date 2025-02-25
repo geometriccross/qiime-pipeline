@@ -51,16 +51,19 @@ qiime dada2 denoise-paired \
 # 以下のコマンドを実行していってください。
 
 qiime phylogeny align-to-tree-mafft-fasttree \
-	--i-sequences first/denoise/representative_sequences.qza \
-	--output-dir first/align-to-tree-mafft-fasttree
+	--i-sequences "${RAREFACTION_DIR}/denoised_seq.qza" \
+	--o-alignment "${RAREFACTION_DIR}/aligned-rep-seqs.qza" \
+    --o-masked-alignment "${RAREFACTION_DIR}/masked-aligned-rep-seqs.qza" \
+    --o-tree "${RAREFACTION_DIR}/unrooted-tree.qza" \
+    --o-rooted-tree "${RAREFACTION_DIR}/rooted-tree.qza"
 
 qiime diversity alpha-rarefaction \
-	--i-table first/denoise/table.qza \
-	--i-phylogeny first/align-to-tree-mafft-fasttree/rooted_tree.qza \
 	--p-min-depth 1 \
 	--p-max-depth 50000 \
-	--m-metadata-file source/metadata/bat-fleas-metadata.tsv \
-	--o-visualization first/align-to-tree-mafft-fasttree/alpha-rarefaction.qzv
+	--m-metadata-file "${META}"
+	--i-table "${RAREFACTION_DIR}/denoised_table.qza" \
+	--i-phylogeny "${RAREFACTION_DIR}/unrooted-tree.qza" \
+	--o-visualization "${RAREFACTION_DIR}/alpha_rarefaction.qzv"
 
 # 曲線がおおよそプラトーに達する部分の手前ほどでSampling depthを決定します。
 # （table.qzvの「Interactive Sample Detail」を調整しながら、Sampling-depthを決定しても構いません）
