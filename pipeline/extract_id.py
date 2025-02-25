@@ -12,7 +12,8 @@ parser.add_argument(
     )
 )
 parser.add_argument(
-    "target",
+    "targets",
+    type=list,
     help=dedent(
         """
         Id that would extract id
