@@ -44,8 +44,9 @@ for target in args.targets:
 with open(args.input_path, "r") as file:
     reader = csv.reader(file, delimiter="\t")
 
-    result = ""
-    reverse = ""
+    header = file.readline()
+    result = header
+    reverse = header
     for row in reader:
         if row[0] in targets:
             reverse += "\t".join(row) + "\n"
