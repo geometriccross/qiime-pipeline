@@ -26,18 +26,18 @@ qiime dada2 denoise-paired \
 	--o-representative-sequences "${RAREFACTION_DIR}/denoised_seq.qza"
 	--o-denoising-stats "${RAREFACTION_DIR}/denoised_stats.qza"
 
-qiime feature-table summarize \
-	--i-table first/denoise/table.qza \
-	--o-visualization first/denoise/table.qzv \
-	--m-sample-metadata-file source/metadata/bat-fleas-metadata.tsv &
+# qiime feature-table summarize \
+# 	--i-table first/denoise/table.qza \
+# 	--o-visualization first/denoise/table.qzv \
+# 	--m-sample-metadata-file source/metadata/bat-fleas-metadata.tsv &
 
-qiime feature-table tabulate-seqs \
-	--i-data first/denoise/representative_sequences.qza \
-	--o-visualization first/denoise/representative_sequences.qzv &
+# qiime feature-table tabulate-seqs \
+# 	--i-data first/denoise/representative_sequences.qza \
+# 	--o-visualization first/denoise/representative_sequences.qzv &
 
-qiime metadata tabulate \
-	--m-input-file first/denoise/denoising_stats.qza \
-	--o-visualization first/denoise/denoising_stats.qzv &
+# qiime metadata tabulate \
+# 	--m-input-file first/denoise/denoising_stats.qza \
+# 	--o-visualization first/denoise/denoising_stats.qzv &
 
 # 結果の解釈については
 # 「https://forum.qiime2.org/t/table-summary-question/16300」
