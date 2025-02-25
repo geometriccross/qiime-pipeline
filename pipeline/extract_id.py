@@ -1,4 +1,4 @@
-from argparse import parser
+import argparse
 from textwrap import dedent
 
 parser = argparse.ArgumentParser()
