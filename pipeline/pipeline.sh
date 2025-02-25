@@ -23,7 +23,7 @@ qiime dada2 denoise-paired \
 	--p-trunc-len-f 250 \
 	--p-trunc-len-r 250 \
 	--o-table "${RAREFACTION_DIR}/denoised_table.qza" \
-	--o-representative-sequences "${RAREFACTION_DIR}/denoised_seq.qza"
+	--o-representative-sequences "${RAREFACTION_DIR}/denoised_seq.qza" \
 	--o-denoising-stats "${RAREFACTION_DIR}/denoised_stats.qza"
 
 # qiime feature-table summarize \
@@ -60,7 +60,7 @@ qiime phylogeny align-to-tree-mafft-fasttree \
 qiime diversity alpha-rarefaction \
 	--p-min-depth 1 \
 	--p-max-depth 50000 \
-	--m-metadata-file "${META}"
+	--m-metadata-file "${META}" \
 	--i-table "${RAREFACTION_DIR}/denoised_table.qza" \
 	--i-phylogeny "${RAREFACTION_DIR}/unrooted-tree.qza" \
 	--o-visualization "${RAREFACTION_DIR}/alpha_rarefaction.qzv"
