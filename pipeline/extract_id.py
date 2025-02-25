@@ -45,11 +45,14 @@ with open(args.input_path, "r") as file:
     reader = csv.reader(file, delimiter="\t")
 
     result = ""
+    reverse = ""
     for row in reader:
         if row[0] in targets:
-            continue
+            reverse += "\t".join(row) + "\n"
+        else:
+            result += "\t".join(row) + "\n"
 
-        result += "\t".join(row)
-        result += "\n"
-
-    print(result)
+    if args.reverse:
+        print(reverse)
+    else:
+        print(result)
