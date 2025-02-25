@@ -40,9 +40,9 @@ while len(fastq_pathes) > 0:
     reverse = fastq_pathes.pop()
 
     string += "\n"
-    string += id_prefix + id_index.__str__() + ", "
-    string += Path(forward).absolute().__str__() + ", "
-    string += Path(reverse).absolute().__str__() + ", "
+    string += id_prefix + id_index.__str__() + ","
+    string += Path(forward).absolute().__str__() + ","
+    string += Path(reverse).absolute().__str__() + ","
 
     id_index += 1
 
