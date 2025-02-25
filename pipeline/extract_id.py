@@ -29,9 +29,18 @@ parser.add_argument(
         """
         If you specify this TRUE, The data with the passed id removed is output
         """
-        )
+    )
 )
 
 args = parser.parse_args()
 with open(args.input_path, "r") as file:
-    reader = csv.reader(file)
+    reader = csv.reader(file, delimiter="\t")
+
+    result = ""
+    for row in reader:
+        if row[0] in args.targets:
+            continue
+
+        result += "\t".join(row)
+
+    print(result)
