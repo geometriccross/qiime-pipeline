@@ -24,3 +24,5 @@ done
 
 python pipeline/create_manifest.py "${DATA_SOURCE}" > "${MANI}"
 python pipeline/create_master_csv.py "${META_SOURCE}" > "${META}"
+
+./pipeline/pipeline.sh
