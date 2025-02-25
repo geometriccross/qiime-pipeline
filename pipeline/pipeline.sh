@@ -7,7 +7,7 @@ mkdir -p "${RAREFACTION_DIR}"
 
 qiime tools import \
 	--type 'SampleData[PairedEndSequencesWithQuality]' \
-	--input-format CasavaOneEightSingleLanePerSampleDirFmt \
+	--input-format PairedEndFastqManifestPhred33V2 \
 	--input-path "${MANI}" \
 	--output-path "${RAREFACTION_DIR}/paired_end_demux.qza"
 
