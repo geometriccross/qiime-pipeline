@@ -47,7 +47,7 @@ with open(args.input_path, "r") as file:
 
     result = ""
     for row in reader:
-        if row[0] in args.targets:
+        if row[0] in targets:
             continue
 
         result += "\t".join(row)
