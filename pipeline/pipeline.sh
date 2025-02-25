@@ -22,7 +22,9 @@ qiime dada2 denoise-paired \
 	--p-trim-left-r 21 \
 	--p-trunc-len-f 250 \
 	--p-trunc-len-r 250 \
-	--output-dir "${RAREFACTION_DIR}/denoise"
+	--o-table "${RAREFACTION_DIR}/denoised_table.qza" \
+	--o-representative-sequences "${RAREFACTION_DIR}/denoised_seq.qza"
+	--o-denoising-stats "${RAREFACTION_DIR}/denoised_stats.qza"
 
 qiime feature-table summarize \
 	--i-table first/denoise/table.qza \
