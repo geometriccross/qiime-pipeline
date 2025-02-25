@@ -7,22 +7,22 @@ mkdir -p "${RAREFACTION_DIR}"
 
 qiime tools import \
 	--type 'SampleData[PairedEndSequencesWithQuality]' \
-	--input-path "${MANI}" \
 	--input-format CasavaOneEightSingleLanePerSampleDirFmt \
-	--output-path "${OUT}"/paired_end_demux.qza
+	--input-path "${MANI}" \
+	--output-path "${RAREFACTION_DIR}"/paired_end_demux.qza
 
 qiime demux summarize \
-	--i-data "${OUT}"/paired_end_demux.qza \
-	--o-visualization "${OUT}"/paired_end_demux.qzv
+	--i-data "${RAREFACTION_DIR}"/paired_end_demux.qza \
+	--o-visualization "${RAREFACTION_DIR}"/paired_end_demux.qzv
 
 qiime dada2 denoise-paired \
-	--i-demultiplexed-seqs "${OUT}"/paired_end_demux.qza \
+	--i-demultiplexed-seqs "${RAREFACTION_DIR}"/paired_end_demux.qza \
 	--p-n-threads 0 \
 	--p-trim-left-f 17 \
 	--p-trim-left-r 21 \
 	--p-trunc-len-f 250 \
 	--p-trunc-len-r 250 \
-	--output-dir "${OUT}"/denoise
+	--output-dir "${RAREFACTION_DIR}"/denoise
 
 qiime feature-table summarize \
 	--i-table first/denoise/table.qza \
