@@ -1,3 +1,4 @@
+import csv
 import argparse
 from textwrap import dedent
 
@@ -29,3 +30,7 @@ parser.add_argument(
         """
         )
 )
+
+args = parser.parse_args()
+with open(args.input_path, "r") as file:
+    reader = csv.reader(file)
