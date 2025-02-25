@@ -51,5 +51,6 @@ with open(args.input_path, "r") as file:
             continue
 
         result += "\t".join(row)
+        result += "\n"
 
     print(result)
