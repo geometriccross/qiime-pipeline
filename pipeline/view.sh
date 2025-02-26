@@ -18,3 +18,4 @@ win_path=$(unzip -o "${1}" -d "${dest}" |
 	grep data/index.html |
 	xargs wslpath -w)
 
+"${BROWSER}" "${win_path}"
