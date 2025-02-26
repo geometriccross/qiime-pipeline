@@ -12,6 +12,9 @@ if [[ -z "${BROWSER}" ]]; then
 	echo ENV BROWSER not set >/dev/stderr
 fi
 
-unzip -o "${1}" -d "${dest}" |
+dest="/tmp/$(date +%s | sha256sum | base64 | head -c 32)"
+win_path=$(unzip -o "${1}" -d "${dest}" |
 	sed "s/  inflating: //g" |
-	grep data/index.html
+	grep data/index.html |
+	xargs wslpath -w)
+
