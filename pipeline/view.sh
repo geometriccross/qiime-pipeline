@@ -14,7 +14,4 @@ fi
 
 unzip -o "${1}" -d "${dest}" |
 	sed "s/  inflating: //g" |
-	xargs -I F dirname F |
-	grep data |
-	sort |
-	head -1
+	grep data/index.html
