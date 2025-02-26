@@ -2,31 +2,6 @@
 
 set -e -x
 
-RAREFACTION_DIR="${OUT}/rare_$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 10 | head -1)"
-mkdir -p "${RAREFACTION_DIR}"
-
-qiime tools import \
-	--type 'SampleData[PairedEndSequencesWithQuality]' \
-	--input-format PairedEndFastqManifestPhred33V2 \
-	--input-path "${MANI}" \
-	--output-path "${RAREFACTION_DIR}/paired_end_demux.qza"
-
-qiime demux summarize \
-	--i-data "${RAREFACTION_DIR}/paired_end_demux.qza" \
-	--o-visualization "${RAREFACTION_DIR}/paired_end_demux.qzv"
-
-qiime dada2 denoise-paired \
-	--i-demultiplexed-seqs "${RAREFACTION_DIR}/paired_end_demux.qza" \
-	--p-n-threads 0 \
-	--p-trim-left-f 17 \
-	--p-trim-left-r 21 \
-	--p-trunc-len-f 250 \
-	--p-trunc-len-r 250 \
-	--o-table "${RAREFACTION_DIR}/denoised_table.qza" \
-	--o-representative-sequences "${RAREFACTION_DIR}/denoised_seq.qza" \
-	--o-denoising-stats "${RAREFACTION_DIR}/denoised_stats.qza"
-
-# qiime feature-table summarize \
 # 	--i-table first/denoise/table.qza \
 # 	--o-visualization first/denoise/table.qzv \
 # 	--m-sample-metadata-file source/metadata/bat-fleas-metadata.tsv &
