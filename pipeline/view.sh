@@ -11,3 +11,10 @@ fi
 if [[ -z "${BROWSER}" ]]; then
 	echo ENV BROWSER not set >/dev/stderr
 fi
+
+unzip -o "${1}" -d "${dest}" |
+	sed "s/  inflating: //g" |
+	xargs -I F dirname F |
+	grep data |
+	sort |
+	head -1
