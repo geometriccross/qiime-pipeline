@@ -52,7 +52,7 @@ construct_result_collection () {
 
 # This tells bash to -e exit immediately if a command fails
 # and -x show all commands in stdout so you can track progress
-set -e -x
+set -e
 
 qiime rescript get-silva-data \
 	--quite \
