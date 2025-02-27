@@ -62,16 +62,14 @@ qiime feature-classifier classify-sklearn \
 	--i-reads "${PRE}/common_biology_free_seq.qza" \
 	--o-classification "${PRE}/common_biology_free_classification.qza"
 
-# # 〈多様性解析〉
-# # 次に多様性解析を行うための指数を算出しましょう。
-# # ここで用いる「--p-sampling-depth」は、1次解析の際に算出したものを用いてください。
-#
-# qiime diversity core-metrics-phylogenetic \
-# 	--i-phylogeny second/align-to-tree-mafft-fasttree/filtered-rooted_tree.qza \
-# 	--i-table second/filtered/filtered-table.qza \
-# 	--p-sampling-depth 15000 \
-# 	--m-metadata-file source/metadata/bat-fleas-filtered-metadata.tsv \
-# 	--output-dir second/core-metrics-results
+CORE="${OUT}/core_$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 10 | head -1)"
+
+qiime diversity core-metrics-phylogenetic \
+	--m-metadata-file "${META}" \
+	--p-sampling-depth "${SAMPLING_DEPTH}" \
+	--i-phylogeny "${PRE}/common_biology_free_rooted-tree.qza" \
+	--i-table "${PRE}/common_biology_free_table.qza" \
+	--output-dir "${CORE}"
 #
 # # 成功すれば、「core-metrics-result」というフォルダが作成されるはずです。
 # # この中身にはα多様性解析の指数となる「shannon_vector.qza」や、β多様性解析の指数となる「jaccard_distance_matrix.qza」など重要なファイルたちが入っています。
