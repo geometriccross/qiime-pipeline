@@ -30,7 +30,8 @@ qiime feature-table filter-samples \
 
 qiime feature-table filter-seqs \
 	--i-data "${PRE}/denoised_seq.qza" \
-	--i-table "${PRE}/filtered_table.qza"	
+	--i-table "${PRE}/filtered_table.qza" \
+	--o-filtered-data "${PRE}/filtered_seq.qza"
 
 # qiime feature-table tabulate-seqs \
 # 	--i-data "${PRE}/resampled_table.qza" \
