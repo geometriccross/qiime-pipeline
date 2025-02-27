@@ -76,6 +76,26 @@ excludes_extract=$(
 		# shellcheck disable=SC1040
 	EOF
 )
+PRE="${OUT}/main_$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 10 | head -1)"
+mkdir -p "${PRE}"
+
+qiime tools import \
+	--type 'SampleData[PairedEndSequencesWithQuality]' \
+	--input-format PairedEndFastqManifestPhred33V2 \
+	--input-path "${MANI}" \
+	--output-path "${PRE}/paired_end_demux.qza" >/dev/null
+
+qiime dada2 denoise-paired \
+	--quiet \
+	--p-n-threads 0 \
+	--p-trim-left-f 17 \
+	--p-trim-left-r 21 \
+	--p-trunc-len-f 250 \
+	--p-trunc-len-r 250 \
+	--i-demultiplexed-seqs "${PRE}/paired_end_demux.qza" \
+	--o-table "${PRE}/denoised_table.qza" \
+	--o-representative-sequences "${PRE}/denoised_seq.qza" \
+	--o-denoising-stats "${PRE}/denoised_stats.qza"
 
 awk -v EXCLUDE="${not_reached[*]}" -- "$excludes_extract" source/metadata/bat-fleas-metadata.tsv >source/metadata/bat-fleas-not-reached-metadata.tsv
 
@@ -115,6 +135,9 @@ awk -v EXCLUDE="${not_reached[*]}" "$filter_script" source/metadata/bat-fleas-me
 # 以下のコマンドを実行し、確認してください。
 
 wait
+    --p-min-frequency "${SAMPLING_DEPTH}" \
+    --i-table "${PRE}/denoised_table.qza" \
+    --o-filtered-table "${PRE}/filtered_sample.qza"
 
 qiime feature-table summarize \
 	--i-table first/current-data/current-table.qza \
@@ -212,6 +235,7 @@ qiime taxa filter-seqs \
 # 次に、削除したデータをもとにした系統樹を作成します。
 
 wait
+	--o-visualization "${PRE}/feature_table.qzv"
 
 qiime phylogeny align-to-tree-mafft-fasttree \
 	--i-sequences second/filtered/filtered-sequences.qza --output-dir second/align-to-tree-mafft-fasttree
