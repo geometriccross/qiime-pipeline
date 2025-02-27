@@ -54,6 +54,11 @@ construct_result_collection () {
 # and -x show all commands in stdout so you can track progress
 set -e
 
+current_dir=$(pwd)
+SILVA="${OUT}/silva_$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 10 | head -1)"
+mkdir -p "${SILVA}"
+cd "$(realpath ${SILVA})"
+
 qiime rescript get-silva-data \
 	--quite \
 	--p-version 138.2 \
@@ -152,3 +157,5 @@ qiime feature-classifier fit-classifier-naive-bayes \
 # The following QIIME 2 Results were parsed to produce this script:
 # db4a499c-e5d7-4dd2-81e9-b5d6c14a65aa
 ###############################################################################
+
+cd "${current_dir}"
