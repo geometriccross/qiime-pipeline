@@ -60,7 +60,7 @@ mkdir -p "${SILVA}"
 cd "$(realpath ${SILVA})"
 
 qiime rescript get-silva-data \
-	--quite \
+	--quiet \
 	--p-version 138.2 \
 	--p-target SSURef_NR99 \
 	--p-include-species-labels \
@@ -70,7 +70,7 @@ qiime rescript get-silva-data \
 	--o-silva-sequences silva-sequences-0.qza
 
 qiime rescript cull-seqs \
-	--quite \
+	--quiet \
 	--i-sequences silva-sequences-0.qza \
 	--p-num-degenerates 5 \
 	--p-homopolymer-length 8 \
@@ -78,7 +78,7 @@ qiime rescript cull-seqs \
 	--o-clean-sequences clean-sequences-0.qza
 
 qiime rescript filter-seqs-length-by-taxon \
-	--quite \
+	--quiet \
 	--i-sequences clean-sequences-0.qza \
 	--i-taxonomy silva-taxonomy-0.qza \
 	--p-labels Archaea Bacteria Eukaryota \
@@ -87,7 +87,7 @@ qiime rescript filter-seqs-length-by-taxon \
 	--o-discarded-seqs XX_discarded_seqs
 
 qiime rescript dereplicate \
-	--quite \
+	--quiet \
 	--i-sequences filtered-seqs-0.qza \
 	--i-taxa silva-taxonomy-0.qza \
 	--p-mode uniq \
@@ -99,7 +99,7 @@ qiime rescript dereplicate \
 	--o-dereplicated-sequences dereplicated-sequences-0.qza
 
 qiime feature-classifier extract-reads \
-	--quite \
+	--quiet \
 	--i-sequences dereplicated-sequences-0.qza \
 	--p-f-primer ACTCCTACGGGAGGCAGCAG \
 	--p-r-primer GGACTACHVGGGTWTCTAAT \
@@ -115,7 +115,7 @@ qiime feature-classifier extract-reads \
 	--o-reads reads-0.qza
 
 qiime rescript dereplicate \
-	--quite \
+	--quiet \
 	--i-sequences reads-0.qza \
 	--i-taxa dereplicated-taxa-0.qza \
 	--p-mode uniq \
@@ -127,7 +127,7 @@ qiime rescript dereplicate \
 	--o-dereplicated-taxa dereplicated-taxa-1.qza
 
 qiime feature-classifier fit-classifier-naive-bayes \
-	--quite \
+	--quiet \
 	--i-reference-reads dereplicated-sequences-1.qza \
 	--i-reference-taxonomy dereplicated-taxa-1.qza \
 	--p-classify--alpha 0.001 \
