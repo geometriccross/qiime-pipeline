@@ -1,6 +1,6 @@
 #!/bin/bash
 
-tmp="out/$(date +%h%d-%H-%m)_$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 10 | head -1)"
+tmp="out/$(date +%h%d-%H-%M)_$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 10 | head -1)"
 export OUT="${tmp}"
 unset tmp
 
