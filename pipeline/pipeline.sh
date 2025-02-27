@@ -2,80 +2,6 @@
 
 set -e -x
 
-# 	--i-table first/denoise/table.qza \
-# 	--o-visualization first/denoise/table.qzv \
-# 	--m-sample-metadata-file source/metadata/bat-fleas-metadata.tsv &
-
-# qiime feature-table tabulate-seqs \
-# 	--i-data first/denoise/representative_sequences.qza \
-# 	--o-visualization first/denoise/representative_sequences.qzv &
-
-# qiime metadata tabulate \
-# 	--m-input-file first/denoise/denoising_stats.qza \
-# 	--o-visualization first/denoise/denoising_stats.qzv &
-
-# 結果の解釈については
-# 「https://forum.qiime2.org/t/table-summary-question/16300」
-# 「https://forum.qiime2.org/t/number-of-samples-and-frequency-per-samples-vs-number-of-features-and-frequencies-per-features/8538/8」
-# が役立つと思います。
-#
-# 〈Sampling depthの決定〉
-# 次に、用いるリード数のカットオフ値を決めていきます。
-# あまりにもリード数が少ないようなサンプルがある場合、後々の解析に影響を与えかねません。
-# そのためにここで除外しておきましょう。
-# 以下のコマンドを実行していってください。
-
-qiime phylogeny align-to-tree-mafft-fasttree \
-	--i-sequences "${RAREFACTION_DIR}/denoised_seq.qza" \
-	--o-alignment "${RAREFACTION_DIR}/aligned-rep-seqs.qza" \
-    --o-masked-alignment "${RAREFACTION_DIR}/masked-aligned-rep-seqs.qza" \
-    --o-tree "${RAREFACTION_DIR}/unrooted-tree.qza" \
-    --o-rooted-tree "${RAREFACTION_DIR}/rooted-tree.qza"
-
-qiime diversity alpha-rarefaction \
-	--p-min-depth 1 \
-	--p-max-depth 50000 \
-	--m-metadata-file "${META}" \
-	--i-table "${RAREFACTION_DIR}/denoised_table.qza" \
-	--i-phylogeny "${RAREFACTION_DIR}/rooted-tree.qza" \
-	--o-visualization "${RAREFACTION_DIR}/alpha_rarefaction.qzv"
-
-# 曲線がおおよそプラトーに達する部分の手前ほどでSampling depthを決定します。
-# （table.qzvの「Interactive Sample Detail」を調整しながら、Sampling-depthを決定しても構いません）
-# 今回のデータでは、“Sampling-depth=15,000”とします。
-#
-# “Sampling-depth=15,000”に達しなかったbat-fleas検体(#=5)
-# Sample ID	Sequence count
-# Ba-fle7		7,933
-# Ba-fle6		7,620
-# Ba-fle17	6,056
-# Ba-fle19	3,245
-# Ba-fle20	2,877
-#
-# この検体を変数に格納します。
-# 以下のコマンドを実行してください。
-
-not_reached=(Ba-fle7 Ba-fle6 Ba-fle17 Ba-fle19 Ba-fle20)
-
-# 次に「representative_sequences.qzv」「table.qzv」から達しなかった検体のデータを削除していきます
-
-excludes_extract=$(
-	cat <<-'EOF'
-		BEGIN {
-			split(EXCLUDE, excludes)
-			for (e in excludes) {
-				exclude_dict[excludes[e]] = 1
-			}
-		}
-
-		# ヘッダーは飛ばす
-		# $1がexcludesにあれば出力
-		NR==1 || $1 in exclude_dict {
-			print $0
-		}
-		# shellcheck disable=SC1040
-	EOF
-)
 PRE="${OUT}/main_$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 10 | head -1)"
 mkdir -p "${PRE}"
 
@@ -97,57 +23,12 @@ qiime dada2 denoise-paired \
 	--o-representative-sequences "${PRE}/denoised_seq.qza" \
 	--o-denoising-stats "${PRE}/denoised_stats.qza"
 
-awk -v EXCLUDE="${not_reached[*]}" -- "$excludes_extract" source/metadata/bat-fleas-metadata.tsv >source/metadata/bat-fleas-not-reached-metadata.tsv
-
-mkdir first/current-data
 qiime feature-table filter-samples \
-	--p-exclude-ids \
-	--m-metadata-file source/metadata/bat-fleas-not-reached-metadata.tsv \
-	--i-table first/denoise/table.qza \
-	--o-filtered-table first/current-data/current-table.qza &
-
-qiime feature-table filter-seqs \
-	--p-exclude-ids \
-	--m-metadata-file source/metadata/bat-fleas-not-reached-metadata.tsv \
-	--i-data first/denoise/representative_sequences.qza \
-	--o-filtered-data first/current-data/current-sequences.qza &
-
-# metadataも新しく作り直します。
-
-filter_script=$(
-	cat <<-'EOF'
-		BEGIN {
-			split(EXCLUDE, excludes)
-			for (e in excludes) {
-				exclude_dict[excludes[e]] = 1
-			}
-		}
-
-		# $1がexcludesになければ出力
-		!($1 in exclude_dict) {
-			print $0
-		}
-	EOF
-)
-
-awk -v EXCLUDE="${not_reached[*]}" "$filter_script" source/metadata/bat-fleas-metadata.tsv >source/metadata/bat-fleas-filtered-metadata.tsv
-
-# 以下のコマンドを実行し、確認してください。
-
-wait
     --p-min-frequency "${SAMPLING_DEPTH}" \
     --i-table "${PRE}/denoised_table.qza" \
     --o-filtered-table "${PRE}/filtered_sample.qza"
 
 qiime feature-table summarize \
-	--i-table first/current-data/current-table.qza \
-	--o-visualization first/current-data/current-table.qzv \
-	--m-sample-metadata-file source/metadata/bat-fleas-filtered-metadata.tsv &
-
-qiime feature-table tabulate-seqs \
-	--i-data first/current-data/current-sequences.qza \
-	--o-visualization first/current-data/current-sequences.qzv &
-
 # 〈Taxonomic analysisについて〉
 # 今回使うデータベースはSilvaです。
 
