@@ -59,7 +59,7 @@ qiime phylogeny align-to-tree-mafft-fasttree \
 
 qiime feature-classifier classify-sklearn \
 	--i-classifier "${DB}" \
-	--o-filtered-sequences "${PRE}/common_biology_free_seq.qza" \
+	--i-reads "${PRE}/common_biology_free_seq.qza" \
 	--o-classification "${PRE}/common_biology_free_classification.qza"
 
 # # 〈多様性解析〉
