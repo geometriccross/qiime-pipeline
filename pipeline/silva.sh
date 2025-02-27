@@ -55,7 +55,7 @@ construct_result_collection () {
 set -e
 
 current_dir=$(pwd)
-SILVA="${OUT}/silva_$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 10 | head -1)"
+SILVA="${OUT}/silva"
 mkdir -p "${SILVA}"
 cd "$(realpath ${SILVA})"
 
