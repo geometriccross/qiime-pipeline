@@ -55,90 +55,97 @@ construct_result_collection () {
 set -e -x
 
 qiime rescript get-silva-data \
-  --p-version 138.2 \
-  --p-target SSURef_NR99 \
-  --p-include-species-labels \
-  --p-rank-propagation \
-  --p-download-sequences \
-  --o-silva-taxonomy silva-taxonomy-0.qza \
-  --o-silva-sequences silva-sequences-0.qza
+	--quite \
+	--p-version 138.2 \
+	--p-target SSURef_NR99 \
+	--p-include-species-labels \
+	--p-rank-propagation \
+	--p-download-sequences \
+	--o-silva-taxonomy silva-taxonomy-0.qza \
+	--o-silva-sequences silva-sequences-0.qza
 
 qiime rescript cull-seqs \
-  --i-sequences silva-sequences-0.qza \
-  --p-num-degenerates 5 \
-  --p-homopolymer-length 8 \
-  --p-n-jobs 8 \
-  --o-clean-sequences clean-sequences-0.qza
+	--quite \
+	--i-sequences silva-sequences-0.qza \
+	--p-num-degenerates 5 \
+	--p-homopolymer-length 8 \
+	--p-n-jobs 8 \
+	--o-clean-sequences clean-sequences-0.qza
 
 qiime rescript filter-seqs-length-by-taxon \
-  --i-sequences clean-sequences-0.qza \
-  --i-taxonomy silva-taxonomy-0.qza \
-  --p-labels Archaea Bacteria Eukaryota \
-  --p-min-lens 900 1200 1400 \
-  --o-filtered-seqs filtered-seqs-0.qza \
-  --o-discarded-seqs XX_discarded_seqs
+	--quite \
+	--i-sequences clean-sequences-0.qza \
+	--i-taxonomy silva-taxonomy-0.qza \
+	--p-labels Archaea Bacteria Eukaryota \
+	--p-min-lens 900 1200 1400 \
+	--o-filtered-seqs filtered-seqs-0.qza \
+	--o-discarded-seqs XX_discarded_seqs
 
 qiime rescript dereplicate \
-  --i-sequences filtered-seqs-0.qza \
-  --i-taxa silva-taxonomy-0.qza \
-  --p-mode uniq \
-  --p-perc-identity 1.0 \
-  --p-threads 8 \
-  --p-rank-handles domain phylum class order family genus species \
-  --p-no-derep-prefix \
-  --o-dereplicated-taxa dereplicated-taxa-0.qza \
-  --o-dereplicated-sequences dereplicated-sequences-0.qza
+	--quite \
+	--i-sequences filtered-seqs-0.qza \
+	--i-taxa silva-taxonomy-0.qza \
+	--p-mode uniq \
+	--p-perc-identity 1.0 \
+	--p-threads 8 \
+	--p-rank-handles domain phylum class order family genus species \
+	--p-no-derep-prefix \
+	--o-dereplicated-taxa dereplicated-taxa-0.qza \
+	--o-dereplicated-sequences dereplicated-sequences-0.qza
 
 qiime feature-classifier extract-reads \
-  --i-sequences dereplicated-sequences-0.qza \
-  --p-f-primer ACTCCTACGGGAGGCAGCAG \
-  --p-r-primer GGACTACHVGGGTWTCTAAT \
-  --p-trim-right 0 \
-  --p-trunc-len 0 \
-  --p-trim-left 0 \
-  --p-identity 0.8 \
-  --p-min-length 50 \
-  --p-max-length 0 \
-  --p-n-jobs 8 \
-  --p-batch-size auto \
-  --p-read-orientation forward \
-  --o-reads reads-0.qza
+	--quite \
+	--i-sequences dereplicated-sequences-0.qza \
+	--p-f-primer ACTCCTACGGGAGGCAGCAG \
+	--p-r-primer GGACTACHVGGGTWTCTAAT \
+	--p-trim-right 0 \
+	--p-trunc-len 0 \
+	--p-trim-left 0 \
+	--p-identity 0.8 \
+	--p-min-length 50 \
+	--p-max-length 0 \
+	--p-n-jobs 8 \
+	--p-batch-size auto \
+	--p-read-orientation forward \
+	--o-reads reads-0.qza
 
 qiime rescript dereplicate \
-  --i-sequences reads-0.qza \
-  --i-taxa dereplicated-taxa-0.qza \
-  --p-mode uniq \
-  --p-perc-identity 1.0 \
-  --p-threads 8 \
-  --p-rank-handles domain phylum class order family genus species \
-  --p-no-derep-prefix \
-  --o-dereplicated-sequences dereplicated-sequences-1.qza \
-  --o-dereplicated-taxa dereplicated-taxa-1.qza
+	--quite \
+	--i-sequences reads-0.qza \
+	--i-taxa dereplicated-taxa-0.qza \
+	--p-mode uniq \
+	--p-perc-identity 1.0 \
+	--p-threads 8 \
+	--p-rank-handles domain phylum class order family genus species \
+	--p-no-derep-prefix \
+	--o-dereplicated-sequences dereplicated-sequences-1.qza \
+	--o-dereplicated-taxa dereplicated-taxa-1.qza
 
 qiime feature-classifier fit-classifier-naive-bayes \
-  --i-reference-reads dereplicated-sequences-1.qza \
-  --i-reference-taxonomy dereplicated-taxa-1.qza \
-  --p-classify--alpha 0.001 \
-  --p-classify--chunk-size 20000 \
-  --p-classify--class-prior null \
-  --p-no-classify--fit-prior \
-  --p-no-feat-ext--alternate-sign \
-  --p-feat-ext--analyzer char_wb \
-  --p-no-feat-ext--binary \
-  --p-feat-ext--decode-error strict \
-  --p-feat-ext--encoding utf-8 \
-  --p-feat-ext--input content \
-  --p-feat-ext--lowercase \
-  --p-feat-ext--n-features 8192 \
-  --p-feat-ext--ngram-range '[7, 7]' \
-  --p-feat-ext--norm l2 \
-  --p-feat-ext--preprocessor null \
-  --p-feat-ext--stop-words null \
-  --p-feat-ext--strip-accents null \
-  --p-feat-ext--token-pattern '(?u)\b\w\w+\b' \
-  --p-feat-ext--tokenizer null \
-  --p-no-verbose \
-  --o-classifier classifier-0.qza
+	--quite \
+	--i-reference-reads dereplicated-sequences-1.qza \
+	--i-reference-taxonomy dereplicated-taxa-1.qza \
+	--p-classify--alpha 0.001 \
+	--p-classify--chunk-size 20000 \
+	--p-classify--class-prior null \
+	--p-no-classify--fit-prior \
+	--p-no-feat-ext--alternate-sign \
+	--p-feat-ext--analyzer char_wb \
+	--p-no-feat-ext--binary \
+	--p-feat-ext--decode-error strict \
+	--p-feat-ext--encoding utf-8 \
+	--p-feat-ext--input content \
+	--p-feat-ext--lowercase \
+	--p-feat-ext--n-features 8192 \
+	--p-feat-ext--ngram-range '[7, 7]' \
+	--p-feat-ext--norm l2 \
+	--p-feat-ext--preprocessor null \
+	--p-feat-ext--stop-words null \
+	--p-feat-ext--strip-accents null \
+	--p-feat-ext--token-pattern '(?u)\b\w\w+\b' \
+	--p-feat-ext--tokenizer null \
+	--p-no-verbose \
+	--o-classifier classifier-0.qza
 
 
 ###############################################################################
