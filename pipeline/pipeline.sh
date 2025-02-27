@@ -2,7 +2,7 @@
 
 set -e -x
 
-PRE="${OUT}/main_$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 10 | head -1)"
+PRE="${OUT}/pre_$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 10 | head -1)"
 mkdir -p "${PRE}"
 
 qiime tools import \
