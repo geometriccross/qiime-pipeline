@@ -33,169 +33,35 @@ qiime feature-table filter-seqs \
 	--i-table "${PRE}/filtered_table.qza" \
 	--o-filtered-data "${PRE}/filtered_seq.qza"
 
-# qiime feature-table tabulate-seqs \
-# 	--i-data "${PRE}/resampled_table.qza" \
-# 	--o-visualization "${PRE}/representative_sequences.qzv"
-#
-# ./pipeline/view.sh
+qiime feature-classifier classify-sklearn \
+	--i-classifier "${DB}" \
+	--i-reads "${PRE}/filtered_seq.qza" \
+	--o-classification "${PRE}/classification.qza"
 
-# mkdir first/current-data
-# qiime feature-table filter-samples \
-# 	--p-exclude-ids \
-# 	--m-metadata-file source/metadata/bat-fleas-not-reached-metadata.tsv \
-# 	--i-table first/denoise/table.qza \
-# 	--o-filtered-table first/current-data/current-table.qza &
-#
-# qiime feature-table filter-seqs \
-# 	--p-exclude-ids \
-# 	--m-metadata-file source/metadata/bat-fleas-not-reached-metadata.tsv \
-# 	--i-data first/denoise/representative_sequences.qza \
-# 	--o-filtered-data first/current-data/current-sequences.qza &
-#
-# # metadataも新しく作り直します。
-#
-# filter_script=$(
-# 	cat <<-'EOF'
-# 		BEGIN {
-# 			split(EXCLUDE, excludes)
-# 			for (e in excludes) {
-# 				exclude_dict[excludes[e]] = 1
-# 			}
-# 		}
-#
-# 		# $1がexcludesになければ出力
-# 		!($1 in exclude_dict) {
-# 			print $0
-# 		}
-# 	EOF
-# )
-#
-# awk -v EXCLUDE="${not_reached[*]}" "$filter_script" source/metadata/bat-fleas-metadata.tsv >source/metadata/bat-fleas-filtered-metadata.tsv
-#
-# # 以下のコマンドを実行し、確認してください。
-#
-# wait
-#
-# qiime feature-table summarize \
-# 	--i-table first/current-data/current-table.qza \
-# 	--o-visualization first/current-data/current-table.qzv \
-# 	--m-sample-metadata-file source/metadata/bat-fleas-filtered-metadata.tsv &
-#
-# qiime feature-table tabulate-seqs \
-# 	--i-data first/current-data/current-sequences.qza \
-# 	--o-visualization first/current-data/current-sequences.qzv &
-#
-# # 〈Taxonomic analysisについて〉
-# # 今回使うデータベースはSilvaです。
-#
-# qiime feature-classifier classify-sklearn \
-# 	--i-classifier source/db/classifier-silva138.qza \
-# 	--i-reads first/current-data/current-sequences.qza \
-# 	--output-dir first/taxonomy
-#
-# qiime metadata tabulate \
-# 	--m-input-file first/taxonomy/classification.qza \
-# 	--o-visualization first/taxonomy/classification.qzv &
-#
-# qiime taxa barplot \
-# 	--i-table first/denoise/table.qza \
-# 	--i-taxonomy first/taxonomy/classification.qza \
-# 	--m-metadata-file source/metadata/bat-fleas-filtered-metadata.tsv \
-# 	--o-visualization first/taxonomy/taxonomy-bar-plots.qzv &
-#
-# # --------------------------------------------------------------------------------------------
-# #!/bin/bash
-# # 【はじめに】
-# # 1次解析を終えて、以下のようなディレクトリになっているはずです
-#
-# # ├── first
-# # │   ├── align-to-tree-mafft-fasttree
-# # │   │   ├── alignment.qza
-# # │   │   ├── masked_alignment.qza
-# # │   │   ├── rooted_tree.qza
-# # │   │   └── tree.qza
-# # │   ├── current-data
-# # │   │   ├── current-sequences.qza
-# # │   │   ├── current-sequences.qzv
-# # │   │   ├── current-table.qza
-# # │   │   └── current-table.qzv
-# # │   ├── demux
-# # │   │   ├── demux-paired-end.qza
-# # │   │   └── demux-paired-end.qzv
-# # │   ├── denoise
-# # │   │   ├── denoising_stats.qza
-# # │   │   ├── denoising_stats.qzv
-# # │   │   ├── representative_sequences.qza
-# # │   │   ├── representative_sequences.qzv
-# # │   │   ├── table.qza
-# # │   │   └── table.qzv
-# # │   └── taxonomy
-# # │       ├── classification.qza
-# # │       └── classification.qzv
-# # └── source
-# #     ├── batfleas-191217
-# #  	|	└── たくさんのfastqファイル
-# #     ├── db
-# #     │   └── classifier-silva138.qza
-# #     └── metadata
-# #         ├── bat-fleas-filtered-metadata.tsv
-# #         └── bat-fleas-metadata.tsv
-#
-# # このうち、今回使用するファイルは以下の通りです
-# # first/current-data/current-table.qza
-# # first/current-data/current-sequences.qza
-# # first/taxonomy/classification.qza
-# # source/metadata/bat-fleas-filtered-metadata.tsv
-#
-# # 【コマンドライン 2次解析】
-# # 〈不必要なデータの削除〉
-# # 1次解析においてCyanobacteria，Mitochondoria,Chloroplastに分類されたFeatureが確認された場合、これを除かなければなりません。
-# # 以下のコマンドで削除していきます。
-#
-# set -e -x
-#
-# mkdir -p second/filtered
-#
-# echo "taxa filter-table" &&
-# 	qiime taxa filter-table \
-# 		--i-table first/current-data/current-table.qza \
-# 		--i-taxonomy first/taxonomy/classification.qza \
-# 		--p-exclude mitochondria,cyanobacteria \
-# 		--o-filtered-table second/filtered/filtered-table.qza &
-#
-# qiime taxa filter-seqs \
-# 	--i-sequences first/current-data/current-sequences.qza \
-# 	--i-taxonomy first/taxonomy/classification.qza \
-# 	--p-exclude mitochondria,cyanobacteria \
-# 	--o-filtered-sequences second/filtered/filtered-sequences.qza &
-#
-# # 次に、削除したデータをもとにした系統樹を作成します。
-#
-# wait
-#
-# qiime phylogeny align-to-tree-mafft-fasttree \
-# 	--i-sequences second/filtered/filtered-sequences.qza --output-dir second/align-to-tree-mafft-fasttree
-#
-# (cd second/align-to-tree-mafft-fasttree && rename.ul "" filtered- *)
-#
-# # ここまでのコマンドで「mitochondria」「cyanobacteria」などが除かれたデータが作成できました。
-# # このデータを用いてTaxonomy解析も行います。
-#
-# qiime feature-classifier classify-sklearn \
-# 	--i-classifier source/db/classifier-silva138.qza \
-# 	--i-reads second/filtered/filtered-sequences.qza \
-# 	--output-dir second/taxonomy
-#
-# qiime metadata tabulate \
-# 	--m-input-file second/taxonomy/classification.qza \
-# 	--o-visualization second/taxonomy/classification.qzv &
-#
-# qiime taxa barplot \
-# 	--i-table second/filtered/filtered-table.qza \
-# 	--i-taxonomy second/taxonomy/classification.qza \
-# 	--m-metadata-file source/metadata/bat-fleas-filtered-metadata.tsv \
-# 	--o-visualization second/taxonomy/taxonomy-bar-plots.qzv &
-#
+qiime taxa filter-table \
+	--p-exclude mitochondria,cyanobacteria \
+	--i-table "${PRE}/filtered_table.qza" \
+	--i-taxonomy "${PRE}/classification.qza" \
+	--o-filtered-table "${PRE}/common_biology_free_table.qza"
+
+qiime taxa filter-seqs \
+	--p-exclude mitochondria,cyanobacteria \
+	--i-sequences "${PRE}/filtered_seq.qza" \
+	--i-taxonomy "${PRE}/classification.qza" \
+	--o-filtered-sequences "${PRE}/common_biology_free_seq.qza"
+
+qiime phylogeny align-to-tree-mafft-fasttree \
+	--i-sequences "${PRE}/common_biology_free_seq.qza" \
+	--o-alignment "${PRE}/common_biology_free_aligned-rep-seqs.qza" \
+    --o-masked-alignment "${PRE}/common_biology_free_masked-aligned-rep-seqs.qza" \
+    --o-tree "${PRE}/common_biology_free_unrooted-tree.qza" \
+    --o-rooted-tree "${PRE}/common_biology_free_rooted-tree.qza"
+
+qiime feature-classifier classify-sklearn \
+	--i-classifier 	--i-classifier "${DB}" \
+	--o-filtered-sequences "${PRE}/common_biology_free_seq.qza" \
+	--o-classification "${PRE}/common_biology_free_classification.qza"
+
 # # 〈多様性解析〉
 # # 次に多様性解析を行うための指数を算出しましょう。
 # # ここで用いる「--p-sampling-depth」は、1次解析の際に算出したものを用いてください。
