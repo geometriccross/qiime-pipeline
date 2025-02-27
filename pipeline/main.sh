@@ -13,8 +13,8 @@ export META="${OUT}/meta"
 while getopts m:c:o:f:x:s: OPT
 do
 	case $OPT in
-		o)	OUT=$2 ; shift;;
-		f)	FASTQ=$2 ; shift;;
+		o)	OUT=$OPTARG;;
+		f)	FASTQ=$OPTARG;;
 		m)	META_SOURCE=$OPTARG;;
 		c)	MANI=$OPTARG;;
 		x)	META=$OPTARG;;
