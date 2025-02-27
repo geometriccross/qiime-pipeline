@@ -152,7 +152,7 @@ qiime feature-classifier fit-classifier-naive-bayes \
 	--p-no-verbose \
 	--o-classifier classifier-0.qza
 
-
+echo $(realpath classifier-0.qza)
 ###############################################################################
 # The following QIIME 2 Results were parsed to produce this script:
 # db4a499c-e5d7-4dd2-81e9-b5d6c14a65aa
