@@ -27,9 +27,9 @@ mkdir -p "${OUT}"
 python pipeline/create_manifest.py "${DATA_SOURCE}" > "${MANI}"
 python pipeline/create_master.py "${META_SOURCE}" > "${META}"
 
-if [[ -z "${SAMPLING_DEPTH}" ]]; then
+# if variable was not set
+if [ -z ${SAMPLING_DEPTH+x} ]; then
 	./pipeline/rarefaction.sh | xargs ./pipeline/view.sh
-	exit 0
+else
+	./pipeline/pipeline.sh
 fi
-
-./pipeline/pipeline.sh
