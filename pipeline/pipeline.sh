@@ -24,33 +24,39 @@ qiime dada2 denoise-paired \
 	--o-denoising-stats "${PRE}/denoised_stats.qza"
 
 qiime feature-table filter-samples \
+	--quiet \
     --p-min-frequency "${SAMPLING_DEPTH}" \
     --i-table "${PRE}/denoised_table.qza" \
     --o-filtered-table "${PRE}/filtered_table.qza"
 
 qiime feature-table filter-seqs \
+	--quiet \
 	--i-data "${PRE}/denoised_seq.qza" \
 	--i-table "${PRE}/filtered_table.qza" \
 	--o-filtered-data "${PRE}/filtered_seq.qza"
 
 qiime feature-classifier classify-sklearn \
+	--quiet \
 	--i-classifier "${DB}" \
 	--i-reads "${PRE}/filtered_seq.qza" \
 	--o-classification "${PRE}/classification.qza"
 
 qiime taxa filter-table \
+	--quiet \
 	--p-exclude mitochondria,cyanobacteria \
 	--i-table "${PRE}/filtered_table.qza" \
 	--i-taxonomy "${PRE}/classification.qza" \
 	--o-filtered-table "${PRE}/common_biology_free_table.qza"
 
 qiime taxa filter-seqs \
+	--quiet \
 	--p-exclude mitochondria,cyanobacteria \
 	--i-sequences "${PRE}/filtered_seq.qza" \
 	--i-taxonomy "${PRE}/classification.qza" \
 	--o-filtered-sequences "${PRE}/common_biology_free_seq.qza"
 
 qiime phylogeny align-to-tree-mafft-fasttree \
+	--quiet \
 	--i-sequences "${PRE}/common_biology_free_seq.qza" \
 	--o-alignment "${PRE}/common_biology_free_aligned-rep-seqs.qza" \
     --o-masked-alignment "${PRE}/common_biology_free_masked-aligned-rep-seqs.qza" \
@@ -58,11 +64,13 @@ qiime phylogeny align-to-tree-mafft-fasttree \
     --o-rooted-tree "${PRE}/common_biology_free_rooted-tree.qza"
 
 qiime feature-classifier classify-sklearn \
+	--quiet \
 	--i-classifier "${DB}" \
 	--i-reads "${PRE}/common_biology_free_seq.qza" \
 	--o-classification "${PRE}/common_biology_free_classification.qza"
 
 qiime taxa barplot \
+	--quiet \
     --i-table "${PRE}/common_biology_free_table.qza" \
     --i-taxonomy "${PRE}/common_biology_free_classification.qza" \
 	--m-metadata-file "${META}" \
