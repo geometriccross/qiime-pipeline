@@ -1,14 +1,14 @@
 #!/bin/bash
 
 tmp="out/$(date +%h%d-%H-%M)_$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 10 | head -1)"
-export OUT="${tmp}"
+OUT="${tmp}"
 unset tmp
 
-export FASTQ="fastq"
-export META_SOURCE="meta"
-export DB="db/classifier.qza"
-export MANI="${OUT}/manifest"
-export META="${OUT}/meta"
+FASTQ="fastq"
+META_SOURCE="meta"
+DB="db/classifier.qza"
+MANI="${OUT}/manifest"
+META="${OUT}/meta"
 
 # https://unix.stackexchange.com/questions/706602/use-getopt-to-directly-retrieve-option-value
 while getopts m:c:o:f:x:s:d: OPT
@@ -36,8 +36,8 @@ fi
 
 # if variable was not set
 if [ -z ${SAMPLING_DEPTH+x} ]; then
-	./pipeline/rarefaction.sh | xargs ./pipeline/view.sh
+	source ./pipeline/rarefaction.sh | xargs ./pipeline/view.sh
 else
-	./pipeline/pipeline.sh
+	source ./pipeline/pipeline.sh
 fi
 
