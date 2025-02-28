@@ -62,14 +62,22 @@ qiime feature-classifier classify-sklearn \
 	--i-reads "${PRE}/common_biology_free_seq.qza" \
 	--o-classification "${PRE}/common_biology_free_classification.qza"
 
-CORE="${OUT}/core_$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 10 | head -1)"
-
-qiime diversity core-metrics-phylogenetic \
+qiime taxa barplot \
+    --i-table "${PRE}/common_biology_free_table.qza" \
+    --i-taxonomy "${PRE}/common_biology_free_classification.qza" \
 	--m-metadata-file "${META}" \
-	--p-sampling-depth "${SAMPLING_DEPTH}" \
-	--i-phylogeny "${PRE}/common_biology_free_rooted-tree.qza" \
-	--i-table "${PRE}/common_biology_free_table.qza" \
-	--output-dir "${CORE}"
+    --o-visualization "${PRE}/taxa-bar-plots.qzv"
+
+./pipeline/view.sh "${PRE}/taxa-bar-plots.qzv"
+
+# CORE="${OUT}/core_$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 10 | head -1)"
+#
+# qiime diversity core-metrics-phylogenetic \
+# 	--m-metadata-file "${META}" \
+# 	--p-sampling-depth "${SAMPLING_DEPTH}" \
+# 	--i-phylogeny "${PRE}/common_biology_free_rooted-tree.qza" \
+# 	--i-table "${PRE}/common_biology_free_table.qza" \
+# 	--output-dir "${CORE}"
 #
 # # 成功すれば、「core-metrics-result」というフォルダが作成されるはずです。
 # # この中身にはα多様性解析の指数となる「shannon_vector.qza」や、β多様性解析の指数となる「jaccard_distance_matrix.qza」など重要なファイルたちが入っています。
