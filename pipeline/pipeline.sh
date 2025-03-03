@@ -120,7 +120,7 @@ for item in "${col[@]}"; do
 		--m-metadata-file "${META}" \
 		--m-metadata-column "${item}" \
 		--i-distance-matrix "${CORE}/weighted_unifrac_distance_matrix.qza" \
-		--o-visualization "${BETA}/weighted-unifrac-distance-matrix-host_gender.qzv"
+		--o-visualization "${BETA}/weighted-unifrac-distance-matrix-{$item}.qzv"
 done
 
 # # -----------------------------------------------------------------------------------------------------------
