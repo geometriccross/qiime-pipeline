@@ -93,85 +93,36 @@ qiime metadata tabulate \
 
 ./pipeline/view.sh "${CORE}/faith_pd_vector.qzv"
 
-#
-# # 次に、「HostIDNo」についてのβ多様性解析を行いましょう。
-# # HostIDNoの列には、値が一つしかないものがあります。このような値はβ多様性解析にかけられません。
-# # このようなデータを1次解析でも行ったように、データを削除していきます。
-# # まず最初に、metadataを、HostIDNoの重複数が1以上かどうかで分けます。
-#
-# # 重複数が2個以上のもの
-# awk 'BEGIN {FS=OFS="\t"}
-# 	NR==1 {print; next}
-# 	{
-# 	    count[$19]++
-# 	    lines[$19,count[$19]] = $0
-# 	}
-# 	END {
-# 	    for (val in count) {
-# 	        if (count[val] > 1) {
-# 	            for (i=1; i<=count[val]; i++) {
-# 	                print lines[val,i]
-# 	            }
-# 	        }
-# 	    }
-# 	}' source/metadata/bat-fleas-metadata.tsv >source/metadata/bat-fleas-not-unique-metadata.tsv
-#
-# # 重複数が1個のもの
-# awk 'BEGIN {FS=OFS="\t"}
-# 	NR==1 {print; next}
-# 	{
-# 		count[$19]++
-# 	    lines[$19] = $0
-# 	}
-# 	END {
-# 		for (val in count) {
-# 			if (count[val] == 1) {
-# 				print lines[val]
-# 			}
-# 		}
-# 	}' source/metadata/bat-fleas-metadata.tsv >source/metadata/bat-fleas-unique-metadata.tsv
-#
-# # 次に、tableとsequenceから重複数1のデータを削除します。
-#
-# mkdir second/tuned-host-id
-# qiime feature-table filter-samples \
-# 	--p-exclude-ids \
-# 	--m-metadata-file source/metadata/bat-fleas-unique-metadata.tsv \
-# 	--i-table second/filtered/filtered-table.qza \
-# 	--o-filtered-table second/tuned-host-id/tuned-host-id-table.qza &
-#
-# qiime feature-table filter-seqs \
-# 	--p-exclude-ids \
-# 	--m-metadata-file source/metadata/bat-fleas-not-reached-metadata.tsv \
-# 	--i-data second/filtered/filtered-sequences.qza \
-# 	--o-filtered-data second/tuned-host-id/tuned-host-id-sequences.qza &
-#
-# # 次にrooted_treeを作成しましょう。
-#
-# wait
-#
-# qiime phylogeny align-to-tree-mafft-fasttree \
-# 	--i-sequences second/filtered/filtered-sequences.qza --output-dir second/tuned-host-id-tree
-#
-# (cd second/tuned-host-id-tree && rename.ul "" tuned-host-id- *)
-#
-# # このコマンドが成功すれば、source/metadataフォルダ以下に「bat-fleas-not-unique-metadata.tsv」が作成されているはずです。
-# # こちらのデータに合わせて再びcore-metrics-phylogeneticを作成します
-# # このファイルを用いて、解析を行います。
-#
-# qiime diversity core-metrics-phylogenetic \
-# 	--i-phylogeny second/tuned-host-id-tree/tuned-host-id-rooted_tree.qza \
-# 	--i-table second/tuned-host-id/tuned-host-id-table.qza \
-# 	--output-dir second/core-metrics-results-not-unique \
-# 	--m-metadata-file source/metadata/bat-fleas-not-unique-metadata.tsv \
-# 	--p-sampling-depth 15000
-#
-# qiime diversity beta-group-significance \
-# 	--p-pairwise \
-# 	--i-distance-matrix second/core-metrics-results-not-unique/weighted_unifrac_distance_matrix.qza \
-# 	--o-visualization second/core-metrics-results-not-unique/weighted_unifrac_distance_matrix-host-id-no.qzv \
-# 	--m-metadata-file source/metadata/bat-fleas-not-unique-metadata.tsv \
-# 	--m-metadata-column HostIDNo
+ALPHA="${OUT}/alpha_$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 10 | head -1)"
+mkdir -p "${ALPHA}"
+qiime diversity alpha-group-significance \
+	--m-metadata-file "${META}" \
+	--i-alpha-diversity "${CORE}/shannon_vector.qza" \
+	--o-visualization "${ALPHA}/shannon_vector.qzv"
+
+qiime diversity alpha-group-significance \
+	--m-metadata-file "${META}" \
+	--i-alpha-diversity "${CORE}/faith_pd_vector.qza" \
+	--o-visualization "${ALPHA}/faith_pd_vector.qzv"
+
+qiime diversity alpha-group-significance \
+	--m-metadata-file "${META}" \
+	--i-alpha-diversity "${CORE}/observed_otus_vector.qza" \
+	--o-visualization "${ALPHA}/observed_otus_vector.qzv" \
+
+BETA="${OUT}/beta_$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 10 | head -1)"
+mkdir -p "${BETA}"
+# metadataにあるヘッダーを取得し、「,」をスペースに変換
+col=$(head -1 meta/bat_fleas.csv | sed 's/#.*,//g' | tr "," " ")
+for item in "${col[@]}"; do
+	qiime diversity beta-group-significance \
+		--p-pairwise \
+		--m-metadata-file "${META}" \
+		--m-metadata-column "${item}" \
+		--i-distance-matrix "${CORE}/weighted_unifrac_distance_matrix.qza" \
+		--o-visualization "${BETA}/weighted-unifrac-distance-matrix-host_gender.qzv"
+done
+
 # # -----------------------------------------------------------------------------------------------------------
 # #!/bin/bash
 # # 【はじめに】
