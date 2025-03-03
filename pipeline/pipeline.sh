@@ -107,8 +107,8 @@ qiime diversity alpha-group-significance \
 
 qiime diversity alpha-group-significance \
 	--m-metadata-file "${META}" \
-	--i-alpha-diversity "${CORE}/observed_otus_vector.qza" \
-	--o-visualization "${ALPHA}/observed_otus_vector.qzv" \
+	--i-alpha-diversity "${CORE}/observed_features_vector.qza" \
+	--o-visualization "${ALPHA}/observed_features_vector.qzv"
 
 BETA="${OUT}/beta_$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 10 | head -1)"
 mkdir -p "${BETA}"
