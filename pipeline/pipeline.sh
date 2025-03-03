@@ -78,49 +78,21 @@ qiime taxa barplot \
 
 ./pipeline/view.sh "${PRE}/taxa-bar-plots.qzv"
 
-# CORE="${OUT}/core_$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 10 | head -1)"
-#
-# qiime diversity core-metrics-phylogenetic \
-# 	--m-metadata-file "${META}" \
-# 	--p-sampling-depth "${SAMPLING_DEPTH}" \
-# 	--i-phylogeny "${PRE}/common_biology_free_rooted-tree.qza" \
-# 	--i-table "${PRE}/common_biology_free_table.qza" \
-# 	--output-dir "${CORE}"
-#
-# # 成功すれば、「core-metrics-result」というフォルダが作成されるはずです。
-# # この中身にはα多様性解析の指数となる「shannon_vector.qza」や、β多様性解析の指数となる「jaccard_distance_matrix.qza」など重要なファイルたちが入っています。
-# # では、α多様性解析の指数たち使用し、解析を行ってみましょう。
-# # まず最初に「shannon_vector.qza」を用います。
-#
-# qiime diversity alpha-group-significance \
-# 	--i-alpha-diversity second/core-metrics-results/shannon_vector.qza \
-# 	--o-visualization second/core-metrics-results/shannon_vector.qzv \
-# 	--m-metadata-file source/metadata/bat-fleas-filtered-metadata.tsv &
-#
-# # 次に「faith_pd_vector.qza」を使います。
-#
-# qiime diversity alpha-group-significance \
-# 	--i-alpha-diversity second/core-metrics-results/faith_pd_vector.qza \
-# 	--o-visualization second/core-metrics-results/faith_pd_vector.qzv \
-# 	--m-metadata-file source/metadata/bat-fleas-filtered-metadata.tsv &
-#
-# # 最後に「observed_otus_vector.qza」を用いて解析を行います。
-#
-# qiime diversity alpha-group-significance \
-# 	--i-alpha-diversity second/core-metrics-results/observed_otus_vector.qza \
-# 	--o-visualization second/core-metrics-results/observed_otus_vector.qzv \
-# 	--m-metadata-file source/metadata/bat-fleas-filtered-metadata.tsv &
-#
-# # 今度はβ多様性解析の指数を用いて解析を行いましょう。
-# # β多様性解析では、メタデータの列部分に着目して解析を行います。
-# # 用いるファイルは「weighted_unifrac_distance_matrix.qza」、metadataの列は「HostGender」です。
-#
-# qiime diversity beta-group-significance \
-# 	--p-pairwise \
-# 	--i-distance-matrix second/core-metrics-results/weighted_unifrac_distance_matrix.qza \
-# 	--o-visualization second/core-metrics-results/weighted-unifrac-distance-matrix-host_gender.qzv \
-# 	--m-metadata-file source/metadata/bat-fleas-filtered-metadata.tsv \
-# 	--m-metadata-column HostGender &
+CORE="${OUT}/core_$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 10 | head -1)"
+
+qiime diversity core-metrics-phylogenetic \
+	--m-metadata-file "${META}" \
+	--p-sampling-depth "${SAMPLING_DEPTH}" \
+	--i-phylogeny "${PRE}/common_biology_free_rooted-tree.qza" \
+	--i-table "${PRE}/common_biology_free_table.qza" \
+	--output-dir "${CORE}"
+
+qiime metadata tabulate \
+  --m-input-file "${CORE}/faith_pd_vector.qza" \
+  --o-visualization "${CORE}/faith_pd_vector.qzv"
+
+./pipeline/view.sh "${CORE}/faith_pd_vector.qzv"
+
 #
 # # 次に、「HostIDNo」についてのβ多様性解析を行いましょう。
 # # HostIDNoの列には、値が一つしかないものがあります。このような値はβ多様性解析にかけられません。
