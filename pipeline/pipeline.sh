@@ -113,7 +113,7 @@ qiime diversity alpha-group-significance \
 BETA="${OUT}/beta_$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 10 | head -1)"
 mkdir -p "${BETA}"
 # metadataにあるヘッダーを取得し、「,」をスペースに変換
-col=$(head -1 meta/bat_fleas.csv | sed 's/#.*,//g' | tr "," " ")
+col=$(head -1 meta/bat_fleas.csv | sed 's/#//g' | tr "," " ")
 for item in "${col[@]}"; do
 	qiime diversity beta-group-significance \
 		--p-pairwise \
