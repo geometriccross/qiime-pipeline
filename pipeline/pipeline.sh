@@ -76,11 +76,12 @@ qiime taxa barplot \
 	--m-metadata-file "${META}" \
     --o-visualization "${PRE}/taxa-bar-plots.qzv"
 
-./pipeline/view.sh "${PRE}/taxa-bar-plots.qzv"
+# ./pipeline/view.sh "${PRE}/taxa-bar-plots.qzv"
 
 CORE="${OUT}/core_$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 10 | head -1)"
 
 qiime diversity core-metrics-phylogenetic \
+	--quiet \
 	--m-metadata-file "${META}" \
 	--p-sampling-depth "${SAMPLING_DEPTH}" \
 	--i-phylogeny "${PRE}/common_biology_free_rooted-tree.qza" \
@@ -91,7 +92,7 @@ qiime metadata tabulate \
   --m-input-file "${CORE}/faith_pd_vector.qza" \
   --o-visualization "${CORE}/faith_pd_vector.qzv"
 
-./pipeline/view.sh "${CORE}/faith_pd_vector.qzv"
+# ./pipeline/view.sh "${CORE}/faith_pd_vector.qzv"
 
 ALPHA="${OUT}/alpha_$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 10 | head -1)"
 mkdir -p "${ALPHA}"
@@ -113,14 +114,19 @@ qiime diversity alpha-group-significance \
 BETA="${OUT}/beta_$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 10 | head -1)"
 mkdir -p "${BETA}"
 # metadataにあるヘッダーを取得し、「,」をスペースに変換
-col=$(head -1 meta/bat_fleas.csv | sed 's/#//g' | tr "," " ")
+col=($(head -1 "${META}" | sed 's/#//g' | tr "," " "))
+index=0
 for item in "${col[@]}"; do
-	qiime diversity beta-group-significance \
-		--p-pairwise \
-		--m-metadata-file "${META}" \
-		--m-metadata-column "${item}" \
-		--i-distance-matrix "${CORE}/weighted_unifrac_distance_matrix.qza" \
-		--o-visualization "${BETA}/weighted-unifrac-distance-matrix-{$item}.qzv"
+	# skip first column
+	if [ $index != 0 ]; then
+		qiime diversity beta-group-significance \
+			--p-pairwise \
+			--m-metadata-file "${META}" \
+			--m-metadata-column "${item}" \
+			--i-distance-matrix "${CORE}/weighted_unifrac_distance_matrix.qza" \
+			--o-visualization "${BETA}/weighted-unifrac-distance-matrix-${item}.qzv"
+	fi
+	((index=index+1))
 done
 
 # # -----------------------------------------------------------------------------------------------------------
