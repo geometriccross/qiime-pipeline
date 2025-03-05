@@ -59,7 +59,13 @@ with Path(tmp_meta).open() as f:
     ]]
 
 id_index = 1
-mani_result = "sample-id\tforward-absolute-filepath\treverse-absolute-filepath"
+mani_result = []
+mani_result.append([
+    "sample-id",
+    "forward-absolute-filepath",
+    "reverse-absolute-filepath"
+])
+
 for pair in data_list:
     pre_indexer = id_index
     # create manifest
@@ -68,10 +74,11 @@ for pair in data_list:
         forward = fastq_pathes.pop()
         reverse = fastq_pathes.pop()
 
-        mani_result += "\n"
-        mani_result += id_prefix + id_index.__str__() + "\t"
-        mani_result += Path(forward).absolute().__str__() + "\t"
-        mani_result += Path(reverse).absolute().__str__() + "\t"
+        row = []
+        row.append(id_prefix + id_index.__str__())
+        row.append(Path(forward).absolute().__str__())
+        row.append(Path(reverse).absolute().__str__())
+        mani_result.append(row)
 
         id_index += 1
 
@@ -91,3 +98,7 @@ for pair in data_list:
 with open(out_meta, "w") as f:
     writer = csv.writer(f, delimiter="\t")
     writer.writerows(master_list)
+
+with open(out_mani, "w") as f:
+    writer = csv.writer(f, delimiter="\t")
+    writer.writerows(mani_result)
