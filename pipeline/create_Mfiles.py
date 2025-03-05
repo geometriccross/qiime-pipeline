@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
+import re
 import csv
 import argparse
 from textwrap import dedent
 from glob import glob
-from pathlib import Path
+from pathlib import Path, PurePath
 
 data_list = [
     {"meta": "meta/bat_fleas.csv", "fastq": "fastq/batfleas"},
@@ -58,7 +59,6 @@ with Path(tmp_meta).open() as f:
         *header_str.replace("#", "").replace("SampleID", "RawID").split(",")
     ]]
 
-id_index = 1
 mani_result = []
 mani_result.append([
     "sample-id",
@@ -66,34 +66,39 @@ mani_result.append([
     "reverse-absolute-filepath"
 ])
 
+mani_id = 1
+meta_id = 1
 for pair in data_list:
-    pre_indexer = id_index
-    # create manifest
-    fastq_pathes = glob(pair["fastq"] + "/**/*gz", recursive=True)
+    # このようなファイル名のとき: Ca-fle21_S1_L001_R2_001.fastq.gz
+    # 最初のアンダースコアまでで値を区切り、その最初の値に含まれる数字でソートする
+    fastq_pathes = sorted(
+        glob(pair["fastq"] + "/**/*gz", recursive=True),
+        key=lambda s: int(re.sub(r'\D', "", PurePath(s).name.split('_')[0])),
+        reverse=True
+    )
+
     while len(fastq_pathes) > 0:
         forward = fastq_pathes.pop()
         reverse = fastq_pathes.pop()
 
         row = []
-        row.append(id_prefix + id_index.__str__())
+        row.append(id_prefix + mani_id.__str__())
         row.append(Path(forward).absolute().__str__())
         row.append(Path(reverse).absolute().__str__())
         mani_result.append(row)
 
-        id_index += 1
+        mani_id += 1
 
-    # reset index
-    id_index = pre_indexer
     # create csv
     with open(Path(pair["meta"]).absolute(), "r") as f:
         reader = csv.reader(f)
         header_removed = [row for row in reader][1:]
         for row in header_removed:
             master_list.append([
-                id_prefix + id_index.__str__(),
+                id_prefix + meta_id.__str__(),
                 *row
             ])
-            id_index += 1
+            meta_id += 1
 
 with open(out_meta, "w") as f:
     writer = csv.writer(f, delimiter="\t")
