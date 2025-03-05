@@ -47,15 +47,15 @@ id_prefix = parser.parse_args().id_prefix
 out_meta = parser.parse_args().out_meta
 out_mani = parser.parse_args().out_mani
 
+master_list = []
 # metadataのヘッダーを取得
 tmp_meta = data_list[0]["meta"]
-header_str = tmp_meta.readline().replace("\n", "")
-master_list = [
-    id_prefix,
-    *header_str.replace("#", "").replace("SampleID", "RawID").split(",")
-]
-# 先頭から動いたseekをもとに戻す
-tmp_meta.seek(0)
+with Path(tmp_meta).open() as f:
+    header_str = f.readline().replace("\n", "")
+    master_list = [
+        id_prefix,
+        *header_str.replace("#", "").replace("SampleID", "RawID").split(",")
+    ]
 
 id_index = 1
 mani_result = "sample-id\tforward-absolute-filepath\treverse-absolute-filepath"
