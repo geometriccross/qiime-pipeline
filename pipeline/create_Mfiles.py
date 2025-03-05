@@ -32,7 +32,7 @@ def search_fastq(q: str, data: list[str]) -> list[str]:
 data_list = [
     {"meta": "meta/bat_fleas.csv", "fastq": "fastq/batfleas"},
     {"meta": "meta/cat_fleas.csv", "fastq": "fastq/catfleas"},
-    {"meta": "meta/lip_cervi.csv", "fastq": "fastq/sk"},
+    {"meta": "meta/lip_forti.csv", "fastq": "fastq/sk"},
     {"meta": "meta/mky_louse.csv", "fastq": "fastq/monkeylice"}
 ]
 
