@@ -25,6 +25,22 @@ parser.add_argument(
         """
     ).strip()
 )
+parser.add_argument(
+    "--out-meta",
+    help=dedent(
+        """
+        output path to metadata
+        """
+    ).strip()
+)
+parser.add_argument(
+    "--out-mani",
+    help=dedent(
+        """
+        output path to manifest file
+        """
+    ).strip()
+)
 
 id_prefix = parser.parse_args().id_prefix,
 master_header = data_list[0]["meta"].readline().replace("\n", "")
