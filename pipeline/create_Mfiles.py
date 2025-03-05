@@ -52,17 +52,18 @@ master_list = []
 tmp_meta = data_list[0]["meta"]
 with Path(tmp_meta).open() as f:
     header_str = f.readline().replace("\n", "")
-    master_list = [
+    # csv writerowsで正常に書き込むためには二次元配列でなければならない
+    master_list = [[
         id_prefix,
         *header_str.replace("#", "").replace("SampleID", "RawID").split(",")
-    ]
+    ]]
 
 id_index = 1
 mani_result = "sample-id\tforward-absolute-filepath\treverse-absolute-filepath"
 for pair in data_list:
     pre_indexer = id_index
     # create manifest
-    fastq_pathes = glob(pair["fastq"], "/**/*gz", recursive=True)
+    fastq_pathes = glob(pair["fastq"] + "/**/*gz", recursive=True)
     while len(fastq_pathes) > 0:
         forward = fastq_pathes.pop()
         reverse = fastq_pathes.pop()
@@ -88,5 +89,5 @@ for pair in data_list:
             id_index += 1
 
 with open(out_meta, "w") as f:
-    writer = csv.writer(f)
-    writer.writerows(master_list, delimiter="\t")
+    writer = csv.writer(f, delimiter="\t")
+    writer.writerows(master_list)
