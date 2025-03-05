@@ -23,6 +23,7 @@ done
 
 mkdir -p "${OUT}"
 ./pipeline/create_Mfiles.py --id-prefix id --out-meta "${META}" --out-mani "${MANI}"
+./pipeline/check_manifest.py "${MANI}"
 
 if [ ! -f "$DB" ]; then
 	dirname "${DB}" | xargs mkdir -p
