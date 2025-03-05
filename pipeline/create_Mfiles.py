@@ -9,7 +9,7 @@ from pathlib import Path, PurePath
 
 
 # queryで渡されたidを持つfastqファイルを返す
-def search_fastq(q: str, data: list[str]) -> list[str]:
+def search_fastq(q: str, data: list[str]) -> tuple[str]:
     correct = []
     for d in data:
         file_name = PurePath(d).name
@@ -23,10 +23,12 @@ def search_fastq(q: str, data: list[str]) -> list[str]:
             {correct}
         """))
 
-    fwd = list(filter(lambda s: s.__contains__("_R1_"), correct))
-    rvs = list(filter(lambda s: s.__contains__("_R2_"), correct))
+    fwd = list(filter(lambda s: s.__contains__("_R1_"), correct)).pop()
+    rvs = list(filter(lambda s: s.__contains__("_R2_"), correct)).pop()
 
-    return [*fwd, *rvs]
+    fwd_abs_path = Path(fwd).absolute().__str__()
+    rvs_abs_path = Path(rvs).absolute().__str__()
+    return fwd_abs_path, rvs_abs_path
 
 
 data_list = [
