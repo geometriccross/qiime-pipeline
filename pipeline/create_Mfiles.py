@@ -42,17 +42,18 @@ parser.add_argument(
     ).strip()
 )
 
+# metadataのヘッダーを取得
 id_prefix = parser.parse_args().id_prefix,
-master_header = data_list[0]["meta"].readline().replace("\n", "")
-master_header = [
+header_str = data_list[0]["meta"].readline().replace("\n", "")
+master_list = [
     id_prefix,
-    *master_header.replace("#", "").replace("SampleID", "RawID").split(",")
+    *header_str.replace("#", "").replace("SampleID", "RawID").split(",")
 ]
+# 先頭から動いたseekを基に戻す
 data_list[0]["meta"].seek(0)
 
 id_index = 1
 mani_result = "sample-id\tforward-absolute-filepath\treverse-absolute-filepath"
-master_list = []
 for pair in data_list:
     pre_indexer = id_index
     # create manifest
@@ -80,4 +81,3 @@ for pair in data_list:
                 *row
             ])
             id_index += 1
-
