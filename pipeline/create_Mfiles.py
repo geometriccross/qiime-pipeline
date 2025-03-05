@@ -42,15 +42,19 @@ parser.add_argument(
     ).strip()
 )
 
+# 引数から取得
+id_prefix = parser.parse_args().id_prefix
+out_meta = parser.parse_args().out_meta
+out_mani = parser.parse_args().out_mani
+
 # metadataのヘッダーを取得
-id_prefix = parser.parse_args().id_prefix,
 tmp_meta = data_list[0]["meta"]
 header_str = tmp_meta.readline().replace("\n", "")
 master_list = [
     id_prefix,
     *header_str.replace("#", "").replace("SampleID", "RawID").split(",")
 ]
-# 先頭から動いたseekを基に戻す
+# 先頭から動いたseekをもとに戻す
 tmp_meta.seek(0)
 
 id_index = 1
