@@ -86,3 +86,7 @@ for pair in data_list:
                 *row
             ])
             id_index += 1
+
+with open(out_meta, "w") as f:
+    writer = csv.writer(f)
+    writer.writerows(master_list, delimiter="\t")
