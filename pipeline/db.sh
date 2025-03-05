@@ -19,4 +19,4 @@ qiime feature-classifier fit-classifier-naive-bayes \
 	--i-reference-taxonomy "${CREATE_DB}/silva-138-99-tax.qza" \
 	--o-classifier "${CREATE_DB}/classifier-silva138.qza"
 
-mv "${CREATE_DB}/classifier-silva138.qza" "${DB}/classifier.qza"
+cp -f "${CREATE_DB}/classifier-silva138.qza" "${DB}/classifier.qza"
