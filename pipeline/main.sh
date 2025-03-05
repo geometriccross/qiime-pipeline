@@ -31,7 +31,7 @@ python pipeline/create_master.py "${META_SOURCE}" > "${META}"
 
 if [ ! -f "$DB" ]; then
 	dirname "${DB}" | xargs mkdir -p
-	echo "$DB" | xargs wget "https://bwsyncandshare.kit.edu/s/zK5zjAbsTFQRpbo/download?path=%2Fq2_24-10%2FSilva138_2&files=classifier-V34.qza" -O
+	source db.sh
 fi
 
 # if variable was not set
