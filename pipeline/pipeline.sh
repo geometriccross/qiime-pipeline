@@ -2,7 +2,7 @@
 
 set -e -x
 
-PRE="${OUT}/pre_$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 10 | head -1)"
+PRE="${OUT}/pre_$(tr -dc 0-9A-Za-z </dev/urandom | fold -w 10 | head -1)"
 mkdir -p "${PRE}"
 
 qiime tools import \
@@ -25,9 +25,9 @@ qiime dada2 denoise-paired \
 
 qiime feature-table filter-samples \
 	--quiet \
-    --p-min-frequency "${SAMPLING_DEPTH}" \
-    --i-table "${PRE}/denoised_table.qza" \
-    --o-filtered-table "${PRE}/filtered_table.qza"
+	--p-min-frequency "${SAMPLING_DEPTH}" \
+	--i-table "${PRE}/denoised_table.qza" \
+	--o-filtered-table "${PRE}/filtered_table.qza"
 
 qiime feature-table filter-seqs \
 	--quiet \
@@ -59,9 +59,9 @@ qiime phylogeny align-to-tree-mafft-fasttree \
 	--quiet \
 	--i-sequences "${PRE}/common_biology_free_seq.qza" \
 	--o-alignment "${PRE}/common_biology_free_aligned-rep-seqs.qza" \
-    --o-masked-alignment "${PRE}/common_biology_free_masked-aligned-rep-seqs.qza" \
-    --o-tree "${PRE}/common_biology_free_unrooted-tree.qza" \
-    --o-rooted-tree "${PRE}/common_biology_free_rooted-tree.qza"
+	--o-masked-alignment "${PRE}/common_biology_free_masked-aligned-rep-seqs.qza" \
+	--o-tree "${PRE}/common_biology_free_unrooted-tree.qza" \
+	--o-rooted-tree "${PRE}/common_biology_free_rooted-tree.qza"
 
 qiime feature-classifier classify-sklearn \
 	--quiet \
@@ -71,14 +71,14 @@ qiime feature-classifier classify-sklearn \
 
 qiime taxa barplot \
 	--quiet \
-    --i-table "${PRE}/common_biology_free_table.qza" \
-    --i-taxonomy "${PRE}/common_biology_free_classification.qza" \
+	--i-table "${PRE}/common_biology_free_table.qza" \
+	--i-taxonomy "${PRE}/common_biology_free_classification.qza" \
 	--m-metadata-file "${META}" \
-    --o-visualization "${PRE}/taxa-bar-plots.qzv"
+	--o-visualization "${PRE}/taxa-bar-plots.qzv"
 
 # ./pipeline/view.sh "${PRE}/taxa-bar-plots.qzv"
 
-CORE="${OUT}/core_$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 10 | head -1)"
+CORE="${OUT}/core_$(tr -dc 0-9A-Za-z </dev/urandom | fold -w 10 | head -1)"
 
 qiime diversity core-metrics-phylogenetic \
 	--quiet \
@@ -89,12 +89,12 @@ qiime diversity core-metrics-phylogenetic \
 	--output-dir "${CORE}"
 
 qiime metadata tabulate \
-  --m-input-file "${CORE}/faith_pd_vector.qza" \
-  --o-visualization "${CORE}/faith_pd_vector.qzv"
+	--m-input-file "${CORE}/faith_pd_vector.qza" \
+	--o-visualization "${CORE}/faith_pd_vector.qzv"
 
 # ./pipeline/view.sh "${CORE}/faith_pd_vector.qzv"
 
-ALPHA="${OUT}/alpha_$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 10 | head -1)"
+ALPHA="${OUT}/alpha_$(tr -dc 0-9A-Za-z </dev/urandom | fold -w 10 | head -1)"
 mkdir -p "${ALPHA}"
 qiime diversity alpha-group-significance \
 	--m-metadata-file "${META}" \
@@ -111,22 +111,17 @@ qiime diversity alpha-group-significance \
 	--i-alpha-diversity "${CORE}/observed_features_vector.qza" \
 	--o-visualization "${ALPHA}/observed_features_vector.qzv"
 
-BETA="${OUT}/beta_$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 10 | head -1)"
+BETA="${OUT}/beta_$(tr -dc 0-9A-Za-z </dev/urandom | fold -w 10 | head -1)"
 mkdir -p "${BETA}"
 # metadataにあるヘッダーを取得し、「,」をスペースに変換
-col=($(head -1 "${META}" | sed 's/#//g' | tr "," " "))
-index=0
+col=("Host" "Species" "Location" "SampleGender")
 for item in "${col[@]}"; do
-	# skip first column
-	if [ $index != 0 ]; then
-		qiime diversity beta-group-significance \
-			--p-pairwise \
-			--m-metadata-file "${META}" \
-			--m-metadata-column "${item}" \
-			--i-distance-matrix "${CORE}/weighted_unifrac_distance_matrix.qza" \
-			--o-visualization "${BETA}/weighted-unifrac-distance-matrix-${item}.qzv"
-	fi
-	((index=index+1))
+	qiime diversity beta-group-significance \
+		--p-pairwise \
+		--m-metadata-file "${META}" \
+		--m-metadata-column "${item}" \
+		--i-distance-matrix "${CORE}/weighted_unifrac_distance_matrix.qza" \
+		--o-visualization "${BETA}/weighted-unifrac-distance-matrix-${item}.qzv"
 done
 
 # # -----------------------------------------------------------------------------------------------------------
