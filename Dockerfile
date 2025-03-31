@@ -1,0 +1,1 @@
+FROM mambaorg/micromamba:latest
