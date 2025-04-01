@@ -20,13 +20,16 @@ while getopts m:c:o:f:x:s:d: OPT; do
 	esac
 done
 
+docker build . -t qiime
+
 mkdir -p "${OUT}"
 ./pipeline/create_Mfiles.py --id-prefix id --out-meta "${META}" --out-mani "${MANI}"
 ./pipeline/check_manifest.py "${MANI}"
 
 if [ ! -f "$DB" ]; then
 	dirname "${DB}" | xargs mkdir -p
-	source db.sh
+	docker container run --rm qiime /pipeline/db.sh | \
+		xargs -I FILE docker cp qiime:FILE "$DB/"
 fi
 
 # if variable was not set
@@ -35,4 +38,3 @@ if [ -z ${SAMPLING_DEPTH+x} ]; then
 else
 	source ./pipeline/pipeline.sh
 fi
-
