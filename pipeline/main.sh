@@ -1,6 +1,6 @@
 #!/bin/bash
 
-tmp="out/$(date +%h%d-%H-%M)_$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 10 | head -1)"
+tmp="out/$(date +%h%d-%H-%M)_$(tr -dc 0-9A-Za-z </dev/urandom | fold -w 10 | head -1)"
 OUT="${tmp}"
 unset tmp
 
@@ -9,15 +9,14 @@ MANI="${OUT}/manifest"
 META="${OUT}/meta"
 
 # https://unix.stackexchange.com/questions/706602/use-getopt-to-directly-retrieve-option-value
-while getopts m:c:o:f:x:s:d: OPT
-do
+while getopts m:c:o:f:x:s:d: OPT; do
 	case $OPT in
-		o)	OUT=$OPTARG;;
-		d)	DB=$OPTARG;;
-		c)	MANI=$OPTARG;;
-		x)	META=$OPTARG;;
-		s)	SAMPLING_DEPTH=$OPTARG;;
-		*)	exit 1;;
+	o) OUT=$OPTARG ;;
+	d) DB=$OPTARG ;;
+	c) MANI=$OPTARG ;;
+	x) META=$OPTARG ;;
+	s) SAMPLING_DEPTH=$OPTARG ;;
+	*) exit 1 ;;
 	esac
 done
 
