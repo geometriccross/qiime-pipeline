@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CREATE_DB="${OUT}/dbgen_$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 10 | head -1)"
+CREATE_DB="/tmp/dbgen_$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 5 | head -1)"
 mkdir -p "${CREATE_DB}"
 cd "$CREATE_DB" || exit
 
