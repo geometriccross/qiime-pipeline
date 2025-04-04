@@ -22,8 +22,8 @@ while getopts m:c:o:f:x:s:d: OPT; do
 	esac
 done
 
-ctn_id=qiime_$random
-docker build . -t "$ctn_id"
+img_id=qiime_$random
+docker build . -t "$img_id"
 
 mkdir -p "$HOST_OUT"
 ./pipeline/create_Mfiles.py --id-prefix id --out-meta "$HOST_META" --out-mani "$HOST_MANI"
@@ -31,17 +31,17 @@ mkdir -p "$HOST_OUT"
 
 if [[ ! -f "$HOST_DB" ]]; then
 	dirname "$HOST_DB" | xargs mkdir -p
-	docker container run --rm "$ctn_id" /pipeline/db.sh | \
+	docker container run --rm "$img_id" /pipeline/db.sh | \
 		xargs -I FILE docker cp qiime:FILE "$(realpath "$HOST_DB" | dirname)"
 fi
 
 # if variable was not set
 if [[ -z ${SAMPLING_DEPTH+x} ]]; then
-	ctn_output="$(docker container run --rm "$ctn_id" /pipeline/rarefaction.sh \
+	ctn_output="$(docker container run --rm "$img_id" /pipeline/rarefaction.sh \
 		-o "$HOST_OUT" \
 		-c "$HOST_MANI" \
 		-x "$HOST_META")"
-	docker cp "$ctn_id":"$ctn_output" "$HOST_OUT"
+	docker cp "$img_id":"$ctn_output" "$HOST_OUT"
 	./pipeline/view.sh "$HOST_OUT"/"$(basename "$ctn_output")"# run in the host
 else
 	source ./pipeline/pipeline.sh
