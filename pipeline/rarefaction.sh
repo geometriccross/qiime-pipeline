@@ -2,6 +2,16 @@
 
 set -e
 
+while getopts o:c:x: OPT
+do
+	case $OPT in
+		o)	OUT=$OPTARG;;
+		c)	MANI=$OPTARG;;
+		x)	META=$OPTARG;;
+		*)	exit 1;;
+	esac
+done
+
 RAREFACTION_DIR="${OUT}/rare_$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 10 | head -1)"
 mkdir -p "$RAREFACTION_DIR"
 cd "$RAREFACTION_DIR"

@@ -2,7 +2,7 @@
 
 set -e -x
 
-while getopts m:c:o:f:x:s:d: OPT
+while getopts o:d:c:x:s: OPT
 do
 	case $OPT in
 		o)	OUT=$OPTARG;;
