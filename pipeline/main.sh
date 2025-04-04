@@ -32,7 +32,7 @@ mkdir -p "$HOST_OUT"
 if [[ ! -f "$HOST_DB" ]]; then
 	dirname "$HOST_DB" | xargs mkdir -p
 	docker run --rm "$img_id" /pipeline/db.sh | \
-		docker cp qiime:- "$(realpath "$HOST_DB" | dirname)"
+		docker cp qiime:- "$(realpath "$HOST_DB" | xargs dirname)"
 fi
 
 # if variable was not set
