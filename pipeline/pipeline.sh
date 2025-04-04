@@ -2,6 +2,18 @@
 
 set -e -x
 
+while getopts m:c:o:f:x:s:d: OPT
+do
+	case $OPT in
+		o)	OUT=$OPTARG;;
+		d)	DB=$OPTARG;;
+		c)	MANI=$OPTARG;;
+		x)	META=$OPTARG;;
+		s)	SAMPLING_DEPTH=$OPTARG;;
+		*)	exit 1;;
+	esac
+done
+
 PRE="${OUT}/pre_$(tr -dc 0-9A-Za-z </dev/urandom | fold -w 10 | head -1)"
 mkdir -p "$PRE"
 cd "$PRE" || exit 1
