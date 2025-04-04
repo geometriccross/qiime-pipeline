@@ -24,14 +24,14 @@ mkdir -p "$HOST_OUT"
 ./pipeline/create_Mfiles.py --id-prefix id --out-meta "$HOST_META" --out-mani "$HOST_MANI"
 ./pipeline/check_manifest.py "$HOST_MANI"
 
-if [ ! -f "$HOST_DB" ]; then
+if [[ ! -f "$HOST_DB" ]]; then
 	dirname "$HOST_DB" | xargs mkdir -p
 	docker container run --rm qiime /pipeline/db.sh | \
 		xargs -I FILE docker cp qiime:FILE "$(realpath "$HOST_DB" | dirname)"
 fi
 
 # if variable was not set
-if [ -z ${SAMPLING_DEPTH+x} ]; then
+if [[ -z ${SAMPLING_DEPTH+x} ]]; then
 	source ./pipeline/rarefaction.sh | xargs ./pipeline/view.sh
 else
 	source ./pipeline/pipeline.sh
