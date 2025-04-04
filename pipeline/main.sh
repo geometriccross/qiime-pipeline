@@ -1,10 +1,8 @@
 #!/bin/bash
 
-tmp="out/$(date +%h%d-%H-%M)_$(tr -dc 0-9A-Za-z </dev/urandom | fold -w 10 | head -1)"
-OUT="${tmp}"
-unset tmp
-
-DB="db/classifier.qza"
+# default value
+OUT="/out"
+DB="/db/classifier.qza"
 MANI="${OUT}/manifest"
 META="${OUT}/meta"
 
@@ -22,14 +20,14 @@ done
 
 docker build . -t qiime
 
-mkdir -p "${OUT}"
-./pipeline/create_Mfiles.py --id-prefix id --out-meta "${META}" --out-mani "${MANI}"
-./pipeline/check_manifest.py "${MANI}"
+mkdir -p "$OUT"
+./pipeline/create_Mfiles.py --id-prefix id --out-meta "$META" --out-mani "$MANI"
+./pipeline/check_manifest.py "$MANI"
 
 if [ ! -f "$DB" ]; then
-	dirname "${DB}" | xargs mkdir -p
+	dirname "$DB" | xargs mkdir -p
 	docker container run --rm qiime /pipeline/db.sh | \
-		xargs -I FILE docker cp qiime:FILE "$DB/"
+		xargs -I FILE docker cp qiime:FILE "$(realpath "$DB" | dirname)"
 fi
 
 # if variable was not set
