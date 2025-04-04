@@ -14,7 +14,7 @@ do
 	esac
 done
 
-PRE="${OUT}/pre_$(tr -dc 0-9A-Za-z </dev/urandom | fold -w 10 | head -1)"
+PRE="${OUT}/pre"
 mkdir -p "$PRE"
 cd "$PRE" || exit 1
 
@@ -91,7 +91,7 @@ qiime taxa barplot \
 
 # ./pipeline/view.sh "${PRE}/taxa-bar-plots.qzv"
 
-CORE="${OUT}/core_$(tr -dc 0-9A-Za-z </dev/urandom | fold -w 10 | head -1)"
+CORE="${OUT}/core"
 mkdir "$CORE"
 cd "$CORE" || exit 1
 
@@ -109,7 +109,7 @@ qiime metadata tabulate \
 
 # ./pipeline/view.sh "${CORE}/faith_pd_vector.qzv"
 
-ALPHA="${OUT}/alpha_$(tr -dc 0-9A-Za-z </dev/urandom | fold -w 10 | head -1)"
+ALPHA="${OUT}/alpha"
 mkdir -p "$ALPHA"
 cd "$ALPHA" || exit 1
 
@@ -128,7 +128,7 @@ qiime diversity alpha-group-significance \
 	--i-alpha-diversity observed_features_vector.qza \
 	--o-visualization observed_features_vector.qzv
 
-BETA="${OUT}/beta_$(tr -dc 0-9A-Za-z </dev/urandom | fold -w 10 | head -1)"
+BETA="${OUT}/beta"
 mkdir -p "$BETA"
 cd "$BETA" || exit 1
 

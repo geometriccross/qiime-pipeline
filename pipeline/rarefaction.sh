@@ -12,7 +12,7 @@ do
 	esac
 done
 
-RAREFACTION_DIR="${OUT}/rare_$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 10 | head -1)"
+RAREFACTION_DIR="${OUT}/rare"
 mkdir -p "$RAREFACTION_DIR"
 cd "$RAREFACTION_DIR"
 
