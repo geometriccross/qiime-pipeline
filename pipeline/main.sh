@@ -1,7 +1,10 @@
 #!/bin/bash
 
+month="$(date +%b | tr '[:upper:]' '[:lower:]')"
+random="$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 3 | head -1)"
+unique_id=$month"$(date +%d%H%M%S)"_$random
 # default value
-HOST_OUT="out/"
+HOST_OUT="out/$unique_id/"
 HOST_DB="db/classifier.qza"
 HOST_MANI="${OUT}/manifest"
 HOST_META="${OUT}/meta"
@@ -18,7 +21,8 @@ while getopts m:c:o:f:x:s:d: OPT; do
 	esac
 done
 
-docker build . -t qiime
+ctn_id=qiime_$random
+docker build . -t "$ctn_id"
 
 mkdir -p "$HOST_OUT"
 ./pipeline/create_Mfiles.py --id-prefix id --out-meta "$HOST_META" --out-mani "$HOST_MANI"
@@ -26,7 +30,7 @@ mkdir -p "$HOST_OUT"
 
 if [[ ! -f "$HOST_DB" ]]; then
 	dirname "$HOST_DB" | xargs mkdir -p
-	docker container run --rm qiime /pipeline/db.sh | \
+	docker container run --rm "$ctn_id" /pipeline/db.sh | \
 		xargs -I FILE docker cp qiime:FILE "$(realpath "$HOST_DB" | dirname)"
 fi
 
