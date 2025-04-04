@@ -3,6 +3,7 @@
 month="$(date +%b | tr '[:upper:]' '[:lower:]')"
 random="$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 3 | head -1)"
 unique_id=$month"$(date +%d%H%M%S)"_$random
+
 # default value
 HOST_OUT="out/$unique_id/"
 HOST_DB="db/classifier.qza"
@@ -36,7 +37,12 @@ fi
 
 # if variable was not set
 if [[ -z ${SAMPLING_DEPTH+x} ]]; then
-	source ./pipeline/rarefaction.sh | xargs ./pipeline/view.sh
+	ctn_output="$(docker container run --rm "$ctn_id" /pipeline/rarefaction.sh \
+		-o "$HOST_OUT" \
+		-c "$HOST_MANI" \
+		-x "$HOST_META")"
+	docker cp "$ctn_id":"$ctn_output" "$HOST_OUT"
+	./pipeline/view.sh "$HOST_OUT"/"$(basename "$ctn_output")"# run in the host
 else
 	source ./pipeline/pipeline.sh
 fi
