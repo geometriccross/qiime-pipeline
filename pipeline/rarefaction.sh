@@ -41,4 +41,4 @@ qiime diversity alpha-rarefaction \
 	--i-phylogeny rooted-tree.qza \
 	--o-visualization alpha_rarefaction.qzv
 
-echo alpha_rarefaction.qzv
+realpath alpha_rarefaction.qzv
