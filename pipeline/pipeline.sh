@@ -3,13 +3,13 @@
 set -e -x
 
 PRE="${OUT}/pre_$(tr -dc 0-9A-Za-z </dev/urandom | fold -w 10 | head -1)"
-mkdir -p "${PRE}"
+mkdir -p "$PRE"
 cd "$PRE" || exit 1
 
 qiime tools import \
 	--type 'SampleData[PairedEndSequencesWithQuality]' \
 	--input-format PairedEndFastqManifestPhred33V2 \
-	--input-path "${MANI}" \
+	--input-path "$MANI" \
 	--output-path paired_end_demux.qza >/dev/null
 
 qiime dada2 denoise-paired \
@@ -26,7 +26,7 @@ qiime dada2 denoise-paired \
 
 qiime feature-table filter-samples \
 	--quiet \
-	--p-min-frequency "${SAMPLING_DEPTH}" \
+	--p-min-frequency "$SAMPLING_DEPTH" \
 	--i-table denoised_table.qza \
 	--o-filtered-table filtered_table.qza
 
@@ -38,7 +38,7 @@ qiime feature-table filter-seqs \
 
 qiime feature-classifier classify-sklearn \
 	--quiet \
-	--i-classifier "${DB}" \
+	--i-classifier "$DB" \
 	--i-reads filtered_seq.qza \
 	--o-classification classification.qza
 
@@ -66,7 +66,7 @@ qiime phylogeny align-to-tree-mafft-fasttree \
 
 qiime feature-classifier classify-sklearn \
 	--quiet \
-	--i-classifier "${DB}" \
+	--i-classifier "$DB" \
 	--i-reads common_biology_free_seq.qza \
 	--o-classification common_biology_free_classification.qza
 
@@ -74,7 +74,7 @@ qiime taxa barplot \
 	--quiet \
 	--i-table common_biology_free_table.qza \
 	--i-taxonomy common_biology_free_classification.qza \
-	--m-metadata-file "${META}" \
+	--m-metadata-file "$META" \
 	--o-visualization taxa-bar-plots.qzv
 
 # ./pipeline/view.sh "${PRE}/taxa-bar-plots.qzv"
@@ -85,11 +85,11 @@ cd "$CORE" || exit 1
 
 qiime diversity core-metrics-phylogenetic \
 	--quiet \
-	--m-metadata-file "${META}" \
-	--p-sampling-depth "${SAMPLING_DEPTH}" \
+	--m-metadata-file "$META" \
+	--p-sampling-depth "$SAMPLING_DEPTH" \
 	--i-phylogeny common_biology_free_rooted-tree.qza \
 	--i-table common_biology_free_table.qza \
-	--output-dir "${CORE}"
+	--output-dir "$CORE"
 
 qiime metadata tabulate \
 	--m-input-file faith_pd_vector.qza \
@@ -98,34 +98,34 @@ qiime metadata tabulate \
 # ./pipeline/view.sh "${CORE}/faith_pd_vector.qzv"
 
 ALPHA="${OUT}/alpha_$(tr -dc 0-9A-Za-z </dev/urandom | fold -w 10 | head -1)"
-mkdir -p "${ALPHA}"
+mkdir -p "$ALPHA"
 cd "$ALPHA" || exit 1
 
 qiime diversity alpha-group-significance \
-	--m-metadata-file "${META}" \
+	--m-metadata-file "$META" \
 	--i-alpha-diversity shannon_vector.qza \
 	--o-visualization shannon_vector.qzv
 
 qiime diversity alpha-group-significance \
-	--m-metadata-file "${META}" \
+	--m-metadata-file "$META" \
 	--i-alpha-diversity faith_pd_vector.qza \
 	--o-visualization faith_pd_vector.qzv
 
 qiime diversity alpha-group-significance \
-	--m-metadata-file "${META}" \
+	--m-metadata-file "$META" \
 	--i-alpha-diversity observed_features_vector.qza \
 	--o-visualization observed_features_vector.qzv
 
 BETA="${OUT}/beta_$(tr -dc 0-9A-Za-z </dev/urandom | fold -w 10 | head -1)"
-mkdir -p "${BETA}"
+mkdir -p "$BETA"
 cd "$BETA" || exit 1
 
 col=("Host" "Species" "Location" "SampleGender")
 for item in "${col[@]}"; do
 	qiime diversity beta-group-significance \
 		--p-pairwise \
-		--m-metadata-file "${META}" \
-		--m-metadata-column "${item}" \
+		--m-metadata-file "$META" \
+		--m-metadata-column "$item" \
 		--i-distance-matrix weighted_unifrac_distance_matrix.qza \
 		--o-visualization weighted-unifrac-distance-matrix-"${item}".qzv
 done
