@@ -31,13 +31,13 @@ mkdir -p "$HOST_OUT"
 
 if [[ ! -f "$HOST_DB" ]]; then
 	dirname "$HOST_DB" | xargs mkdir -p
-	docker container run --rm "$img_id" /pipeline/db.sh | \
-		xargs -I FILE docker cp qiime:FILE "$(realpath "$HOST_DB" | dirname)"
+	docker run --rm "$img_id" /pipeline/db.sh | \
+		docker cp qiime:- "$(realpath "$HOST_DB" | dirname)"
 fi
 
 # if variable was not set
 if [[ -z ${SAMPLING_DEPTH+x} ]]; then
-	ctn_output="$(docker container run --rm "$img_id" /pipeline/rarefaction.sh \
+	ctn_output="$(docker run --rm "$img_id" /pipeline/rarefaction.sh \
 		-o "$HOST_OUT" \
 		-c "$HOST_MANI" \
 		-x "$HOST_META")"
