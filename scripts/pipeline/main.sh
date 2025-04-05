@@ -2,6 +2,11 @@
 
 # <<<<< THIS SCRIPT PRESUMES TO RUN IN DOCKER CONTAINER >>>>>>
 
+if [[ ! -e /.dockerenv ]]; then
+	echo "Please run in an inside of container" > /dev/stderr
+	exit 1
+fi
+
 month="$(date +%b | tr '[:upper:]' '[:lower:]')"
 random="$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 3 | head -1)"
 unique_id=$month"$(date +%d%H%M%S)"_$random
