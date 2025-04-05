@@ -44,9 +44,9 @@ fi
 
 # if variable was not set
 if [ -z ${SAMPLING_DEPTH+x} ]; then
-	./scripts/sampling_depth.sh
+	source ./scripts/sampling_depth.sh
 else
-	./scripts/metagoneme.sh -s "$SAMPLING_DEPTH"
+	source ./scripts/metagenome.sh -s "$SAMPLING_DEPTH"
 fi
 
 docker stop "$batch_id"
