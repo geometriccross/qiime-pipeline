@@ -44,5 +44,14 @@ if [[ -z ${SAMPLING_DEPTH+x} ]]; then
 	docker cp "$img_id":"$ctn_output" "$HOST_OUT"
 	./pipeline/view.sh "$HOST_OUT"/"$(basename "$ctn_output")"# run in the host
 else
-	source ./pipeline/pipeline.sh
+	docker run --rm "$img_id" /pipeline/pipeline.sh \
+		-o "$HOST_OUT" \
+		-c "$HOST_MANI" \
+		-x "$HOST_META" \
+		-d "$HOST_DB" \
+		-s "$SAMPLING_DEPTH"
+
+	# ディレクトリの中身をHOST_OUTにコピーする
+	# ディレクトリ自体がそのままHOST_OUT内部にコピーされるわけではない
+	docker cp "$img_id":"/out/." "$HOST_OUT"
 fi
