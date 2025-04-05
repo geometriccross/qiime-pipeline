@@ -29,3 +29,23 @@ if [[ ! -f "$HOST_DB" ]]; then
 	docker run --rm "$img_id" /scripts/pipeline/db.sh | \
 		xargs -I FILE docker cp qiime:FILE "$(realpath "$HOST_DB" | xargs dirname)/" # append / for it be treated by directory
 fi
+
+if [[ -z ${SAMPLING_DEPTH+x} ]]; then
+	ctn_output="$(docker run --rm "$img_id" /scripts/pipeline/rarefaction.sh \
+		-o "$HOST_OUT" \
+		-c "$HOST_MANI" \
+		-x "$HOST_META")"
+	docker cp "$img_id":"$ctn_output" "$CTN_OUT"
+	./pipeline/view.sh "$CTN_OUT"/"$(basename "$ctn_output")"# run in the host
+else
+	docker run --rm "$img_id" /scripts/pipeline/taxonomy.sh \
+		-o "$HOST_OUT" \
+		-c "$HOST_MANI" \
+		-x "$HOST_META" \
+		-d "$HOST_DB" \
+		-s "$SAMPLING_DEPTH"
+
+	# ディレクトリの中身をHOST_OUTにコピーする
+	# ディレクトリ自体がそのままHOST_OUT内部にコピーされるわけではない
+	docker cp "$img_id":"/out/." "$HOST_OUT"
+fi
