@@ -30,9 +30,10 @@ de() {
 
 de '/scripts/create_Mfiles.py --id-prefix id --out-meta /tmp/meta --out-mani /tmp/mani'
 de '/scripts/check_manifest.py /tmp/mani'
-if $DEBUG; then
-	de '/scripts/extract_id.py /tmp/meta id1 > /tmp/meta_debug'
-	de '/scripts/extract_id.py /tmp/mani id1 > /tmp/mani_debug'
+if [[ $DEBUG = true ]]; then
+	# frequencyが50000未満のサンプルでは失敗する
+	de 'python /scripts/extract_id.py /tmp/meta id12 > /tmp/meta_debug'
+	de 'python /scripts/extract_id.py /tmp/mani id12 > /tmp/mani_debug'
 	de 'mv /tmp/meta_debug /tmp/meta'
 	de 'mv /tmp/mani_debug /tmp/mani'
 fi
