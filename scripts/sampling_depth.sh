@@ -13,9 +13,9 @@ while getopts d OPT; do
 	esac
 done
 
+batch_id=sampling_depth_$(./scripts/idgen.sh)
 mkdir -p "out/$batch_id"
 
-batch_id=sampling_depth_$(./scripts/idgen.sh)
 docker build . -t "$batch_id"
 docker run -dit --name "$batch_id" \
 	--mount type=bind,src="$(pwd)"/fastq,dst=/fastq,readonly \
