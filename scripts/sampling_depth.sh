@@ -1,6 +1,17 @@
 #!/bin/bash
 
-set -e
+set -ex
+
+while getopts d OPT; do
+	case $OPT in
+	d)
+		DEBUG=true
+		;;
+	*)
+		DEBUG=false
+		;;
+	esac
+done
 
 mkdir -p "out/$batch_id"
 
@@ -19,6 +30,13 @@ de() {
 
 de '/scripts/create_Mfiles.py --id-prefix id --out-meta /tmp/meta --out-mani /tmp/mani'
 de '/scripts/check_manifest.py /tmp/mani'
+if $DEBUG; then
+	de '/scripts/extract_id.py /tmp/meta id1 > /tmp/meta_debug'
+	de '/scripts/extract_id.py /tmp/mani id1 > /tmp/mani_debug'
+	de 'mv /tmp/meta_debug /tmp/meta'
+	de 'mv /tmp/mani_debug /tmp/mani'
+fi
+
 de '/scripts/pipeline/rarefaction.sh -c /tmp/mani -x /tmp/meta' |
 	xargs -I FILE docker cp "$batch_id":FILE "out/$batch_id/"
 
