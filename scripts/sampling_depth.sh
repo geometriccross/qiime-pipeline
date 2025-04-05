@@ -2,15 +2,6 @@
 
 set -ex
 
-cmd="$(cat - << EOF
-	/scripts/create_Mfiles.py --id-prefix id --out-meta ~/meta --out-mani ~/mani
-	/scripts/check_manifest.py ~/mani
-	
-	 # /scripts/pipeline/rarefaction.sh -c ~/mani -x ~/meta
-EOF
-)"
-
-
 mkdir -p "out/$batch_id"
 
 batch_id=sampling_depth_$(./scripts/idgen.sh)
@@ -24,6 +15,12 @@ then
 	find "out/$batch_id/" -type f -name ".qzv" | \
 		xargs -0 ./scripts/view.sh  # run in the host
 fi
+
+# docker execではentorypointを経由せず直接コマンドを実行するためbase環境が認識されない
+# そのためexecを使用する際にはbaseを認識させなければならない
+de() {
+	docker exec -it "$batch_id" micromamba run -n base bash -c "$@"
+}
 
 docker rm "$batch_id"
 docker rmi "$batch_id"
