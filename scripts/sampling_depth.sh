@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ex
+set -e
 
 mkdir -p "out/$batch_id"
 
