@@ -25,7 +25,7 @@ docker run -dit --name "$batch_id" \
 # docker execではentorypointを経由せず直接コマンドを実行するためbase環境が認識されない
 # そのためexecを使用する際にはbaseを認識させなければならない
 de() {
-	docker exec -it "$batch_id" micromamba run -n base bash -c "$@"
+	docker exec -i "$batch_id" micromamba run -n base bash -c "$@"
 }
 
 de '/scripts/create_Mfiles.py --id-prefix id --out-meta /tmp/meta --out-mani /tmp/mani'
