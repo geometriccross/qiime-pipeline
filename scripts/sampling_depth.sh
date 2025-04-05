@@ -10,7 +10,7 @@ while getopts m:c:o:f:x:s:d: OPT; do
 	esac
 done
 
-batch_id=sampling_depth_$(idgen.sh)
+batch_id=sampling_depth_$(./scripts/idgen.sh)
 docker build . -t "$batch_id"
 
 mkdir -p "out/$batch_id"
