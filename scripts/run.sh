@@ -38,3 +38,14 @@ if [[ $DEBUG = true ]]; then
 	de 'mv /tmp/meta_debug /tmp/meta'
 	de 'mv /tmp/mani_debug /tmp/mani'
 fi
+
+# if variable was not set
+if [ -z ${SAMPLING_DEPTH+x} ]; then
+	./scripts/sampling_depth.sh
+else
+	./scripts/metagoneme.sh
+fi
+
+docker stop "$batch_id"
+docker rm "$batch_id"
+docker rmi "$batch_id"
