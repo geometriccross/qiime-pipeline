@@ -1,14 +1,6 @@
 #!/bin/bash
 
-while getopts m:c:o:f:x:s:d: OPT; do
-	case $OPT in
-	c) MANI=$OPTARG ;;
-	x) META=$OPTARG ;;
-	*) 
-		echo "Arguments are required" > /dev/err
-		exit 1 ;;
-	esac
-done
+set -ex
 
 batch_id=sampling_depth_$(./scripts/idgen.sh)
 docker build . -t "$batch_id"
