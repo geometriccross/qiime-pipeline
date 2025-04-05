@@ -3,11 +3,10 @@
 set -ex
 
 cmd="$(cat - << EOF
-	touch /meta /mani
-	/scripts/create_Mfiles.py --id-prefix id --out-meta /meta --out-mani /mani
-	/scripts/check_manifest.py /mani
+	/scripts/create_Mfiles.py --id-prefix id --out-meta ~/meta --out-mani ~/mani
+	/scripts/check_manifest.py ~/mani
 	
-	 # /scripts/pipeline/rarefaction.sh -c /mani -x /meta
+	 # /scripts/pipeline/rarefaction.sh -c ~/mani -x ~/meta
 EOF
 )"
 
