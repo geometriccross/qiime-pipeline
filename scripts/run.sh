@@ -7,6 +7,9 @@ while getopts ds: OPT; do
 	d)
 		DEBUG=true
 		;;
+	s)
+		SAMPLING_DEPTH=$OPTARG
+		;;
 	*)
 		DEBUG=false
 		;;
@@ -43,7 +46,7 @@ fi
 if [ -z ${SAMPLING_DEPTH+x} ]; then
 	./scripts/sampling_depth.sh
 else
-	./scripts/metagoneme.sh
+	./scripts/metagoneme.sh -s "$SAMPLING_DEPTH"
 fi
 
 docker stop "$batch_id"
