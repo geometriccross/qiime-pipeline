@@ -17,8 +17,8 @@ do
 	esac
 done
 
-mkdir -p /out
-cd /out || exit 1
+mkdir -p /tmp/out
+cd /tmp/out || exit 1
 
 qiime tools import \
 	--type 'SampleData[PairedEndSequencesWithQuality]' \
