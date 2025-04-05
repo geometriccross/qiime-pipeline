@@ -6,3 +6,5 @@ RUN micromamba install -y -n base --file /tmp/env.yml && \
     micromamba clean --all --yes
 
 COPY scripts /scripts
+
+CMD ["/bin/bash"]
