@@ -19,7 +19,13 @@ de() {
 
 de '/scripts/create_Mfiles.py --id-prefix id --out-meta /tmp/meta --out-mani /tmp/mani'
 de '/scripts/check_manifest.py /tmp/mani'
-de '/scripts/pipeline/rarefaction.sh -c /tmp/mani -x /tmp/meta'
+de '/scripts/pipeline/rarefaction.sh -c /tmp/mani -x /tmp/meta' | \
+	xargs -I FILE docker cp "$batch_id":FILE "out/$batch_id/"
+
+find "out/$batch_id/" -type f -name ".qzv" | \
+	xargs -0 ./scripts/view.sh  # run in the host
+
+docker stop "$batch_id"
 docker rm "$batch_id"
 docker rmi "$batch_id"
 
