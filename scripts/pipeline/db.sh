@@ -1,8 +1,8 @@
 #!/bin/bash
 
-CREATE_DB="/tmp/dbgen_$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 5 | head -1)"
+CREATE_DB="/tmp/$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 5 | head -1)"
 mkdir -p "${CREATE_DB}"
-cd "$CREATE_DB" || exit
+cd "$CREATE_DB" || exit 1
 
 wget -P . https://data.qiime2.org/2024.10/common/silva-138-99-seqs.qza
 wget -P . https://data.qiime2.org/2024.10/common/silva-138-99-tax.qza

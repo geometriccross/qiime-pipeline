@@ -22,3 +22,10 @@ while getopts m:c:o:f:x:s:d: OPT; do
 	esac
 done
 
+img_id=qiime_"$unique_id"
+docker build . -t "$img_id"
+
+if [[ ! -f "$HOST_DB" ]]; then
+	docker run --rm "$img_id" /scripts/pipeline/db.sh | \
+		xargs -I FILE docker cp qiime:FILE "$(realpath "$HOST_DB" | xargs dirname)/" # append / for it be treated by directory
+fi
