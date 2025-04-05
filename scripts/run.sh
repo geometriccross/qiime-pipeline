@@ -1,49 +1,40 @@
 #!/bin/bash
 
-unique_id=$(idgen.sh)
+set -ex
 
-# default value
-HOST_OUT="out/$unique_id/"
-HOST_DB="db/classifier.qza"
-HOST_MANI="${OUT}/manifest"
-HOST_META="${OUT}/meta"
-
-# https://unix.stackexchange.com/questions/706602/use-getopt-to-directly-retrieve-option-value
-while getopts m:c:o:f:x:s:d: OPT; do
+while getopts ds: OPT; do
 	case $OPT in
-	o) HOST_OUT=$OPTARG ;;
-	d) HOST_DB=$OPTARG ;;
-	c) HOST_MANI=$OPTARG ;;
-	x) HOST_META=$OPTARG ;;
-	s) SAMPLING_DEPTH=$OPTARG ;;
-	*) exit 1 ;;
+	d)
+		DEBUG=true
+		;;
+	*)
+		DEBUG=false
+		;;
 	esac
 done
 
-img_id=qiime_"$unique_id"
-docker build . -t "$img_id"
+batch_id=sampling_depth_$(./scripts/idgen.sh)
+mkdir -p "out/$batch_id"
 
-if [[ ! -f "$HOST_DB" ]]; then
-	docker run --rm "$img_id" /scripts/pipeline/db.sh | \
-		xargs -I FILE docker cp qiime:FILE "$(realpath "$HOST_DB" | xargs dirname)/" # append / for it be treated by directory
-fi
+docker build . -t "$batch_id"
+docker run -dit --name "$batch_id" \
+	--mount type=bind,src="$(pwd)"/db/classifier.qza,dst=/db/classifier.qza \
+	--mount type=bind,src="$(pwd)"/fastq,dst=/fastq,readonly \
+	--mount type=bind,src="$(pwd)"/meta,dst=/meta,readonly \
+	"$batch_id" bash
 
-if [[ -z ${SAMPLING_DEPTH+x} ]]; then
-	ctn_output="$(docker run --rm "$img_id" /scripts/pipeline/rarefaction.sh \
-		-o "$HOST_OUT" \
-		-c "$HOST_MANI" \
-		-x "$HOST_META")"
-	docker cp "$img_id":"$ctn_output" "$CTN_OUT"
-	./pipeline/view.sh "$CTN_OUT"/"$(basename "$ctn_output")"# run in the host
-else
-	docker run --rm "$img_id" /scripts/pipeline/taxonomy.sh \
-		-o "$HOST_OUT" \
-		-c "$HOST_MANI" \
-		-x "$HOST_META" \
-		-d "$HOST_DB" \
-		-s "$SAMPLING_DEPTH"
+# docker execではentorypointを経由せず直接コマンドを実行するためbase環境が認識されない
+# そのためexecを使用する際にはbaseを認識させなければならない
+de() {
+	docker exec -i "$batch_id" micromamba run -n base bash -c "$@"
+}
 
-	# ディレクトリの中身をHOST_OUTにコピーする
-	# ディレクトリ自体がそのままHOST_OUT内部にコピーされるわけではない
-	docker cp "$img_id":"/out/." "$HOST_OUT"
+de '/scripts/create_Mfiles.py --id-prefix id --out-meta /tmp/meta --out-mani /tmp/mani'
+de '/scripts/check_manifest.py /tmp/mani'
+if [[ $DEBUG = true ]]; then
+	# frequencyが50000未満のサンプルでは失敗する
+	de 'python /scripts/extract_id.py /tmp/meta id12 > /tmp/meta_debug'
+	de 'python /scripts/extract_id.py /tmp/mani id12 > /tmp/mani_debug'
+	de 'mv /tmp/meta_debug /tmp/meta'
+	de 'mv /tmp/mani_debug /tmp/mani'
 fi
