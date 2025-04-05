@@ -9,7 +9,8 @@ docker build . -t "$batch_id"
 
 mkdir -p "out/$batch_id"
 docker run --rm sampling_depth /scripts/pipeline/rarefaction.sh \
-	-o "$HOST_OUT" \
+	--mount -type=bind "$batch_id",src="$(pwd)"/fastq,dst=/fastq,readonly \
+	--mount -type=bind "$batch_id",src="$(pwd)"/meta,dst=/meta,readonly \
 	-c "$HOST_MANI" \
 	-x "$HOST_META" |
 	xargs -I FILE docker cp sampling_depth:FILE "out/$batch_id/"

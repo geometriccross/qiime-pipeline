@@ -11,16 +11,14 @@ fi
 while getopts o:c:x: OPT
 do
 	case $OPT in
-		o)	OUT=$OPTARG;;
 		c)	MANI=$OPTARG;;
 		x)	META=$OPTARG;;
 		*)	exit 1;;
 	esac
 done
 
-RAREFACTION_DIR="${OUT}/rare"
-mkdir -p "$RAREFACTION_DIR"
-cd "$RAREFACTION_DIR"
+mkdir -p /out
+cd /out || exit 1
 
 qiime tools import \
 	--type 'SampleData[PairedEndSequencesWithQuality]' \
