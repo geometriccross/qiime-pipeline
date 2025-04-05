@@ -17,6 +17,9 @@ de() {
 	docker exec -it "$batch_id" micromamba run -n base bash -c "$@"
 }
 
+de '/scripts/create_Mfiles.py --id-prefix id --out-meta /tmp/meta --out-mani /tmp/mani'
+de '/scripts/check_manifest.py /tmp/mani'
+de '/scripts/pipeline/rarefaction.sh -c /tmp/mani -x /tmp/meta'
 docker rm "$batch_id"
 docker rmi "$batch_id"
 
