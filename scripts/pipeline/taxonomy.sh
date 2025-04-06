@@ -1,27 +1,29 @@
 #!/bin/bash
 
-set -e -x
+set -ex
 
-while getopts o:d:c:x:s: OPT
+# <<<<< THIS SCRIPT PRESUMES TO RUN IN DOCKER CONTAINER >>>>>>
+if [[ ! -e /.dockerenv ]]; then
+	echo "Please run in an inside of container" > /dev/stderr
+	exit 1
+fi
+
+while getopts s: OPT
 do
 	case $OPT in
-		o)	OUT=$OPTARG;;
-		d)	DB=$OPTARG;;
-		c)	MANI=$OPTARG;;
-		x)	META=$OPTARG;;
 		s)	SAMPLING_DEPTH=$OPTARG;;
 		*)	exit 1;;
 	esac
 done
 
-PRE="${OUT}/pre_$(tr -dc 0-9A-Za-z </dev/urandom | fold -w 10 | head -1)"
+PRE="/tmp/out/pre"
 mkdir -p "$PRE"
 cd "$PRE" || exit 1
 
 qiime tools import \
 	--type 'SampleData[PairedEndSequencesWithQuality]' \
 	--input-format PairedEndFastqManifestPhred33V2 \
-	--input-path "$MANI" \
+	--input-path /tmp/mani \
 	--output-path paired_end_demux.qza >/dev/null
 
 qiime dada2 denoise-paired \
@@ -50,7 +52,7 @@ qiime feature-table filter-seqs \
 
 qiime feature-classifier classify-sklearn \
 	--quiet \
-	--i-classifier "$DB" \
+	--i-classifier /db/classifier.qza \
 	--i-reads filtered_seq.qza \
 	--o-classification classification.qza
 
@@ -78,7 +80,7 @@ qiime phylogeny align-to-tree-mafft-fasttree \
 
 qiime feature-classifier classify-sklearn \
 	--quiet \
-	--i-classifier "$DB" \
+	--i-classifier /db/classifier.qza \
 	--i-reads common_biology_free_seq.qza \
 	--o-classification common_biology_free_classification.qza
 
@@ -86,49 +88,48 @@ qiime taxa barplot \
 	--quiet \
 	--i-table common_biology_free_table.qza \
 	--i-taxonomy common_biology_free_classification.qza \
-	--m-metadata-file "$META" \
+	--m-metadata-file /tmp/meta \
 	--o-visualization taxa-bar-plots.qzv
 
 # ./pipeline/view.sh "${PRE}/taxa-bar-plots.qzv"
 
-CORE="${OUT}/core_$(tr -dc 0-9A-Za-z </dev/urandom | fold -w 10 | head -1)"
-mkdir "$CORE"
-cd "$CORE" || exit 1
+# core-metricsでoutput-dirを指定する場合、dirがすでに存在していると失敗する
+CORE="/tmp/out/core"
+cd /tmp/out || exit 1 # preで生成したファイルを使用するため、cwdを移動しない方が都合がよい
 
 qiime diversity core-metrics-phylogenetic \
 	--quiet \
-	--m-metadata-file "$META" \
+	--m-metadata-file /tmp/meta \
 	--p-sampling-depth "$SAMPLING_DEPTH" \
-	--i-phylogeny common_biology_free_rooted-tree.qza \
-	--i-table common_biology_free_table.qza \
+	--i-phylogeny ./pre/common_biology_free_rooted-tree.qza \
+	--i-table ./pre/common_biology_free_table.qza \
 	--output-dir "$CORE"
 
-qiime metadata tabulate \
-	--m-input-file faith_pd_vector.qza \
-	--o-visualization faith_pd_vector.qzv
-
+# qiime metadata tabulate \
+# 	--m-input-file $CORE/faith_pd_vector.qza \
+# 	--o-visualization $CORE/faith_pd_vector.qzv
 # ./pipeline/view.sh "${CORE}/faith_pd_vector.qzv"
 
-ALPHA="${OUT}/alpha_$(tr -dc 0-9A-Za-z </dev/urandom | fold -w 10 | head -1)"
+ALPHA="/tmp/out/alpha"
 mkdir -p "$ALPHA"
 cd "$ALPHA" || exit 1
 
 qiime diversity alpha-group-significance \
-	--m-metadata-file "$META" \
-	--i-alpha-diversity shannon_vector.qza \
+	--m-metadata-file /tmp/meta \
+	--i-alpha-diversity $CORE/shannon_vector.qza \
 	--o-visualization shannon_vector.qzv
 
 qiime diversity alpha-group-significance \
-	--m-metadata-file "$META" \
-	--i-alpha-diversity faith_pd_vector.qza \
+	--m-metadata-file /tmp/meta \
+	--i-alpha-diversity $CORE/faith_pd_vector.qza \
 	--o-visualization faith_pd_vector.qzv
 
 qiime diversity alpha-group-significance \
-	--m-metadata-file "$META" \
-	--i-alpha-diversity observed_features_vector.qza \
+	--m-metadata-file /tmp/meta \
+	--i-alpha-diversity $CORE/observed_features_vector.qza \
 	--o-visualization observed_features_vector.qzv
 
-BETA="${OUT}/beta_$(tr -dc 0-9A-Za-z </dev/urandom | fold -w 10 | head -1)"
+BETA="/tmp/out/beta"
 mkdir -p "$BETA"
 cd "$BETA" || exit 1
 
@@ -136,9 +137,9 @@ col=("Species" "Location" "SampleGender")
 for item in "${col[@]}"; do
 	qiime diversity beta-group-significance \
 		--p-pairwise \
-		--m-metadata-file "$META" \
+		--m-metadata-file /tmp/meta \
 		--m-metadata-column "$item" \
-		--i-distance-matrix weighted_unifrac_distance_matrix.qza \
+		--i-distance-matrix $CORE/weighted_unifrac_distance_matrix.qza \
 		--o-visualization weighted-unifrac-distance-matrix-"${item}".qzv
 done
 

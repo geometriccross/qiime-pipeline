@@ -1,20 +1,22 @@
 #!/bin/bash
 
-set -e
+# <<<<< THIS SCRIPT PRESUMES TO RUN IN DOCKER CONTAINER >>>>>>
+if [[ ! -e /.dockerenv ]]; then
+	echo "Please run in an inside of container" > /dev/stderr
+	exit 1
+fi
 
 while getopts o:c:x: OPT
 do
 	case $OPT in
-		o)	OUT=$OPTARG;;
 		c)	MANI=$OPTARG;;
 		x)	META=$OPTARG;;
 		*)	exit 1;;
 	esac
 done
 
-RAREFACTION_DIR="${OUT}/rare_$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 10 | head -1)"
-mkdir -p "$RAREFACTION_DIR"
-cd "$RAREFACTION_DIR"
+mkdir -p /tmp/out
+cd /tmp/out || exit 1
 
 qiime tools import \
 	--type 'SampleData[PairedEndSequencesWithQuality]' \
