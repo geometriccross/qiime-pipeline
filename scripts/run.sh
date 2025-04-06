@@ -55,4 +55,4 @@ fi
 
 docker stop "$batch_id"
 docker rm "$batch_id"
-docker rmi "$batch_id"
+docker rmi qiime
