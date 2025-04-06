@@ -105,10 +105,9 @@ qiime diversity core-metrics-phylogenetic \
 	--i-table ./pre/common_biology_free_table.qza \
 	--output-dir "$CORE"
 
-qiime metadata tabulate \
-	--m-input-file faith_pd_vector.qza \
-	--o-visualization faith_pd_vector.qzv
-
+# qiime metadata tabulate \
+# 	--m-input-file $CORE/faith_pd_vector.qza \
+# 	--o-visualization $CORE/faith_pd_vector.qzv
 # ./pipeline/view.sh "${CORE}/faith_pd_vector.qzv"
 
 ALPHA="/tmp/out/alpha"
