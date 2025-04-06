@@ -4,4 +4,5 @@
 
 de "/scripts/pipeline/taxonomy.sh -s $SAMPLING_DEPTH"
 
-docker cp "$batch_id":/tmp/out "out/$batch_id/"
+# /tmp/out/.のように最後に.をつけることで、指定したディレクトリの中身を直接コピーすることとなる
+docker cp "$batch_id":/tmp/out/. "out/$batch_id/"
