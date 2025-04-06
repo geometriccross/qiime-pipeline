@@ -93,15 +93,15 @@ qiime taxa barplot \
 
 CORE="/tmp/out/core"
 mkdir "$CORE"
-cd "$CORE" || exit 1
+cd /tmp/out || exit 1 # preで生成したファイルを使用するため、cwdを移動しない方が都合がよい
 
 qiime diversity core-metrics-phylogenetic \
 	--quiet \
 	--m-metadata-file /tmp/meta \
 	--p-sampling-depth "$SAMPLING_DEPTH" \
-	--i-phylogeny common_biology_free_rooted-tree.qza \
-	--i-table common_biology_free_table.qza \
-	--output-dir .
+	--i-phylogeny ./pre/common_biology_free_rooted-tree.qza \
+	--i-table ./pre/common_biology_free_table.qza \
+	--output-dir "$CORE"
 
 qiime metadata tabulate \
 	--m-input-file faith_pd_vector.qza \
@@ -115,17 +115,17 @@ cd "$ALPHA" || exit 1
 
 qiime diversity alpha-group-significance \
 	--m-metadata-file /tmp/meta \
-	--i-alpha-diversity shannon_vector.qza \
+	--i-alpha-diversity $CORE/shannon_vector.qza \
 	--o-visualization shannon_vector.qzv
 
 qiime diversity alpha-group-significance \
 	--m-metadata-file /tmp/meta \
-	--i-alpha-diversity faith_pd_vector.qza \
+	--i-alpha-diversity $CORE/faith_pd_vector.qza \
 	--o-visualization faith_pd_vector.qzv
 
 qiime diversity alpha-group-significance \
 	--m-metadata-file /tmp/meta \
-	--i-alpha-diversity observed_features_vector.qza \
+	--i-alpha-diversity $CORE/observed_features_vector.qza \
 	--o-visualization observed_features_vector.qzv
 
 BETA="/tmp/out/beta"
@@ -138,7 +138,7 @@ for item in "${col[@]}"; do
 		--p-pairwise \
 		--m-metadata-file /tmp/meta \
 		--m-metadata-column "$item" \
-		--i-distance-matrix weighted_unifrac_distance_matrix.qza \
+		--i-distance-matrix $CORE/weighted_unifrac_distance_matrix.qza \
 		--o-visualization weighted-unifrac-distance-matrix-"${item}".qzv
 done
 
