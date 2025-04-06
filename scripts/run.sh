@@ -35,9 +35,10 @@ de() {
 de '/scripts/create_Mfiles.py --id-prefix id --out-meta /tmp/meta --out-mani /tmp/mani'
 de '/scripts/check_manifest.py /tmp/mani'
 if [[ $DEBUG = true ]]; then
-	# frequencyが50000未満のサンプルでは失敗する
-	de 'python /scripts/extract_id.py /tmp/meta id12 > /tmp/meta_debug'
-	de 'python /scripts/extract_id.py /tmp/mani id12 > /tmp/mani_debug'
+	# frequencyが50000未満のサンプルしかない場合、rarefaction.shは失敗する
+	# alpha,beta解析を行う場合、それぞれ異なるcol要素を持っていないと失敗する
+	de 'python /scripts/extract_id.py /tmp/meta id1 id2 id21 id25 > /tmp/meta_debug'
+	de 'python /scripts/extract_id.py /tmp/mani id1 id2 id21 id25 > /tmp/mani_debug'
 	de 'mv /tmp/meta_debug /tmp/meta'
 	de 'mv /tmp/mani_debug /tmp/mani'
 fi
