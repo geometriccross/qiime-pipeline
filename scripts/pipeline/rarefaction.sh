@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 # <<<<< THIS SCRIPT PRESUMES TO RUN IN DOCKER CONTAINER >>>>>>
 if [[ ! -e /.dockerenv ]]; then
 	echo "Please run in an inside of container" > /dev/stderr

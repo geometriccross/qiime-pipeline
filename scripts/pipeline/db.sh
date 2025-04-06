@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# <<<<< THIS SCRIPT PRESUMES TO RUN IN DOCKER CONTAINER >>>>>>
+if [[ ! -e /.dockerenv ]]; then
+	echo "Please run in an inside of container" > /dev/stderr
+	exit 1
+fi
+
 CREATE_DB="/tmp/$(tr -dc 0-9A-Za-z < /dev/urandom | fold -w 5 | head -1)"
 mkdir -p "${CREATE_DB}"
 cd "$CREATE_DB" || exit 1
