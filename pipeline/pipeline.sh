@@ -114,7 +114,7 @@ qiime diversity alpha-group-significance \
 BETA="${OUT}/beta_$(tr -dc 0-9A-Za-z </dev/urandom | fold -w 10 | head -1)"
 mkdir -p "${BETA}"
 
-col=("Host" "Species" "Location" "SampleGender")
+col=("Species" "Location" "SampleGender")
 for item in "${col[@]}"; do
 	qiime diversity beta-group-significance \
 		--p-pairwise \
