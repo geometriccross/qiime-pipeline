@@ -1,9 +1,12 @@
 #!/bin/bash
 
-set -ex
+set -e
 
-while getopts ds: OPT; do
+while getopts dvs: OPT; do
 	case $OPT in
+	v)
+		set -ex
+		;;
 	d)
 		DEBUG=true
 		;;
