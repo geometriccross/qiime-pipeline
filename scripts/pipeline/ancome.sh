@@ -63,3 +63,15 @@ fi
 #
 # find first second third -print0 -name "*.qz[av]" |
 # 	xargs -0 rename.ul --verbose -- ".qz" "-$(date "+%y%m%d").qz"
+while getopts t: OPT
+do
+	case $OPT in
+		t)	
+			TABLE=$OPTARG
+			;;
+		*)	
+			exit 1
+			;;
+	esac
+done
+
