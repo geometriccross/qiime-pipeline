@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -ex
+
 # <<<<< THIS SCRIPT PRESUMES TO RUN IN DOCKER CONTAINER >>>>>>
 if [[ ! -e /.dockerenv ]]; then
 	echo "Please run in an inside of container" > /dev/stderr
@@ -91,8 +93,8 @@ qiime taxa barplot \
 
 # ./pipeline/view.sh "${PRE}/taxa-bar-plots.qzv"
 
+# core-metricsでoutput-dirを指定する場合、dirがすでに存在していると失敗する
 CORE="/tmp/out/core"
-mkdir "$CORE"
 cd /tmp/out || exit 1 # preで生成したファイルを使用するため、cwdを移動しない方が都合がよい
 
 qiime diversity core-metrics-phylogenetic \
