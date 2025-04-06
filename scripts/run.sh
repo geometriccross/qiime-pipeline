@@ -22,12 +22,12 @@ done
 batch_id=$(./scripts/idgen.sh)
 mkdir -p "out/$batch_id"
 
-docker build . -t "$batch_id"
+docker build . -t qiime
 docker run -dit --name "$batch_id" \
 	--mount type=bind,src="$(pwd)"/db/classifier.qza,dst=/db/classifier.qza \
 	--mount type=bind,src="$(pwd)"/fastq,dst=/fastq,readonly \
 	--mount type=bind,src="$(pwd)"/meta,dst=/meta,readonly \
-	"$batch_id" bash
+	qiime bash
 
 # docker execではentorypointを経由せず直接コマンドを実行するためbase環境が認識されない
 # そのためexecを使用する際にはbaseを認識させなければならない
