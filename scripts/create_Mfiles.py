@@ -31,13 +31,6 @@ def search_fastq(q: str, data: list[str]) -> tuple[str]:
     return fwd_abs_path, rvs_abs_path
 
 
-data_list = [
-    {"meta": "/meta/bat_fleas.csv", "fastq": "/fastq/batfleas"},
-    {"meta": "/meta/cat_fleas.csv", "fastq": "/fastq/catfleas"},
-    {"meta": "/meta/lip_forti.csv", "fastq": "/fastq/sk"},
-    {"meta": "/meta/mky_louse.csv", "fastq": "/fastq/monkeylice"}
-]
-
 parser = argparse.ArgumentParser()
 parser.add_argument(
     "-p",
@@ -49,6 +42,14 @@ parser.add_argument(
         (default : %(default)s))
         """
     ).strip()
+)
+parser.add_argument(
+    "--input-meta",
+    default="/meta"
+)
+parser.add_argument(
+    "--input-fastq",
+    default="/fastq"
 )
 parser.add_argument(
     "--out-meta",
@@ -69,8 +70,29 @@ parser.add_argument(
 
 # 引数から取得
 id_prefix = parser.parse_args().id_prefix
+input_meta = parser.parse_args().input_meta
+input_fastq = parser.parse_args().input_fastq
 out_meta = parser.parse_args().out_meta
 out_mani = parser.parse_args().out_mani
+
+data_list = [
+    {
+        "meta": f"{input_meta}/bat_fleas.csv",
+        "fastq": f"{input_fastq}/batfleas"
+    },
+    {
+        "meta": f"{input_meta}/cat_fleas.csv",
+        "fastq": f"{input_fastq}/catfleas"
+    },
+    {
+        "meta": f"{input_meta}/lip_forti.csv",
+        "fastq": f"{input_fastq}/sk"
+    },
+    {
+        "meta": f"{input_meta}/mky_louse.csv",
+        "fastq": f"{input_fastq}/monkeylice"
+    }
+]
 
 master_list = []
 # 適当なmetadataのヘッダーを取得
