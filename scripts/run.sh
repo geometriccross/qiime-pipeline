@@ -5,6 +5,7 @@ set -e
 while getopts dvs: OPT; do
 	case $OPT in
 	v)
+		VERBOSE=true
 		set -ex
 		;;
 	d)
@@ -14,6 +15,7 @@ while getopts dvs: OPT; do
 		SAMPLING_DEPTH=$OPTARG
 		;;
 	*)
+		VERBOSE=false
 		DEBUG=false
 		;;
 	esac
@@ -32,6 +34,10 @@ docker run -dit --name "$batch_id" \
 # docker execではentorypointを経由せず直接コマンドを実行するためbase環境が認識されない
 # そのためexecを使用する際にはbaseを認識させなければならない
 de() {
+	if [[ $VERBOSE = true ]]; then
+		docker exec -i "$batch_id" micromamba run -n base bash -c "set -ex"
+	fi
+
 	docker exec -i "$batch_id" micromamba run -n base bash -c "$@"
 }
 
