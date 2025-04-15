@@ -6,7 +6,7 @@ mkdir -p "$ALPHA"
 cd "$ALPHA" || exit 1
 
 
-# pairs=$(awk '{ print $4 }' /tmp/meta | uniq | tail -n +2 | sort)
+pairs=$(awk '{ print $4 }' /tmp/meta | uniq | tail -n +2 | sort)
 for (( i = 0; i < ${#pairs[@]}; i++ )); do
   for (( j = i + 1; j < ${#pairs[@]}; j++ )); do
     echo "組み合わせ: ${pairs[i]} と ${pairs[j]}"
