@@ -7,7 +7,7 @@ from pathlib import Path
 
 
 @pytest.fixture(scope="function")
-def docker_container():
+def container():
     client = docker.from_env()
     image_tag = "python"
     container_name = f"extract_id_test_{int(time.time())}"
@@ -70,14 +70,14 @@ def docker_container():
 
 
 @pytest.mark.parametrize("extract", [["id1", "id2", "id21", "id25"]])
-def test_extract_correctry(docker_container, extract):
+def test_extract_correctry(container, extract):
     cmd = [
         "python",
         "/scripts/extract_id.py",
         "/tmp/meta"
     ] + extract
 
-    result = docker_container.exec_run(cmd=cmd, demux=True)
+    result = container.exec_run(cmd=cmd, demux=True)
     stdout, stderr = result.output
 
     output = stdout.decode() if stdout else ""
