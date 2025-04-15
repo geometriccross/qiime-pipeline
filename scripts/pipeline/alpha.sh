@@ -1,46 +1,35 @@
 #!/bin/bash
 
 
-gen_matrix() {
-    for first in "$@"; do
-        for second in "$@"; do
-            if [ "$first" = "$second" ]; then
-                continue
-            fi
-            if [[ "$first" > "$second" ]]; then
-                pair="$second$first"
-            else
-                pair="$first$second"
-            fi
-            echo "$pair"
-        done
-    done | sort -u
-}
-
-
 ALPHA="/tmp/out/alpha"
 mkdir -p "$ALPHA"
 cd "$ALPHA" || exit 1
 
-for sp in $(gen_matrix "$(awk '{ print $4 }' /tmp/meta | uniq | tail +2 | sort)"); do
-	meta="/tmp/meta_$sp"
-	python /scripts/extract_id.py /tmp/meta "$sp" > "$meta"
+
+# pairs=$(awk '{ print $4 }' /tmp/meta | uniq | tail -n +2 | sort)
+for (( i = 0; i < ${#pairs[@]}; i++ )); do
+  for (( j = i + 1; j < ${#pairs[@]}; j++ )); do
+    echo "組み合わせ: ${pairs[i]} と ${pairs[j]}"
+
+	combi=${pairs[i]}_${pairs[j]}
+	meta="/tmp/meta_$combi"
+
+	python /scripts/extract_id.py /tmp/meta "${pairs[i]}" "${pairs[j]}"  > "$meta"
+
+	cat "$meta"
+	qiime diversity alpha-group-significance \
+		--m-metadata-file "$meta" \
+		--i-alpha-diversity "$CORE"/shannon_"$combi".qza \
+		--o-visualization shannon_"$combi".qzv
 
 	qiime diversity alpha-group-significance \
-		--quiet \
 		--m-metadata-file "$meta" \
-		--i-alpha-diversity "$CORE"/shannon_"$sp".qza \
-		--o-visualization shannon_"$sp".qzv
+		--i-alpha-diversity "$CORE"/faith_pd_"$combi".qza \
+		--o-visualization faith_pd_"$combi".qzv
 
 	qiime diversity alpha-group-significance \
-		--quiet \
 		--m-metadata-file "$meta" \
-		--i-alpha-diversity "$CORE"/faith_pd_"$sp".qza \
-		--o-visualization faith_pd_"$sp".qzv
-
-	qiime diversity alpha-group-significance \
-		--quiet \
-		--m-metadata-file "$meta" \
-		--i-alpha-diversity "$CORE"/observed_features_"$sp".qza \
-		--o-visualization observed_features_"$sp".qzv
+		--i-alpha-diversity "$CORE"/observed_features_"$combi".qza \
+		--o-visualization observed_features_"$combi".qzv
+  done
 done
