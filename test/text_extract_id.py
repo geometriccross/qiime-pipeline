@@ -89,25 +89,33 @@ def test_extract_correctry(container, extract):
 @pytest.mark.parametrize("pattern", [
     {
         "target": ["ctenocephalides_felis"],
-        "origin": "meta/cat_fleas.csv"
+        "origin": ["meta/cat_fleas.csv"]
     },
+    {
+        "target": ["ctenocephalides_felis", "ischnopsyllus_needhami"],
+        "origin": ["meta/cat_fleas.csv", "meta/bat_fleas.csv"]
+    }
 ])
 def test_column_based_extract(container, pattern):
+    target = pattern["target"]
+    origin = pattern["origin"]
     cmd = [
         "python",
         "/scripts/extract_id.py",
         "/tmp/meta",
         "--column",
         "3"
-    ] + pattern["target"]
+    ] + target
 
     result = container.exec_run(cmd=cmd, demux=True)
     stdout, stderr = result.output
-
     output = stdout.decode() if stdout else ""
-    for target in pattern["target"]:
-        assert target in output
 
-        with open(pattern["origin"], "r") as f:
-            lines = len(f.readlines())
-            assert lines == output.count("\n")
+    total_line = 0 if len(origin) <= 1 else -1  # count header
+    for path in origin:
+        with open(path, "r") as f:
+            total_line += len(f.readlines())
+
+    for target in target:
+        assert target in output
+        assert total_line == output.count("\n")
