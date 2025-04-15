@@ -102,40 +102,5 @@ qiime diversity core-metrics-phylogenetic \
 # 	--o-visualization $CORE/faith_pd_vector.qzv
 # ./pipeline/view.sh "${CORE}/faith_pd_vector.qzv"
 
-ALPHA="/tmp/out/alpha"
-mkdir -p "$ALPHA"
-cd "$ALPHA" || exit 1
-
-qiime diversity alpha-group-significance \
-	--quiet \
-	--m-metadata-file /tmp/meta \
-	--i-alpha-diversity $CORE/shannon_vector.qza \
-	--o-visualization shannon_vector.qzv
-
-qiime diversity alpha-group-significance \
-	--quiet \
-	--m-metadata-file /tmp/meta \
-	--i-alpha-diversity $CORE/faith_pd_vector.qza \
-	--o-visualization faith_pd_vector.qzv
-
-qiime diversity alpha-group-significance \
-	--quiet \
-	--m-metadata-file /tmp/meta \
-	--i-alpha-diversity $CORE/observed_features_vector.qza \
-	--o-visualization observed_features_vector.qzv
-
-BETA="/tmp/out/beta"
-mkdir -p "$BETA"
-cd "$BETA" || exit 1
-
-col=("Species" "Location" "SampleGender")
-for item in "${col[@]}"; do
-	qiime diversity beta-group-significance \
-		--quiet \
-		--p-pairwise \
-		--m-metadata-file /tmp/meta \
-		--m-metadata-column "$item" \
-		--i-distance-matrix $CORE/weighted_unifrac_distance_matrix.qza \
-		--o-visualization weighted-unifrac-distance-matrix-"${item}".qzv
-done
-
+. /scripts/pipeline/alpha.sh
+. /scripts/pipeline/beta.sh
