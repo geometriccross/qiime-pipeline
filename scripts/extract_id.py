@@ -33,13 +33,10 @@ parser.add_argument(
 ),
 parser.add_argument(
     "-r",
-    "--reverse",
-    action="store_false",
-    help=dedent(
-        """
-        If you specify this TRUE, The data with the passed id removed is output
-        """
-    )
+    "--exclude",
+    action="store_true",
+    help=dedent("""
+        """)
 )
 
 args = parser.parse_args()
@@ -51,19 +48,21 @@ targets = []
 for target in args.targets:
     targets.append("".join(target))
 
-with open(args.input_path, "r") as file:
+with open(args.input_path, newline="") as file:
     reader = csv.reader(file, delimiter="\t")
-
-    header = file.readline()
-    result = header
-    reverse = header
+    header = next(reader)
+    output_lines = ["\t".join(header)]
     for row in reader:
-        if row[0] in targets:
-            reverse += "\t".join(row) + "\n"
+        # 列数が足りない行はスキップ
+        if len(row) <= args.column:
+            continue
+        # 指定された列の値がターゲットに含まれているかどうか
+        match = row[args.column] in args.targets
+        if args.exclude:
+            if not match:
+                output_lines.append("\t".join(row))
         else:
-            result += "\t".join(row) + "\n"
+            if match:
+                output_lines.append("\t".join(row))
 
-    if args.reverse:
-        print(reverse)
-    else:
-        print(result)
+print("\n".join(output_lines))
