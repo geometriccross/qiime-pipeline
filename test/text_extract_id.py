@@ -87,20 +87,20 @@ def test_extract_correctry(container, extract):
 
 
 @pytest.mark.parametrize("extract", [
-    "ctenocephalides_felis",
+    ["ctenocephalides_felis"],
 ])
 def test_column_based_extract(container, extract):
     cmd = [
         "python",
         "/scripts/extract_id.py",
         "/tmp/meta",
-        "--column",
+        "--column 3",
         "Species",
-        "ischnopsyllus_needhami"
-    ]
+    ] + extract
 
     result = container.exec_run(cmd=cmd, demux=True)
     stdout, stderr = result.output
 
     output = stdout.decode() if stdout else ""
-    assert extract in output
+    for target in extract:
+        assert target in output
