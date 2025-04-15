@@ -22,6 +22,16 @@ parser.add_argument(
     )
 )
 parser.add_argument(
+    "-c",
+    "--column",
+    default="0",
+    help=dedent(
+        """
+        Target column
+        """
+    )
+),
+parser.add_argument(
     "-r",
     "--reverse",
     action="store_false",
