@@ -84,3 +84,23 @@ def test_extract_correctry(container, extract):
     assert \
         all(id_ in output for id_ in extract), \
         f"Expected IDs not found: {output}"
+
+
+@pytest.mark.parametrize("extract", [
+    "ctenocephalides_felis",
+])
+def test_column_based_extract(container, extract):
+    cmd = [
+        "python",
+        "/scripts/extract_id.py",
+        "/tmp/meta",
+        "--column",
+        "Species",
+        "ischnopsyllus_needhami"
+    ]
+
+    result = container.exec_run(cmd=cmd, demux=True)
+    stdout, stderr = result.output
+
+    output = stdout.decode() if stdout else ""
+    assert extract in output
