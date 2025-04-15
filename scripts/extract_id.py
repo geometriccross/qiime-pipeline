@@ -2,51 +2,41 @@ import csv
 import argparse
 from textwrap import dedent
 
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser(
+    description="指定した列の値に基づいて、CSVデータの行を抽出または除外します。"
+)
 parser.add_argument(
     "input_path",
-    help=dedent(
-        """
-        Path of data, metadata or manifest
-        """
-    )
+    help=dedent("""
+        データ、メタデータ、またはマニフェストのファイルパス
+        """)
 )
 parser.add_argument(
     "targets",
-    type=list,
-    nargs="*",
-    help=dedent(
-        """
-        Id that would extract id
-        """
-    )
+    nargs="+",
+    help=dedent("""
+        抽出対象のID（複数指定可）
+        """)
 )
 parser.add_argument(
-    "-c",
-    "--column",
-    default="0",
-    help=dedent(
-        """
-        Target column
-        """
-    )
-),
+    "-c", "--column",
+    type=int,
+    default=0,
+    help=dedent("""
+        対象とする列のインデックス（0始まり）
+        """)
+)
 parser.add_argument(
     "-r",
     "--exclude",
     action="store_true",
     help=dedent("""
+        このオプションが指定された場合、ターゲットIDに一致する行を除外します。
+        （指定がない場合は、一致する行のみを出力します）
         """)
 )
 
 args = parser.parse_args()
-# if targets passed like this, id1 id2 id3
-# argparse convert like this
-# [["i", "d", "1"], ["i", "d", "2"], ["i", "d", "3"]]
-# so we need concatinate it
-targets = []
-for target in args.targets:
-    targets.append("".join(target))
 
 with open(args.input_path, newline="") as file:
     reader = csv.reader(file, delimiter="\t")
