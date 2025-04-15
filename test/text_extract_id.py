@@ -86,21 +86,28 @@ def test_extract_correctry(container, extract):
         f"Expected IDs not found: {output}"
 
 
-@pytest.mark.parametrize("extract", [
-    ["ctenocephalides_felis"],
+@pytest.mark.parametrize("pattern", [
+    {
+        "target": ["ctenocephalides_felis"],
+        "origin": "meta/cat_fleas.csv"
+    },
 ])
-def test_column_based_extract(container, extract):
+def test_column_based_extract(container, pattern):
     cmd = [
         "python",
         "/scripts/extract_id.py",
         "/tmp/meta",
-        "--column 3",
-        "Species",
-    ] + extract
+        "--column",
+        "3"
+    ] + pattern["target"]
 
     result = container.exec_run(cmd=cmd, demux=True)
     stdout, stderr = result.output
 
     output = stdout.decode() if stdout else ""
-    for target in extract:
+    for target in pattern["target"]:
         assert target in output
+
+        with open(pattern["origin"], "r") as f:
+            lines = len(f.readlines())
+            assert lines == output.count("\n")
