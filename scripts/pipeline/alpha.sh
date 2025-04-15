@@ -22,21 +22,25 @@ ALPHA="/tmp/out/alpha"
 mkdir -p "$ALPHA"
 cd "$ALPHA" || exit 1
 
-qiime diversity alpha-group-significance \
-	--quiet \
-	--m-metadata-file /tmp/meta \
-	--i-alpha-diversity $CORE/shannon_vector.qza \
-	--o-visualization shannon_vector.qzv
+for sp in $(gen_matrix "$(awk '{ print $4 }' /tmp/meta | uniq | tail +2 | sort)"); do
+	meta="/tmp/meta_$sp"
+	python /scripts/extract_id.py /tmp/meta "$sp" > "$meta"
 
-qiime diversity alpha-group-significance \
-	--quiet \
-	--m-metadata-file /tmp/meta \
-	--i-alpha-diversity $CORE/faith_pd_vector.qza \
-	--o-visualization faith_pd_vector.qzv
+	qiime diversity alpha-group-significance \
+		--quiet \
+		--m-metadata-file "$meta" \
+		--i-alpha-diversity "$CORE"/shannon_"$sp".qza \
+		--o-visualization shannon_"$sp".qzv
 
-qiime diversity alpha-group-significance \
-	--quiet \
-	--m-metadata-file /tmp/meta \
-	--i-alpha-diversity $CORE/observed_features_vector.qza \
-	--o-visualization observed_features_vector.qzv
+	qiime diversity alpha-group-significance \
+		--quiet \
+		--m-metadata-file "$meta" \
+		--i-alpha-diversity "$CORE"/faith_pd_"$sp".qza \
+		--o-visualization faith_pd_"$sp".qzv
 
+	qiime diversity alpha-group-significance \
+		--quiet \
+		--m-metadata-file "$meta" \
+		--i-alpha-diversity "$CORE"/observed_features_"$sp".qza \
+		--o-visualization observed_features_"$sp".qzv
+done
