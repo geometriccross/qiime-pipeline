@@ -5,12 +5,11 @@ ALPHA="/tmp/out/alpha"
 mkdir -p "$ALPHA"
 cd "$ALPHA" || exit 1
 
+set -ex
 
-pairs=$(awk '{ print $4 }' /tmp/meta | uniq | tail -n +2 | sort)
+pairs=(ctenocephalides_felis ischnopsyllidae_needhami lipoptena_fortisetosa pedicinus_obtusus)
 for ((i = 0; i < ${#pairs[@]}; i++)); do
 	for ((j = i + 1; j < ${#pairs[@]}; j++)); do
-		echo "組み合わせ: ${pairs[i]} と ${pairs[j]}"
-
 		combi=${pairs[i]}_${pairs[j]}
 		meta="/tmp/meta_$combi"
 
