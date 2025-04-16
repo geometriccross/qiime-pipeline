@@ -13,7 +13,7 @@ for ((i = 0; i < ${#pairs[@]}; i++)); do
 		combi=${pairs[i]}_${pairs[j]}
 		meta="/tmp/meta_$combi"
 
-		python /scripts/extract_id.py /tmp/meta "${pairs[i]}" "${pairs[j]}" >"$meta"
+		python /scripts/extract_id.py /tmp/meta --column 3 "${pairs[i]}" "${pairs[j]}" >"$meta"
 
 		qiime diversity alpha-group-significance \
 			--m-metadata-file "$meta" \
