@@ -6,8 +6,7 @@ mkdir -p "$ALPHA"
 cd "$ALPHA" || exit 1
 
 set -ex
-
-pairs=(ctenocephalides_felis ischnopsyllidae_needhami lipoptena_fortisetosa pedicinus_obtusus)
+pairs=(ctenocephalides_felis ischnopsyllus_needhami lipoptena_fortisetosa pedicinus_obtusus)
 for ((i = 0; i < ${#pairs[@]}; i++)); do
 	for ((j = i + 1; j < ${#pairs[@]}; j++)); do
 		combi=${pairs[i]}_${pairs[j]}
