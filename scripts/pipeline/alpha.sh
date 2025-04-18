@@ -6,7 +6,9 @@ mkdir -p "$ALPHA"
 cd "$ALPHA" || exit 1
 
 set -ex
-pairs=(ctenocephalides_felis ischnopsyllus_needhami lipoptena_fortisetosa pedicinus_obtusus)
+
+# サルジラミは性別が同定できていないため除外する
+pairs=(ctenocephalides_felis ischnopsyllus_needhami lipoptena_fortisetosa)
 for ((i = 0; i < ${#pairs[@]}; i++)); do
 	target=${pairs[i]}
 	meta="/tmp/meta_$target"
