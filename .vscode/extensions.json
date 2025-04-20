@@ -1,0 +1,17 @@
+{
+    "recommendations": [
+        "pinage404.bash-extension-pack",
+        "ms-python.debugpy",
+        "mgesbert.python-path",
+        "littlefoxteam.vscode-python-test-adapter",
+        "njpwerner.autodocstring",
+        "kevinrose.vsc-python-indent",
+        "ms-python.black-formatter",
+        "ms-python.flake8",
+        "redhat.vscode-yaml",
+        "ms-azuretools.vscode-docker",
+        "ms-python.python",
+        "esbenp.prettier-vscode",
+        "ms-azuretools.vscode-docker"
+    ]
+}
