@@ -1,8 +1,19 @@
 #!/usr/bin/env python
-import docker
 import os
-from pathlib import Path
+import uuid
+import docker
 import pytest
+import shutil
+from pathlib import Path
+
+
+@pytest.fixture
+def tmp_path():
+    # /tmp以下にランダムな名前のディレクトリを作成する
+    tmp_dir = Path("/tmp") / str(uuid.uuid4())
+    tmp_dir.mkdir(parents=True, exist_ok=False)
+    yield tmp_dir
+    shutil.rmtree(tmp_dir)
 
 
 @pytest.fixture(scope="session")
