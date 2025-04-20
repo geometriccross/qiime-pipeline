@@ -2,23 +2,21 @@
 import docker
 import os
 import pytest
-import time
 from pathlib import Path
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="session")
 def container():
     client = docker.from_env()
     image_tag = "python"
-    container_name = f"extract_id_test_{int(time.time())}"
 
     # コンテナの起動
     container = client.containers.run(
         image=image_tag,
-        name=container_name,
         command="sleep infinity",
         detach=True,
         tty=True,
+        auto_remove=True,
         mounts=[
             docker.types.Mount(
                 target="/meta",
@@ -67,7 +65,7 @@ def container():
     try:
         yield container  # テスト関数にコンテナを提供
     finally:
-        container.remove(force=True)
+        container.stop()
 
 
 @pytest.mark.parametrize("extract", [["id1", "id2", "id21", "id25"]])
