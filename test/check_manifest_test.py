@@ -97,7 +97,7 @@ def test_allow_missing_files(tmp_path):
     """--allow-missingオプションのテスト"""
     manifest_content = (
         "sample-id\tforward-absolute-filepath\treverse-absolute-filepath\n"
-        "sample1\t/not/exists/forward.fastq\t/not/exists/reverse.fastq"
+        "sample1\t/not/exists/data_R1.fastq\t/not/exists/data_R2.fastq"
     )
     manifest_path = create_manifest_file(tmp_path, manifest_content)
     validate_manifest(
