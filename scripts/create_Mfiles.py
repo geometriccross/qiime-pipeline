@@ -98,18 +98,28 @@ if __name__ == "__main__":
     )
 
     # 引数から取得
-    id_prefix = parser.parse_args().id_prefix
-    input_meta = parser.parse_args().input_meta
-    input_fastq = parser.parse_args().input_fastq
-    out_meta = parser.parse_args().out_meta
-    out_mani = parser.parse_args().out_mani
+    args = parser.parse_args()
+    id_prefix = args.id_prefix
+    input_meta = args.input_meta
+    input_fastq = args.input_fastq
+    out_meta = args.out_meta
+    out_mani = args.out_mani
     # 引数のdefaultで指定してないのは、その段階ではまだ割り当てられていないinput_metaを使いたかったから
-    data_list = parser.parse_args().meta_fastq_pair | [
-        {"meta": f"{input_meta}/bat_fleas.csv", "fastq": f"{input_fastq}/batfleas"},
-        {"meta": f"{input_meta}/cat_fleas.csv", "fastq": f"{input_fastq}/catfleas"},
-        {"meta": f"{input_meta}/lip_forti.csv", "fastq": f"{input_fastq}/sk"},
-        {"meta": f"{input_meta}/mky_louse.csv", "fastq": f"{input_fastq}/monkeylice"},
-    ]
+
+    pair_data = args.meta_fastq_pair
+    data_list = (
+        pair_data
+        if pair_data is not None
+        else [
+            {"meta": f"{input_meta}/bat_fleas.csv", "fastq": f"{input_fastq}/batfleas"},
+            {"meta": f"{input_meta}/cat_fleas.csv", "fastq": f"{input_fastq}/catfleas"},
+            {"meta": f"{input_meta}/lip_forti.csv", "fastq": f"{input_fastq}/sk"},
+            {
+                "meta": f"{input_meta}/mky_louse.csv",
+                "fastq": f"{input_fastq}/monkeylice",
+            },
+        ]
+    )
 
     mani_result = [
         ["sample-id", "forward-absolute-filepath", "reverse-absolute-filepath"]
