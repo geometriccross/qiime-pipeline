@@ -128,7 +128,7 @@ if __name__ == "__main__":
 
     id_index = 1
     for pair in data_list:
-        fastq_pathes = glob(pair["fastq"] + "/**/*gz", recursive=True)
+        fastq_pathes = glob(pair["fastq"] + "/**/*.fastq*", recursive=True)
         with open(Path(pair["meta"]).absolute(), "r") as f:
             reader = csv.reader(f)
             header_removed = [row for row in reader][1:]
