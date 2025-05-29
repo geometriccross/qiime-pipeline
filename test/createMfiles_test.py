@@ -60,11 +60,11 @@ def test_get_header_file_not_found():
     assert "does not exist" in str(exc_info.value)
 
 
-def test_header_replaced_success(monkeypatch):
+def test_header_replaced_success():
     """header_replaced関数の正常系テスト"""
 
     header = ["SampleID", "col1", "col2"]
-    result = header_replaced(header)
+    result = header_replaced(header, "id")
 
     assert isinstance(result, list)
     assert len(result) == 1  # 1行のみ（ヘッダー行）

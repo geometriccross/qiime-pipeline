@@ -45,17 +45,7 @@ def get_header(meta_path: str) -> list[str]:
         return header_str.replace("#", "").replace("SampleID", "RawID").split(",")
 
 
-def header_replaced(header_arr: list[str], id_prefix: str = "id") -> list[list[str]]:
-    """
-    ヘッダー配列を変換する
-    Args:
-        header_arr: 変換するヘッダー配列
-        id_prefix: IDのプレフィックス（デフォルト: "id"）
-        data_list: データリスト（空でないことを確認するため）
-    Returns:
-        変換されたヘッダー配列（二次元配列）
-    """
-
+def header_replaced(header_arr: list[str], id_prefix) -> list[list[str]]:
     # csv writerowsで正常に書き込むためには二次元配列でなければならない
     return [
         [
