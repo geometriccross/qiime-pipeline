@@ -18,10 +18,14 @@ def search_fastq(q: str, data: list[str]) -> tuple[str]:
 
     # R1, R2以外に名前がかぶっているfastqファイルがあったら
     if len(correct) > 2:
-        raise SyntaxError(dedent(f"""
+        raise SyntaxError(
+            dedent(
+                f"""
             同名のファイルが3つ以上存在しています。\n
             {correct}
-        """))
+        """
+            )
+        )
 
     fwd = list(filter(lambda s: s.__contains__("_R1_"), correct)).pop()
     rvs = list(filter(lambda s: s.__contains__("_R2_"), correct)).pop()
@@ -31,112 +35,122 @@ def search_fastq(q: str, data: list[str]) -> tuple[str]:
     return fwd_abs_path, rvs_abs_path
 
 
-parser = argparse.ArgumentParser()
-parser.add_argument(
-    "-p",
-    "--id-prefix",
-    default="id",
-    help=dedent(
-        """
-        set prefix id of each sample like this [REPLACE THIS] + numeric
-        (default : %(default)s))
-        """
-    ).strip()
-)
-parser.add_argument(
-    "--input-meta",
-    default="/meta"
-)
-parser.add_argument(
-    "--input-fastq",
-    default="/fastq"
-)
-parser.add_argument(
-    "--out-meta",
-    help=dedent(
-        """
-        output path to metadata
-        """
-    ).strip()
-)
-parser.add_argument(
-    "--out-mani",
-    help=dedent(
-        """
-        output path to manifest file
-        """
-    ).strip()
-)
+def get_header(meta_path: str) -> list[str]:
+    """
+    指定されたメタデータファイルのヘッダーを取得する
+    """
+    assert Path(meta_path).exists(), f"{meta_path} does not exist"
+    with Path(meta_path).open() as f:
+        header_str = f.readline().replace("\n", "")
+        return header_str.replace("#", "").replace("SampleID", "RawID").split(",")
 
-# 引数から取得
-id_prefix = parser.parse_args().id_prefix
-input_meta = parser.parse_args().input_meta
-input_fastq = parser.parse_args().input_fastq
-out_meta = parser.parse_args().out_meta
-out_mani = parser.parse_args().out_mani
 
-data_list = [
-    {
-        "meta": f"{input_meta}/bat_fleas.csv",
-        "fastq": f"{input_fastq}/batfleas"
-    },
-    {
-        "meta": f"{input_meta}/cat_fleas.csv",
-        "fastq": f"{input_fastq}/catfleas"
-    },
-    {
-        "meta": f"{input_meta}/lip_forti.csv",
-        "fastq": f"{input_fastq}/sk"
-    },
-    {
-        "meta": f"{input_meta}/mky_louse.csv",
-        "fastq": f"{input_fastq}/monkeylice"
-    }
-]
+def header_replaced(header_arr: list[str], id_prefix: str = "id") -> list[list[str]]:
+    """
+    ヘッダー配列を変換する
+    Args:
+        header_arr: 変換するヘッダー配列
+        id_prefix: IDのプレフィックス（デフォルト: "id"）
+        data_list: データリスト（空でないことを確認するため）
+    Returns:
+        変換されたヘッダー配列（二次元配列）
+    """
 
-master_list = []
-# 適当なmetadataのヘッダーを取得
-with Path(data_list[0]["meta"]).open() as f:
-    header_str = f.readline().replace("\n", "")
     # csv writerowsで正常に書き込むためには二次元配列でなければならない
-    master_list = [[
-        id_prefix,
-        *header_str.replace("#", "").replace("SampleID", "RawID").split(",")
-    ]]
+    return [
+        [
+            id_prefix,
+            header_arr[0].replace("SampleID", "RawID").replace("#", ""),
+            *header_arr[1:],
+        ]
+    ]
 
-mani_result = []
-mani_result.append([
-    "sample-id",
-    "forward-absolute-filepath",
-    "reverse-absolute-filepath"
-])
 
-id_index = 1
-for pair in data_list:
-    fastq_pathes = glob(pair["fastq"] + "/**/*gz", recursive=True)
-    with open(Path(pair["meta"]).absolute(), "r") as f:
-        reader = csv.reader(f)
-        header_removed = [row for row in reader][1:]
-        for row in header_removed:
-            # master csv
-            master_list.append([
-                id_prefix + id_index.__str__(),
-                *row
-            ])
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-p",
+        "--id-prefix",
+        default="id",
+        help=dedent(
+            """
+            set prefix id of each sample like this [REPLACE THIS] + numeric
+            (default : %(default)s))
+            """
+        ).strip(),
+    )
+    parser.add_argument("--input-meta", default="/meta")
+    parser.add_argument("--input-fastq", default="/fastq")
+    parser.add_argument(
+        "--out-meta",
+        help=dedent(
+            """
+            output path to metadata
+            """
+        ).strip(),
+    )
+    parser.add_argument(
+        "--out-mani",
+        help=dedent(
+            """
+            output path to manifest file
+            """
+        ).strip(),
+    )
+    parser.add_argument(
+        "--meta-fastq-pair",
+        help=dedent(
+            """
+            set a DICTIONARY metadata and fastq file pathes as a pair.
+            e.g. --meta-fastq-pair {meta: /foo/bar/metafile.csv,/hoge/huga/fastqdir}
+            """
+        ).strip(),
+    )
 
-            # manifest
-            # 1列目にあるRawIDから対応するfastqファイルを取得
-            mani_result.append([
-                id_prefix + id_index.__str__(),
-                *search_fastq(row[0], fastq_pathes)
-            ])
+    # 引数から取得
+    id_prefix = parser.parse_args().id_prefix
+    input_meta = parser.parse_args().input_meta
+    input_fastq = parser.parse_args().input_fastq
+    out_meta = parser.parse_args().out_meta
+    out_mani = parser.parse_args().out_mani
+    # 引数のdefaultで指定してないのは、その段階ではまだ割り当てられていないinput_metaを使いたかったから
+    data_list = parser.parse_args().meta_fastq_pair | [
+        {"meta": f"{input_meta}/bat_fleas.csv", "fastq": f"{input_fastq}/batfleas"},
+        {"meta": f"{input_meta}/cat_fleas.csv", "fastq": f"{input_fastq}/catfleas"},
+        {"meta": f"{input_meta}/lip_forti.csv", "fastq": f"{input_fastq}/sk"},
+        {"meta": f"{input_meta}/mky_louse.csv", "fastq": f"{input_fastq}/monkeylice"},
+    ]
 
-            id_index += 1
+    mani_result = [
+        ["sample-id", "forward-absolute-filepath", "reverse-absolute-filepath"]
+    ]
+    master_list = header_replaced(get_header(data_list[0]["meta"]), id_prefix)
 
-with open(out_meta, "w") as f:
-    writer = csv.writer(f, delimiter="\t")
-    writer.writerows(master_list)
+    id_index = 1
+    for pair in data_list:
+        fastq_pathes = glob(pair["fastq"] + "/**/*gz", recursive=True)
+        with open(Path(pair["meta"]).absolute(), "r") as f:
+            reader = csv.reader(f)
+            header_removed = [row for row in reader][1:]
+            for row in header_removed:
+                # master csv
+                master_list.append([id_prefix + id_index.__str__(), *row])
 
-with open(out_mani, "w") as f:
-    writer = csv.writer(f, delimiter="\t")
-    writer.writerows(mani_result)
+                # manifest
+                # 1列目にあるRawIDから対応するfastqファイルを取得
+                mani_result.append(
+                    [
+                        id_prefix + id_index.__str__(),
+                        *search_fastq(row[0], fastq_pathes),
+                    ]
+                )
+
+                id_index += 1
+
+    with open(out_meta, "w") as f:
+        writer = csv.writer(f, delimiter="\t")
+        writer.writerows(master_list)
+
+    with open(out_mani, "w") as f:
+        writer = csv.writer(f, delimiter="\t")
+        writer.writerows(mani_result)
