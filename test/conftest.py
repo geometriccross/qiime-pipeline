@@ -48,23 +48,27 @@ def get_docker_mounts() -> list[docker.types.Mount]:
 
 
 def create_docker_container(
+    image: str,
     client: docker.DockerClient,
+    mounts: list[docker.types.Mount] = [],
 ) -> docker.models.containers.Container:
     """Dockerコンテナを作成する
 
     Args:
+        image: 使用するDockerイメージ名
         client: Dockerクライアント
+        mounts: コンテナにマウントするディレクトリのリスト
 
     Returns:
         Container: 作成されたDockerコンテナ
     """
     return client.containers.run(
-        image="python",
+        image=image,
         command="sleep infinity",
         detach=True,
         tty=True,
         auto_remove=True,
-        mounts=get_docker_mounts(),
+        mounts=mounts,
     )
 
 
