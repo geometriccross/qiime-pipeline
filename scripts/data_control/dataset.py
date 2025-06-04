@@ -22,7 +22,7 @@ class Dataset:
 
 
 @dataclasses.dataclass
-class Datasets:
+class Databank:
     """
     A class to represent a dataset.
     """
