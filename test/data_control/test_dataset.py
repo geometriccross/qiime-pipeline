@@ -33,3 +33,15 @@ def test_dataset_raise_error_when_specify_incorrect_path():
                 fastq_folder=Path(fastq_file.name),
                 metadata_path=Path(metadata_file.name),
             )
+
+
+def test_databank_instance_has_current_attributes():
+    with NamedTemporaryFile(delete=True) as fastq_file:
+        with NamedTemporaryFile(delete=True) as metadata_file:
+            dataset = Dataset(
+                name="test_dataset",
+                fastq_folder=Path(fastq_file.name),
+                metadata_path=Path(metadata_file.name),
+            )
+            databank = Databank(sets={dataset})
+            assert databank.test_dataset == dataset

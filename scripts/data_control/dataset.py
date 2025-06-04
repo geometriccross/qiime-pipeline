@@ -20,6 +20,9 @@ class Dataset:
                 f"Metadata path {self.metadata_path} does not exist."
             )
 
+    def __hash__(self):
+        return hash((self.name, self.fastq_folder, self.metadata_path))
+
 
 @dataclasses.dataclass
 class Databank:
