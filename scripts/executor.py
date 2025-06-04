@@ -30,8 +30,8 @@ class CommandRunner:
     def __init__(self, container: docker.models.containers.Container):
         self.__container = container
 
-    def run(self, command: str):
+    def run(self, command: str, barcoding: str = "utf-8") -> str:
         """コマンドを実行する"""
         exec_id = self.__container.client.api.exec_create(self.__container.id, command)
         output = self.__container.client.api.exec_start(exec_id)
-        return output.decode("utf-8")
+        return output.decode(barcoding).strip()
