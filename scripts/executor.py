@@ -8,7 +8,9 @@ class Executor:
     def __enter__(self):
         """コンテナの起動"""
         self.__container.start()
-        return CommandRunner(self.__container,)
+        return CommandRunner(
+            self.__container,
+        )
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         """コンテナの停止"""
