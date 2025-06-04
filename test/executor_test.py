@@ -1,11 +1,10 @@
+import docker
 from scripts.executor import Executor
 
 
-def test_executor_create_instance():
-    """Executorクラスのインスタンス化テスト"""
+def test_executor_create_instance(container: docker.models.containers.Container):
+    ctn = container("alpine")
 
-    # Executorのインスタンスを作成
-    executor = Executor()
-
-    # インスタンスが正しく作成されたか確認
+    executor = Executor(ctn)
     assert isinstance(executor, Executor)
+    assert executor.status() == "created"
