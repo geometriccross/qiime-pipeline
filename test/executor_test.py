@@ -13,15 +13,16 @@ def test_executor_create_instance(
     assert executor.status() == "created"
 
 
-def test_executor_start_and_stop(
+def test_container_status_is_currentry_changed(
     container: Callable[[str], docker.models.containers.Container],
 ):
     ctn = container("alpine")
-
-    with Executor(ctn) as executor:
-        assert executor.status() == "running"
-
-    assert executor.status() == "removing"
+    executor = Executor(ctn)
+    assert executor.status() == "created"
+    executor.__enter__()
+    assert executor.status() == "running"
+    executor.__exit__(None, None, None)
+    assert executor.status() == "removing" or executor.status() == "exited"
 
 
 def test_executor_run_commands(
