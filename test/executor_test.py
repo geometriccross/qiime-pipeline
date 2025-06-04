@@ -1,8 +1,11 @@
 import docker
+from typing import Callable
 from scripts.executor import Executor
 
 
-def test_executor_create_instance(container: docker.models.containers.Container):
+def test_executor_create_instance(
+    container: Callable[[str], docker.models.containers.Container],
+):
     ctn = container("alpine")
 
     executor = Executor(ctn)
@@ -10,7 +13,9 @@ def test_executor_create_instance(container: docker.models.containers.Container)
     assert executor.status() == "created"
 
 
-def test_executor_start_and_stop(container: docker.models.containers.Container):
+def test_executor_start_and_stop(
+    container: Callable[[str], docker.models.containers.Container],
+):
     ctn = container("alpine")
 
     with Executor(ctn) as executor:
