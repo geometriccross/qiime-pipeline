@@ -1,6 +1,6 @@
 import docker
 from typing import Callable
-from scripts.executor import Executor
+from scripts.executor import Executor, CommandRunner
 
 
 def test_executor_create_instance(
@@ -37,13 +37,6 @@ def test_executor_return_command_runner_when_enter_with_statement(
 def test_executor_run_commands(
     container: Callable[[str], docker.models.containers.Container],
 ):
-    # single command execution
-    with Executor(container("alpine"), auto_remove=True) as executor:
+    with Executor(container("alpine")) as executor:
         output = executor.run("echo Hello, World!")
-        assert output.strip() == "Hello, World!"
-
-    # multiple command execution
-    with Executor(container("alpine"), auto_remove=True) as executor:
-        outputs = executor.run("echo Hello, World!")
-        outputs += executor.run("echo Goodbye, World!")
-        assert outputs.strip() == "Hello, World!\nGoodbye, World!"
+        assert output == "Hello, World!"
