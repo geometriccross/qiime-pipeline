@@ -11,8 +11,12 @@ class Executor:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        """コンテナの削除"""
-        self.__container.stop()
+        """コンテナの停止"""
+        try:
+            self.__container.stop()
+        # コンテナが既に削除されている場合は無視
+        except docker.errors.NotFound:
+            pass
 
     def status(self) -> str:
         """コンテナのステータスを取得"""
@@ -24,7 +28,3 @@ class Executor:
         exec_id = self.__container.client.api.exec_create(self.__container.id, command)
         output = self.__container.client.api.exec_start(exec_id)
         return output.decode("utf-8")
-
-    def stop(self):
-        """コンテナの明示的な停止"""
-        self.__container.stop()
