@@ -24,6 +24,21 @@ def extract_first_underscore(string: str) -> str:
     return string.replace(".fastq", "").replace(".gz", "").split("_")[0]
 
 
+def modify_row(row: dict) -> tuple:
+    """
+    Modify the row to include the sample name.
+    """
+    forward_name, reverse_name = extract_filename(row)
+    forward_sample = extract_first_underscore(forward_name)
+    reverse_sample = extract_first_underscore(reverse_name)
+    return forward_sample, reverse_sample
+
+
+def raise_err(id: str, forward: str, reverse: str) -> str:
+    msg = f"id: {id}, forward: ({forward}) と reverse: ({reverse}) が一致しません。\n"
+    raise SyntaxError(msg)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -40,15 +55,7 @@ if __name__ == "__main__":
     with open(manifest_path, "r") as f:
         reader = csv.DictReader(f, delimiter="\t")
         for row in reader:
-            sample_id = row["sample-id"]
-            forward_name, reverse_name = extract_filename(row)
+            forward_sample, reverse_sample = modify_row(row)
 
-            forward_sample = extract_first_underscore(forward_name)
-            reverse_sample = extract_first_underscore(reverse_name)
             if forward_sample != reverse_sample:
-                error_msg += f"id: {sample_id}, "
-                error_msg += f"forward: ({forward_sample}) と "
-                error_msg += f"reverse: ({reverse_sample}) が一致しません。\n"
-
-    if error_msg != "":
-        raise SyntaxError(error_msg)
+                raise_err(row["id"], forward_sample, reverse_sample)
