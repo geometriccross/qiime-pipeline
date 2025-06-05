@@ -1,6 +1,19 @@
+import pytest
 import docker
 from typing import Callable
 from scripts.executor import Executor, CommandRunner
+
+
+@pytest.fixture(autouse=True)
+def cleanup_containers():
+    yield
+    # テスト完了後、残存するコンテナを確実に削除
+    client = docker.from_env()
+    for container in client.containers.list(all=True):
+        try:
+            container.remove(force=True)
+        except docker.errors.APIError:
+            pass
 
 
 def test_executor_create_instance(
