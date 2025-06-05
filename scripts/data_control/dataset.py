@@ -12,6 +12,9 @@ class Dataset:
     fastq_folder: Path
     metadata_path: Path
 
+    def __get_fastq_files(self, fastq_folder: Path) -> list[Path]:
+        return [f for f in fastq_folder.glob("**/*.fastq*")]
+
     def __post_init__(self):
         if not self.fastq_folder.exists():
             raise FileNotFoundError(f"Fastq path {self.fastq_folder} does not exist.")
@@ -19,6 +22,8 @@ class Dataset:
             raise FileNotFoundError(
                 f"Metadata path {self.metadata_path} does not exist."
             )
+
+        self.fastq_files = self.__get_fastq_files(self.fastq_folder)
 
     def __hash__(self):
         return hash((self.name, self.fastq_folder, self.metadata_path))
