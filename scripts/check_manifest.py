@@ -51,11 +51,9 @@ if __name__ == "__main__":
     )
 
     manifest_path = parser.parse_args().input_path
-    error_msg = ""
-    with open(manifest_path, "r") as f:
-        reader = csv.DictReader(f, delimiter="\t")
-        for row in reader:
-            forward_sample, reverse_sample = modify_row(row)
 
+    with open(manifest_path, "r") as f:
+        for row in csv.DictReader(f, delimiter="\t"):
+            forward_sample, reverse_sample = modify_row(row)
             if forward_sample != reverse_sample:
                 raise_err(row["id"], forward_sample, reverse_sample)
