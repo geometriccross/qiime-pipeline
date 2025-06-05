@@ -8,12 +8,9 @@ def test_executor_create_instance(
 ):
     ctn = container("alpine")
 
-    try:
-        executor = Executor(ctn)
-        assert isinstance(executor, Executor)
-        assert executor.status() == "created"
-    finally:
-        ctn.remove(force=True)
+    executor = Executor(ctn)
+    assert isinstance(executor, Executor)
+    assert executor.status() == "created"
 
 
 def test_container_status_is_currentry_changed(
