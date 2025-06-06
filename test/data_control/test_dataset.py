@@ -1,14 +1,14 @@
 import pytest
 from pathlib import Path
-from tempfile import NamedTemporaryFile
+from tempfile import NamedTemporaryFile, TemporaryDirectory
 from scripts.data_control.dataset import Dataset, Databank
 
 
 @pytest.fixture()
 def temporay_files():
-    with NamedTemporaryFile(delete=True) as fastq_file:
+    with TemporaryDirectory() as fastq_dir:
         with NamedTemporaryFile(delete=True) as metadata_file:
-            yield {"fastq": Path(fastq_file.name), "meta": Path(metadata_file.name)}
+            yield {"fastq": Path(fastq_dir), "meta": Path(metadata_file.name)}
 
 
 def test_dataset_raise_error_when_specify_incorrect_path(temporay_files):
@@ -39,6 +39,19 @@ def test_dataset_raise_error_when_specify_incorrect_path(temporay_files):
         fastq_folder=temporay_files["fastq"],
         metadata_path=temporay_files["meta"],
     )
+
+
+def test_dataset_acctualy_get_fastq_files(temporay_files):
+    file_count = 10
+    for i in range(file_count):
+        temporay_files["fastq"].joinpath(f"test{i}.fastq").touch()
+
+    dataset = Dataset(
+        name="test_dataset",
+        fastq_folder=temporay_files["fastq"],
+        metadata_path=temporay_files["meta"],
+    )
+    assert len(dataset.fastq_files) == file_count  # No fastq files in the temp file
 
 
 def test_databank_instance_has_current_attributes():

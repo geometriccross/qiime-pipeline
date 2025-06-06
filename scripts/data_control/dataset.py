@@ -13,7 +13,10 @@ class Dataset:
     metadata_path: Path
 
     def __get_fastq_files(self, fastq_folder: Path) -> list[Path]:
-        return [f for f in fastq_folder.glob("**/*.fastq*")]
+        return [
+            *list(fastq_folder.glob("*.fastq")),
+            *list(fastq_folder.glob("*.fastq.gz")),
+        ]
 
     def __post_init__(self):
         if not self.fastq_folder.exists():
