@@ -39,6 +39,20 @@ def raise_err(id: str, forward: str, reverse: str) -> str:
     raise SyntaxError(msg)
 
 
+def check_manifest(manifest_path: str) -> True:
+    """
+    Check the manifest file for consistency.
+    """
+    with open(manifest_path, "r") as f:
+        reader = csv.DictReader(f, delimiter="\t")
+        for row in reader:
+            forward_sample, reverse_sample = modify_row(row)
+            if forward_sample != reverse_sample:
+                raise_err(row["id"], forward_sample, reverse_sample)
+
+    return True
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -51,9 +65,4 @@ if __name__ == "__main__":
     )
 
     manifest_path = parser.parse_args().input_path
-
-    with open(manifest_path, "r") as f:
-        for row in csv.DictReader(f, delimiter="\t"):
-            forward_sample, reverse_sample = modify_row(row)
-            if forward_sample != reverse_sample:
-                raise_err(row["id"], forward_sample, reverse_sample)
+    check_manifest(manifest_path)
