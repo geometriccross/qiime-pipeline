@@ -57,7 +57,7 @@ def test_can_extract_first_underscore_from_string():
             "t1_R2.fastq.gz",
             "t2_R1.fastq.gz",
             False,
-            id="wrong_pattern, specified different sample",
+            id="wrong_pattern, sample specificaiton is shifted",
         ),
     ],
 )
