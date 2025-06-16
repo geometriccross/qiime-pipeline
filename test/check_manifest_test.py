@@ -4,6 +4,8 @@ from scripts.check_manifest import (
     extract_filename,
     extract_first_underscore,
     check_manifest,
+    extract_pattern,
+    validate_pattern,
 )
 
 
@@ -30,6 +32,16 @@ def test_can_extract_first_underscore_from_string():
     string_with_multiple_underscores = "sample1_R1_extra.fastq.gz"
     sample_name_multiple = extract_first_underscore(string_with_multiple_underscores)
     assert sample_name_multiple == "sample1"
+
+
+def test_extract_pattern():
+    row = {
+        "forward-absolute-filepath": "t1_R1.fastq.gz",
+        "reverse-absolute-filepath": "t1_R2.fastq.gz",
+    }
+    forward, reverse = extract_pattern(row)
+    assert forward == "t1_R1.fastq.gz"
+    assert reverse == "t1_R2.fastq.gz"
 
 
 @pytest.mark.parametrize(

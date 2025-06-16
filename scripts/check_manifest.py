@@ -3,7 +3,7 @@
 import csv
 import argparse
 from textwrap import dedent
-from pathlib import Path
+from pathlib import Path, PurePath
 
 
 def extract_filename(row: dict) -> str:
@@ -24,13 +24,20 @@ def extract_first_underscore(string: str) -> str:
     return string.replace(".fastq", "").replace(".gz", "").split("_")[0]
 
 
-def modify_row(row: dict) -> tuple:
+def extract_pattern(row: dict) -> tuple[str, str]:
     """
-    Modify the row to include the sample name.
+    Extract the forward and reverse file names from the row.
     """
-    forward_name, reverse_name = extract_filename(row)
-    forward_sample = extract_first_underscore(forward_name)
-    reverse_sample = extract_first_underscore(reverse_name)
+    forward_path = row["forward-absolute-filepath"]
+    reverse_path = row["reverse-absolute-filepath"]
+    forward_name = PurePath(forward_path).name
+    reverse_name = PurePath(reverse_path).name
+    return forward_name, reverse_name
+
+
+def validate_pattern(forward: str, reverse: str) -> bool:
+    """
+    Validate the forward and reverse_name)
     return forward_sample, reverse_sample
 
 
@@ -46,9 +53,9 @@ def check_manifest(manifest_path: str) -> True:
     with open(manifest_path, "r") as f:
         reader = csv.DictReader(f, delimiter="\t")
         for row in reader:
-            forward_sample, reverse_sample = modify_row(row)
-            if forward_sample != reverse_sample:
-                raise_err(row["id"], forward_sample, reverse_sample)
+            forward, reverse = extract_pattern(row)
+            if not validate_pattern(forward, reverse):
+                return False
 
     return True
 
