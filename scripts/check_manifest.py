@@ -37,8 +37,10 @@ def extract_pattern(row: dict) -> tuple[str, str]:
 
 def validate_pattern(forward: str, reverse: str) -> bool:
     """
-    Validate the forward and reverse_name)
-    return forward_sample, reverse_sample
+    Validate the forward and reverse file names.
+    """
+
+    return forward == reverse
 
 
 def raise_err(id: str, forward: str, reverse: str) -> str:
@@ -46,7 +48,7 @@ def raise_err(id: str, forward: str, reverse: str) -> str:
     raise SyntaxError(msg)
 
 
-def check_manifest(manifest_path: str) -> True:
+def check_manifest(manifest_path: str) -> bool:
     """
     Check the manifest file for consistency.
     """

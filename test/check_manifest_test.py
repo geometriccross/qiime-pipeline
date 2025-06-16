@@ -73,13 +73,27 @@ def test_extract_pattern():
         ),
     ],
 )
-def test_can_currentry_check(forward, reverse, expected):
+def test_validate_pattern(forward, reverse, expected):
+    f, r = extract_pattern(
+        {
+            "forward-absolute-filepath": forward,
+            "reverse-absolute-filepath": reverse,
+        }
+    )
+
+    assert (
+        validate_pattern(f, r) is expected
+    ), f"Failed for forward: {forward}, reverse: {reverse}"
+
+
+def test_can_currentry_check():
     with NamedTemporaryFile(
         mode="w", suffix=".tsv", delete=True, encoding="utf-8"
     ) as f:
         f.write(
             "id\tforward-absolute-filepath\treverse-absolute-filepath\n"
-            f"1\t{forward}\t{reverse}\n"
+            "1\tt1_R1.fastq.gz\tt1_R2.fastq.gz\n"
+            "2\tt2_R1.fastq.gz\tt2_R2.fastq.gz\n"
         )
 
-        assert check_manifest(f.name) is expected, f"Failed for {forward} and {reverse}"
+        assert check_manifest(f.name) is True
