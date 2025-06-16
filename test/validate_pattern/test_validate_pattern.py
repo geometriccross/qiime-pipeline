@@ -5,6 +5,7 @@ from scripts.validate_pattern.validate_pattern import (
     extract_first_underscore,
     extract_pattern,
     validate_pattern,
+    check_current_pair,
 )
 
 
@@ -57,8 +58,8 @@ def test_validate_pattern(pattern, expected):
     assert validate_pattern(pattern) is expected
 
 
-# @pytest.mark.parametrize(
-#     ["forward", "reverse", "expected"],
+@pytest.mark.parametrize(
+    ["fwd", "rvs", "expected"],
     [
         pytest.param(
             "t1_R1.fastq.gz",
@@ -86,14 +87,8 @@ def test_validate_pattern(pattern, expected):
         ),
     ],
 )
-def test_validate_pattern(forward, reverse, expected):
-    f, r = extract_pattern(
-        {
-            "forward-absolute-filepath": forward,
-            "reverse-absolute-filepath": reverse,
-        }
-    )
-
+def test_check_current_pair(fwd, rvs, expected):
+    checked = check_current_pair(fwd, rvs)
     assert (
-        validate_pattern(f, r) is expected
-    ), f"Failed for forward: {forward}, reverse: {reverse}"
+        checked is expected
+    ), f"Expected {expected} but got {checked} for fwd: {fwd}, rvs: {rvs}"

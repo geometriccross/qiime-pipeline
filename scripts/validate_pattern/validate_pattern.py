@@ -59,5 +59,10 @@ def validate_pattern(pattern) -> Pattern:
         return Pattern.NotMatched
 
 
-# def check_current_pair(fwd: str, rvs: str) -> bool:
-#     pass
+def check_current_pair(fwd: str, rvs: str) -> bool:
+    """
+    Check if the forward and reverse file names match.
+    """
+    same_pattern = validate_pattern(fwd) == validate_pattern(rvs)
+    same_tag = extract_first_underscore(fwd) == extract_first_underscore(rvs)
+    return same_pattern and same_tag
