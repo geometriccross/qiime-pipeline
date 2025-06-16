@@ -1,5 +1,6 @@
 import pytest
 from scripts.validate_pattern.validate_pattern import (
+    Pattern,
     extract_filename,
     extract_first_underscore,
     extract_pattern,
@@ -43,7 +44,20 @@ def test_extract_pattern():
 
 
 @pytest.mark.parametrize(
-    ["forward", "reverse", "expected"],
+    ["pattern", "expected"],
+    [
+        pytest.param("t1_R1_.fastq.gz", Pattern.ILLUMINA),
+        pytest.param("t1_R2.fasta", Pattern.ILLUMINA),
+        pytest.param("SRR20014836_1.fastq.gz", Pattern.SRA),
+        pytest.param("hogehoge.fastq", Pattern.NotMatched),
+    ],
+)
+def test_validate_pattern(pattern, expected):
+    assert validate_pattern(pattern) is expected
+
+
+# @pytest.mark.parametrize(
+#     ["forward", "reverse", "expected"],
     [
         pytest.param(
             "t1_R1.fastq.gz",

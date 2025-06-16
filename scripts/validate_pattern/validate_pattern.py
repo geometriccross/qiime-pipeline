@@ -1,4 +1,21 @@
+from enum import Enum
 from pathlib import Path, PurePath
+
+# pattern.replace(".fastq", "").replace(".gz", "").split("_")[0]
+
+
+class Pattern(Enum):
+    NotMatched = False
+    ILLUMINA = 1
+    SRA = 2
+
+
+def is_illumina_pattern(pattern: str) -> bool:
+    return "_R1" in pattern or "_R2" in pattern
+
+
+def is_sra_pattern(pattern: str) -> bool:
+    return "_1.fast" in pattern or "_2.fast" in pattern
 
 
 def extract_filename(row: dict) -> str:
@@ -30,9 +47,17 @@ def extract_pattern(row: dict) -> tuple[str, str]:
     return forward_name, reverse_name
 
 
-def validate_pattern(forward: str, reverse: str) -> bool:
+def validate_pattern(pattern) -> Pattern:
     """
     Validate the forward and reverse file names.
     """
+    if is_illumina_pattern(pattern):
+        return Pattern.ILLUMINA
+    elif is_sra_pattern(pattern):
+        return Pattern.SRA
+    else:
+        return Pattern.NotMatched
 
-    return forward == reverse
+
+# def check_current_pair(fwd: str, rvs: str) -> bool:
+#     pass
