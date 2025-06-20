@@ -3,7 +3,10 @@
 import csv
 import argparse
 from textwrap import dedent
-from validate_pattern import validate_pattern, extract_pattern
+from scripts.validate_pattern.validate_pattern import (
+    extract_pattern,
+    check_current_pair,
+)
 
 
 def raise_err(id: str, forward: str, reverse: str) -> str:
@@ -19,7 +22,7 @@ def check_manifest(manifest_path: str) -> bool:
         reader = csv.DictReader(f, delimiter="\t")
         for row in reader:
             forward, reverse = extract_pattern(row)
-            if not validate_pattern(forward, reverse):
+            if not check_current_pair(forward, reverse):
                 return False
 
     return True

@@ -85,4 +85,8 @@ def check_current_pair(fwd: str, rvs: str) -> bool:
     """
     same_pattern = validate_pattern(fwd) == validate_pattern(rvs)
     same_tag = extract_first_underscore(fwd) == extract_first_underscore(rvs)
-    return same_pattern and same_tag
+    current_direction = (
+        check_direction(fwd) is Direction.Forward
+        and check_direction(rvs) is Direction.Reverse
+    )
+    return same_pattern and same_tag and current_direction
