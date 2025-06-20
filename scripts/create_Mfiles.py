@@ -56,6 +56,50 @@ def header_replaced(header_arr: list[str], id_prefix) -> list[list[str]]:
     ]
 
 
+def create_Mfiles(
+    id_prefix: str,
+    out_meta: str,
+    out_mani: str,
+    data_list: list[dict],
+) -> None:
+    """
+    Create metadata and manifest files from the given data.
+    """
+    mani_result = [
+        ["sample-id", "forward-absolute-filepath", "reverse-absolute-filepath"]
+    ]
+    master_list = header_replaced(get_header(data_list[0]["meta"]), id_prefix)
+
+    id_index = 1
+    for pair in data_list:
+        fastq_pathes = glob(pair["fastq"] + "/**/*.fastq*", recursive=True)
+        with open(Path(pair["meta"]).absolute(), "r") as f:
+            reader = csv.reader(f)
+            header_removed = [row for row in reader][1:]
+            for row in header_removed:
+                # master csv
+                master_list.append([id_prefix + id_index.__str__(), *row])
+
+                # manifest
+                # 1列目にあるRawIDから対応するfastqファイルを取得
+                mani_result.append(
+                    [
+                        id_prefix + id_index.__str__(),
+                        *search_fastq(row[0], fastq_pathes),
+                    ]
+                )
+
+                id_index += 1
+
+    with open(out_meta, "w") as f:
+        writer = csv.writer(f, delimiter="\t")
+        writer.writerows(master_list)
+
+    with open(out_mani, "w") as f:
+        writer = csv.writer(f, delimiter="\t")
+        writer.writerows(mani_result)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -121,36 +165,4 @@ if __name__ == "__main__":
         ]
     )
 
-    mani_result = [
-        ["sample-id", "forward-absolute-filepath", "reverse-absolute-filepath"]
-    ]
-    master_list = header_replaced(get_header(data_list[0]["meta"]), id_prefix)
-
-    id_index = 1
-    for pair in data_list:
-        fastq_pathes = glob(pair["fastq"] + "/**/*.fastq*", recursive=True)
-        with open(Path(pair["meta"]).absolute(), "r") as f:
-            reader = csv.reader(f)
-            header_removed = [row for row in reader][1:]
-            for row in header_removed:
-                # master csv
-                master_list.append([id_prefix + id_index.__str__(), *row])
-
-                # manifest
-                # 1列目にあるRawIDから対応するfastqファイルを取得
-                mani_result.append(
-                    [
-                        id_prefix + id_index.__str__(),
-                        *search_fastq(row[0], fastq_pathes),
-                    ]
-                )
-
-                id_index += 1
-
-    with open(out_meta, "w") as f:
-        writer = csv.writer(f, delimiter="\t")
-        writer.writerows(master_list)
-
-    with open(out_mani, "w") as f:
-        writer = csv.writer(f, delimiter="\t")
-        writer.writerows(mani_result)
+    create_Mfiles(id_prefix, out_meta, out_mani, data_list)
