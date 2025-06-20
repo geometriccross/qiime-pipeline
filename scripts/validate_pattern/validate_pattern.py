@@ -1,7 +1,13 @@
+from re import match
 from enum import Enum
 from pathlib import Path, PurePath
 
 # pattern.replace(".fastq", "").replace(".gz", "").split("_")[0]
+
+
+class Direction(Enum):
+    Forward = "forward"
+    Reverse = "reverse"
 
 
 class Pattern(Enum):
@@ -34,6 +40,16 @@ def extract_first_underscore(string: str) -> str:
     Extract the sample name from the row.
     """
     return string.replace(".fastq", "").replace(".gz", "").split("_")[0]
+
+
+def extract_index(string: str) -> str:
+    """
+    Extract the index from the string.
+    """
+    match_result = match(r".*_R[12]", string)
+    if match_result:
+        return match_result.group(1)
+    return ""
 
 
 def extract_pattern(row: dict) -> tuple[str, str]:

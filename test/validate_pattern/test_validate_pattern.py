@@ -1,8 +1,11 @@
+from re import match
 import pytest
 from scripts.validate_pattern.validate_pattern import (
+    Direction,
     Pattern,
     extract_filename,
     extract_first_underscore,
+    extract_index,
     extract_pattern,
     validate_pattern,
     check_current_pair,
@@ -32,6 +35,27 @@ def test_can_extract_first_underscore_from_string():
     string_with_multiple_underscores = "sample1_R1_extra.fastq.gz"
     sample_name_multiple = extract_first_underscore(string_with_multiple_underscores)
     assert sample_name_multiple == "sample1"
+
+
+@pytest.mark.parametrize(
+    ["string, expected"],
+    [
+        pytest.param("sample1_R1.fastq.gz", "R1", id="with_R1"),
+        pytest.param("sample1_R2.fastq.gz", "sample1_R2", id="with_R2"),
+        pytest.param("sample1.fastq.gz", "sample1", id="no_R"),
+        pytest.param("sample1_R1_extra.fastq.gz", "sample1_R1", id="extra_R1"),
+    ],
+)
+def test_extract_index():
+    "sample1_R1.fastq.gz"
+
+    string_with_no_index = "sample1.fastq.gz"
+    index_no = extract_first_underscore(string_with_no_index)
+    assert index_no == "sample1"
+
+    string_with_multiple_underscores = "sample1_R1_extra.fastq.gz"
+    index_multiple = extract_first_underscore(string_with_multiple_underscores)
+    assert index_multiple == "sample1"
 
 
 def test_extract_pattern():
