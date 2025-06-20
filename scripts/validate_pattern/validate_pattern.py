@@ -1,4 +1,4 @@
-from re import match
+from re import search
 from enum import Enum
 from pathlib import Path, PurePath
 
@@ -8,6 +8,7 @@ from pathlib import Path, PurePath
 class Direction(Enum):
     Forward = "forward"
     Reverse = "reverse"
+    NotMatched = "not_matched"
 
 
 class Pattern(Enum):
@@ -42,14 +43,17 @@ def extract_first_underscore(string: str) -> str:
     return string.replace(".fastq", "").replace(".gz", "").split("_")[0]
 
 
-def extract_index(string: str) -> str:
+def check_direction(string: str) -> Direction:
     """
     Extract the index from the string.
     """
-    match_result = match(r".*_R[12]", string)
-    if match_result:
-        return match_result.group(1)
-    return ""
+    result = search(r".*_R[12]", string)
+    if result is None:
+        return Direction.NotMatched
+    elif result.group(0).endswith("_R1"):
+        return Direction.Forward
+    elif result.group(0).endswith("_R2"):
+        return Direction.Reverse
 
 
 def extract_pattern(row: dict) -> tuple[str, str]:
