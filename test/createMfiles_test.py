@@ -1,6 +1,15 @@
 #!/usr/bin/env python
+
+from tempfile import NamedTemporaryFile
+from pathlib import Path
 import pytest
-from scripts.create_Mfiles import search_fastq, get_header, header_replaced
+from scripts.data_control.dataset import Databank, Dataset
+from scripts.create_Mfiles import (
+    search_fastq,
+    get_header,
+    header_replaced,
+    create_Mfiles,
+)
 
 
 def test_search_fastq_success():
@@ -69,3 +78,34 @@ def test_header_replaced_success():
     assert isinstance(result, list)
     assert len(result) == 1  # 1行のみ（ヘッダー行）
     assert result[0] == ["id", "RawID", "col1", "col2"]
+
+
+def test_createMfiles_is_currently_create_files():
+    meta_file = NamedTemporaryFile(delete=True, mode="w+", newline="")
+    meta_file.write("#SampleID,feature1,feature2")
+    meta_file.write("id1,abc,def")
+
+    mani_file = NamedTemporaryFile(delete=True, mode="w+", newline="")
+    fastq = NamedTemporaryFile(delete=True, mode="w+", suffix=".fastq")
+
+    test_data = Databank(
+        sets={
+            Dataset(
+                name="test_dataset",
+                fastq_folder=Path(fastq.name),
+                metadata_path=Path(meta_file.name),
+            )
+        }
+    )
+
+    create_Mfiles(
+        id_prefix="test_id",
+        out_meta=meta_file.name,
+        out_mani=mani_file.name,
+        data=test_data,
+    )
+
+    assert (
+        Path(mani_file.name).read_text()
+        == "sample-id\tforward-absolute-filepath\treverse-absolute-filepath\n"
+    )

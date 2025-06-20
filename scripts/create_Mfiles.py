@@ -4,8 +4,9 @@ import re
 import csv
 import argparse
 from textwrap import dedent
-from glob import glob
 from pathlib import Path, PurePath
+from scripts.data_control.dataset import Databank
+from scripts.data_control.used_data import used_data
 
 
 # queryで渡されたidを持つfastqファイルを返す
@@ -60,7 +61,7 @@ def create_Mfiles(
     id_prefix: str,
     out_meta: str,
     out_mani: str,
-    data_list: list[dict],
+    data: Databank,
 ) -> None:
     """
     Create metadata and manifest files from the given data.
@@ -68,28 +69,27 @@ def create_Mfiles(
     mani_result = [
         ["sample-id", "forward-absolute-filepath", "reverse-absolute-filepath"]
     ]
-    master_list = header_replaced(get_header(data_list[0]["meta"]), id_prefix)
 
-    id_index = 1
-    for pair in data_list:
-        fastq_pathes = glob(pair["fastq"] + "/**/*.fastq*", recursive=True)
-        with open(Path(pair["meta"]).absolute(), "r") as f:
+    retrived_path = next(iter(data.sets)).metadata_path
+    header = header_replaced(get_header(retrived_path), id_prefix)
+    master_list = header
+
+    for dataset in data.sets:
+        with open(Path(dataset.metadata_path).absolute(), "r") as f:
             reader = csv.reader(f)
             header_removed = [row for row in reader][1:]
-            for row in header_removed:
+            for i, row in enumerate(header_removed):
                 # master csv
-                master_list.append([id_prefix + id_index.__str__(), *row])
+                master_list.append([id_prefix + str(i), *row])
 
                 # manifest
                 # 1列目にあるRawIDから対応するfastqファイルを取得
                 mani_result.append(
                     [
-                        id_prefix + id_index.__str__(),
-                        *search_fastq(row[0], fastq_pathes),
+                        id_prefix + str(i),
+                        *search_fastq(row[0], dataset.fastq_files),
                     ]
                 )
-
-                id_index += 1
 
     with open(out_meta, "w") as f:
         writer = csv.writer(f, delimiter="\t")
@@ -150,19 +150,4 @@ if __name__ == "__main__":
     out_mani = args.out_mani
     # 引数のdefaultで指定してないのは、その段階ではまだ割り当てられていないinput_metaを使いたかったから
 
-    pair_data = args.meta_fastq_pair
-    data_list = (
-        pair_data
-        if pair_data is not None
-        else [
-            {"meta": f"{input_meta}/bat_fleas.csv", "fastq": f"{input_fastq}/batfleas"},
-            {"meta": f"{input_meta}/cat_fleas.csv", "fastq": f"{input_fastq}/catfleas"},
-            {"meta": f"{input_meta}/lip_forti.csv", "fastq": f"{input_fastq}/sk"},
-            {
-                "meta": f"{input_meta}/mky_louse.csv",
-                "fastq": f"{input_fastq}/monkeylice",
-            },
-        ]
-    )
-
-    create_Mfiles(id_prefix, out_meta, out_mani, data_list)
+    create_Mfiles(id_prefix, out_meta, out_mani, used_data())
