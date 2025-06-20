@@ -62,8 +62,8 @@ def test_extract_pattern():
 @pytest.mark.parametrize(
     ["pattern", "expected"],
     [
-        pytest.param("t1_R1_.fastq.gz\n", Pattern.ILLUMINA),
-        pytest.param("\tt1_R2.fasta", Pattern.ILLUMINA),
+        pytest.param("t1_R1_001.fastq.gz\n", Pattern.ILLUMINA),
+        pytest.param("\tt1_R2_001.fasta", Pattern.ILLUMINA),
         pytest.param("SRR20014836_1.fastq.gz", Pattern.SRA),
         pytest.param("hogehoge.fastq", Pattern.NotMatched),
         pytest.param("\nSAMPLE\n", Pattern.NotMatched),
