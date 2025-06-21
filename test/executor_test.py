@@ -30,7 +30,7 @@ def test_executor_create_instance_and_currently_spend_a_lifecycle(
     assert executor.status() == "removing" or executor.status() == "exited"
 
 
-def test_executor_return_command_runner_when_enter_with_statement(
+def test_executor_return_command_runner_when_enter_with_statement_and_currently_run_cmd(
     container: Callable[[str], docker.models.containers.Container],
 ):
     with Executor(container("alpine")) as executor:
@@ -38,10 +38,5 @@ def test_executor_return_command_runner_when_enter_with_statement(
         assert hasattr(executor, "run")
         assert callable(executor.run)
 
-
-def test_executor_run_commands(
-    container: Callable[[str], docker.models.containers.Container],
-):
-    with Executor(container("alpine")) as executor:
         output = executor.run("echo Hello, World!")
         assert output == "Hello, World!"
