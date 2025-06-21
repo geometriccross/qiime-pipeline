@@ -16,6 +16,7 @@ def shared_container():
         pass
 
 
+@pytest.mark.slow
 def test_executor_lifecycle(shared_container):
     executor = Executor(shared_container)
     assert isinstance(executor, Executor)
@@ -24,6 +25,7 @@ def test_executor_lifecycle(shared_container):
     assert executor.status() == "exited"
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize(
     "command,expected",
     [
