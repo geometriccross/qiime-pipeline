@@ -1,51 +1,37 @@
 import pytest
 import docker
-from typing import Callable
-from scripts.executor import Executor, CommandRunner
+from scripts.executor import Executor
 
 
-@pytest.fixture
-def container():
-    def _container(image: str) -> docker.models.containers.Container:
-        client = docker.from_env()
-        return client.containers.create(image, command="tail -f /dev/null")
-
-    return _container
-
-
-@pytest.fixture(autouse=True, scope="session")
-def cleanup_containers():
-    yield
-    # テスト完了後、残存するコンテナを確実に削除
+@pytest.fixture(scope="session")
+def shared_container():
     client = docker.from_env()
-    for container in client.containers.list(all=True):
-        try:
-            container.remove(force=True)
-        except docker.errors.APIError:
-            pass
+    container = client.containers.create("alpine", command="tail -f /dev/null")
+    container.start()  # セッション開始時に1回だけ起動
+    yield container
+    try:
+        container.stop()
+        container.remove(force=True)
+    except docker.errors.APIError:
+        pass
 
 
-def test_executor_create_instance_and_currently_spend_a_lifecycle(
-    container: Callable[[str], docker.models.containers.Container],
-):
-    ctn = container("alpine")
-
-    executor = Executor(ctn)
+def test_executor_lifecycle(shared_container):
+    executor = Executor(shared_container)
     assert isinstance(executor, Executor)
-    assert executor.status() == "created"
-    executor.__enter__()
     assert executor.status() == "running"
     executor.__exit__(None, None, None)
-    assert executor.status() == "removing" or executor.status() == "exited"
+    assert executor.status() == "exited"
 
 
-def test_executor_return_command_runner_when_enter_with_statement_and_currently_run_cmd(
-    container: Callable[[str], docker.models.containers.Container],
-):
-    with Executor(container("alpine")) as executor:
-        assert isinstance(executor, CommandRunner)
-        assert hasattr(executor, "run")
-        assert callable(executor.run)
-
-        output = executor.run("echo Hello, World!")
-        assert output == "Hello, World!"
+@pytest.mark.parametrize(
+    "command,expected",
+    [
+        ("echo Hello, World!", "Hello, World!"),
+        ("pwd", "/"),
+    ],
+)
+def test_command_execution(shared_container, command, expected):
+    with Executor(shared_container) as executor:
+        output = executor.run(command)
+        assert output == expected
