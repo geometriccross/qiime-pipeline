@@ -4,6 +4,15 @@ from typing import Callable
 from scripts.executor import Executor, CommandRunner
 
 
+@pytest.fixture
+def container():
+    def _container(image: str) -> docker.models.containers.Container:
+        client = docker.from_env()
+        return client.containers.create(image, command="tail -f /dev/null")
+
+    return _container
+
+
 @pytest.fixture(autouse=True, scope="session")
 def cleanup_containers():
     yield
