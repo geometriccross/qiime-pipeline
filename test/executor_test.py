@@ -4,7 +4,7 @@ from typing import Callable
 from scripts.executor import Executor, CommandRunner
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(autouse=True, scope="session")
 def cleanup_containers():
     yield
     # テスト完了後、残存するコンテナを確実に削除
@@ -16,21 +16,13 @@ def cleanup_containers():
             pass
 
 
-def test_executor_create_instance(
+def test_executor_create_instance_and_currently_spend_a_lifecycle(
     container: Callable[[str], docker.models.containers.Container],
 ):
     ctn = container("alpine")
 
     executor = Executor(ctn)
     assert isinstance(executor, Executor)
-    assert executor.status() == "created"
-
-
-def test_container_status_is_currentry_changed(
-    container: Callable[[str], docker.models.containers.Container],
-):
-    ctn = container("alpine")
-    executor = Executor(ctn)
     assert executor.status() == "created"
     executor.__enter__()
     assert executor.status() == "running"
