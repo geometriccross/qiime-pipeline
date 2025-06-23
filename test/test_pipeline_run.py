@@ -1,0 +1,27 @@
+import pytest
+import argparse
+import docker
+from scripts.pipeline_run import *
+from scripts.data_control.used_data import used_data
+from scripts.executor import Executor, CommandRunner
+
+
+@pytest.fixture(scope="module")
+def provid_executor():
+    docker_client = docker.from_env()
+    pipeline_img, _ = docker_client.images.build(
+        path=".",
+        dockerfile="Dockerfile",
+        tag="qiime",
+    )
+    pipeline_ctn = docker_client.containers.run(
+        pipeline_img, detach=True, remove=False, name="qiime_container"
+    )
+
+    with Executor(pipeline_ctn) as executor:
+        yield executor
+
+
+@pytest.mark.slow
+def test_pipeline_run(provid_executor: CommandRunner):
+    pass
