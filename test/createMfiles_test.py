@@ -4,7 +4,7 @@ from tempfile import NamedTemporaryFile
 from pathlib import Path
 import pytest
 from scripts.data_control.dataset import Databank, Dataset
-from scripts.create_Mfiles import (
+from scripts.data_control.create_Mfiles import (
     search_fastq,
     get_header,
     header_replaced,
