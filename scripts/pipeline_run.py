@@ -1,10 +1,12 @@
-import os
+import json
 import datetime
 import random
 import string
 from pathlib import Path
 import docker
 from scripts.executor import Executor
+from scripts.data_control.dataset import Databank
+from scripts.data_control.used_data import used_data
 
 
 def generate_id() -> str:
@@ -27,26 +29,22 @@ def generate_id() -> str:
     return f"{month}{datetime_str}_{random_str}"
 
 
-def mounts() -> list[docker.types.Mount]:
+def mounts(data_path: Path) -> list[docker.types.Mount]:
+    """
+
+    Args:
+        data_path (Path): ホスト側に存在するfastqやmetadataが格納されているディレクトリのパス
+
+    Returns:
+        list[docker.types.Mount]: Dockerコンテナにマウントするための設定リスト
+    """
     return [
         docker.types.Mount(
-            target="/meta",
-            source=Path("./meta").absolute().__str__(),
+            target="/data",
+            source=data_path.absolute().__str__(),
             type="bind",
             read_only=True,
-        ),
-        docker.types.Mount(
-            target="/fastq",
-            source=Path("./fastq").absolute().__str__(),
-            type="bind",
-            read_only=True,
-        ),
-        docker.types.Mount(
-            target="/scripts",
-            source=os.path.abspath("scripts"),
-            type="bind",
-            read_only=True,
-        ),
+        )
     ]
 
 
@@ -60,6 +58,20 @@ def provid_container():
     return docker_client.containers.run(
         pipeline_img, detach=True, remove=False, name="qiime_container"
     )
+
+
+def data_specification(saved_json_path: Path | None) -> callable[Path, [Databank]]:
+    """保存したjsonファイルからデータセットを読み込み、Databankを返す
+    もしファイルが存在しない場合は、デフォルトのデータを返す。
+
+    Args:
+        saved_json_path (Path | None): 保存されたjsonファイルのパス
+    """
+    if saved_json_path is None or not saved_json_path.exists():
+        return lambda path: used_data(path)
+    else:
+        json_data = json.load(saved_json_path.read_text())
+        return lambda _: Databank.from_json(json_data)
 
 
 def pipeline_run():
