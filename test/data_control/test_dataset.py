@@ -47,14 +47,9 @@ def test_dataset_acctualy_get_fastq_files(temporay_files):
     assert len(dataset.fastq_files) == file_count  # No fastq files in the temp file
 
 
-def test_databank_instance_has_current_attributes(temporay_files):
-    dataset = Dataset(
-        name="test_dataset",
-        fastq_folder=temporay_files["fastq"],
-        metadata_path=temporay_files["meta"],
-    )
-    databank = Databank(sets={dataset})
-    assert databank.test_dataset == dataset
+def test_databank_instance_has_current_attributes(temporary_dataset):
+    databank = Databank(sets={temporary_dataset})
+    assert databank.test_dataset == temporary_dataset
 
 
 def test_dataset_serialization(temporay_files):
@@ -80,21 +75,17 @@ def test_dataset_serialization(temporay_files):
     assert restored.metadata_path == dataset.metadata_path
 
 
-def test_databank_serialization(temporay_files):
+def test_databank_serialization(temporary_dataset):
     """Databankのシリアライズとデシリアライズのテスト"""
-    dataset1 = Dataset(
-        name="test_dataset1",
-        fastq_folder=temporay_files["fastq"],
-        metadata_path=temporay_files["meta"],
-    )
-    databank = Databank(sets={dataset1})
+    databank = Databank(sets={temporary_dataset})
 
     # シリアライズとデシリアライズ
     json_str = databank.to_json()
     restored = Databank.from_json(json_str)
 
     assert len(restored.sets) == 1
-    assert restored.test_dataset1.name == dataset1.name
+    assert restored.test_dataset.name == temporary_dataset.name
+    assert hash(restored.test_dataset) == hash(temporary_dataset)
 
 
 def test_serialization_error_handling():
