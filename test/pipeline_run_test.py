@@ -1,8 +1,5 @@
 import pytest
-import argparse
 import docker
-from scripts.pipeline_run import *
-from scripts.data_control.used_data import used_data
 from scripts.executor import Executor, CommandRunner
 
 
