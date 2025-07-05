@@ -1,6 +1,10 @@
 import pytest
 import docker
-from scripts.executor import Executor, CommandRunner
+from pathlib import Path
+from tempfile import NamedTemporaryFile
+from scripts.pipeline_run import data_specification
+from scripts.executor import Executor
+from scripts.data_control.dataset import Databank
 
 
 @pytest.fixture(scope="module")
@@ -19,6 +23,19 @@ def provid_executor():
         yield executor
 
 
-@pytest.mark.slow
-def test_pipeline_run(provid_executor: CommandRunner):
-    pass
+# fastqが配置されたcontainerを用意する必要があるため、このテストは一時的にコメントアウト
+# def test_data_specification_is_json_is_not_exists():
+# databank = data_specification(None)
+# assert isinstance(databank, Databank)
+# assert len(databank.sets) == 1  # Since we wrote an empty JSON
+#
+
+
+def test_data_specification_is_json_exists(temporary_dataset):
+    with NamedTemporaryFile(delete=True) as tmp_json:
+        json_data = '{"sets": [' + temporary_dataset.to_json() + "]}"
+        tmp_json.write(json_data.encode("utf-8"))
+        tmp_json.flush()
+        databank = data_specification(Path(tmp_json.name))
+        assert isinstance(databank, Databank)
+        assert len(databank.sets) == 1  # Since we wrote an empty JSON

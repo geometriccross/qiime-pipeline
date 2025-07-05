@@ -1,4 +1,3 @@
-import json
 import datetime
 import random
 import string
@@ -60,7 +59,11 @@ def provid_container():
     )
 
 
-def data_specification(saved_json_path: Path | None) -> callable[Path, [Databank]]:
+def data_specification(
+    saved_json_path: Path,
+    container_side_fastq_folder: Path = Path("/data/fastq"),
+    container_side_meta_folder: Path = Path("/data/metadata"),
+) -> Databank:
     """保存したjsonファイルからデータセットを読み込み、Databankを返す
     もしファイルが存在しない場合は、デフォルトのデータを返す。
 
@@ -68,10 +71,13 @@ def data_specification(saved_json_path: Path | None) -> callable[Path, [Databank
         saved_json_path (Path | None): 保存されたjsonファイルのパス
     """
     if saved_json_path is None or not saved_json_path.exists():
-        return lambda path: used_data(path)
+        return used_data(
+            container_side_fastq_stored_path=container_side_fastq_folder,
+            container_side_meta_stored_path=container_side_meta_folder,
+        )
     else:
-        json_data = json.load(saved_json_path.read_text())
-        return lambda _: Databank.from_json(json_data)
+        json_data = saved_json_path.read_text()
+        return Databank.from_json(json_data)
 
 
 def pipeline_run():
