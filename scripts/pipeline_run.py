@@ -2,8 +2,6 @@ import datetime
 import random
 import string
 from pathlib import Path
-import docker
-from scripts.executor import Executor
 from scripts.data_control.dataset import Databank
 from scripts.data_control.used_data import used_data
 
@@ -28,37 +26,6 @@ def generate_id() -> str:
     return f"{month}{datetime_str}_{random_str}"
 
 
-def mounts(data_path: Path) -> list[docker.types.Mount]:
-    """
-
-    Args:
-        data_path (Path): ホスト側に存在するfastqやmetadataが格納されているディレクトリのパス
-
-    Returns:
-        list[docker.types.Mount]: Dockerコンテナにマウントするための設定リスト
-    """
-    return [
-        docker.types.Mount(
-            target="/data",
-            source=data_path.absolute().__str__(),
-            type="bind",
-            read_only=True,
-        )
-    ]
-
-
-def provid_container():
-    docker_client = docker.from_env()
-    pipeline_img, _ = docker_client.images.build(
-        path=".",
-        dockerfile="Dockerfile",
-        tag="qiime",
-    )
-    return docker_client.containers.run(
-        pipeline_img, detach=True, remove=False, name="qiime_container"
-    )
-
-
 def data_specification(
     saved_json_path: Path,
     container_side_fastq_folder: Path = Path("/data/fastq"),
@@ -80,7 +47,8 @@ def data_specification(
         return Databank.from_json(json_data)
 
 
-def pipeline_run():
-    pipeline_ctn = provid_container()
-    with Executor(pipeline_ctn) as executor:
-        yield executor
+# def pipeline_run():
+#     pipeline_ctn = provid_container()
+#     with Executor(pipeline_ctn) as executor:
+#         yield executor
+#
