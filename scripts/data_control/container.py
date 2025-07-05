@@ -21,11 +21,10 @@ def mounts(data_path: Path) -> list[docker.types.Mount]:
     ]
 
 
-def provid_container():
+def provid_container(dockerfile: Path) -> docker.models.containers.Container:
     docker_client = docker.from_env()
     pipeline_img, _ = docker_client.images.build(
-        path=".",
-        dockerfile="Dockerfile",
+        dockerfile=dockerfile,
         tag="qiime",
     )
     return docker_client.containers.run(
