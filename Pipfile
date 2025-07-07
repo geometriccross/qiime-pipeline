@@ -9,6 +9,7 @@ docker = "*"
 debugpy = "*"
 pytest-xdist = "*"
 pytest-skip-slow = "*"
+tomlkit = "*"
 
 [dev-packages]
 
