@@ -1,5 +1,7 @@
+import docker
 from pathlib import Path
 from .dataset import Dataset, Databank
+from .container import provid_container, mounts
 
 
 def used_data(
@@ -37,3 +39,21 @@ def used_data(
             __mk_louses,
         ]
     )
+
+
+def used_container(dockerfile: Path, data_folder: Path) -> str:
+    """
+    Build and run a Docker container for the QIIME pipeline.
+
+    Args:
+        dockerfile (Path): Path to the Dockerfile for building the container.
+
+    Returns:
+        str: Name of the running container.
+    """
+
+    pipeline_ctn: docker.models.containers.Container = provid_container(dockerfile)
+    pipeline_ctn.mounts = mounts(
+        data_path=data_folder
+    )  # Assuming the data path is set to /data in the container
+    return pipeline_ctn.name
