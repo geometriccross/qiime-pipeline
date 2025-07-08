@@ -1,6 +1,5 @@
 import dataclasses
 from pathlib import Path
-from io import TextIOWrapper
 from collections.abc import Mapping
 import tomlkit
 from tomlkit.toml_file import TOMLFile
