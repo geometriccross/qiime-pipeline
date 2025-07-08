@@ -3,6 +3,7 @@ from pathlib import Path
 from collections.abc import Mapping
 import tomlkit
 from tomlkit.toml_file import TOMLFile
+from ribosome_regions import Region
 
 
 @dataclasses.dataclass
@@ -14,6 +15,8 @@ class SettingData(Mapping):
 
     dockerfile: Path
     databank_json_path: Path
+
+    region: Region
 
     def __post_init__(self):
         for p in filter(lambda item: isinstance(item, Path), self.__dict__.values()):
