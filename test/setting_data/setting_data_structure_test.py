@@ -2,7 +2,7 @@ import pytest
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 import tomlkit
-from scripts.setting_data.setting_data_structre import SettingData
+from scripts.setting_data.setting_data_structure import SettingData
 
 
 @pytest.fixture
