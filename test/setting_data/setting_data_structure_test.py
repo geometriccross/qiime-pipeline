@@ -2,7 +2,7 @@ import pytest
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 import tomlkit
-from scripts.setting_data.setting_data_structure import SettingData
+from scripts.setting_data import SettingData, Regions
 
 
 @pytest.fixture
@@ -37,6 +37,8 @@ def dummy_setting_data(tmp_path):
         container_side_metadata_folder=container_side_metadata,
         dockerfile=dockerfile,
         databank_json_path=databank_json,
+        region=Regions.V3V4,
+        sampling_depth=10000,
     )
 
 
@@ -49,6 +51,8 @@ def test_setting_data_initialization():
             container_side_metadata_folder=Path("/nonexistent4"),
             dockerfile=Path("/nonexistent/Dockerfile"),
             databank_json_path=Path("/nonexistent/databank.json"),
+            region=Regions.V3V4,
+            sampling_depth="incorrect_type",
         )
     except AssertionError:
         pass  # Expected to raise AssertionError due to non-existent paths
