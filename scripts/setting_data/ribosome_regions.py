@@ -32,10 +32,10 @@ class Region:
         )
 
 
-class V3(Region):
+class V3V4(Region):
     def __init__(self):
         super().__init__(
-            name="V3",
+            name="V3V4",
             trim_left_f=17,
             trim_left_r=21,
             trunc_len_f=250,
@@ -44,7 +44,7 @@ class V3(Region):
 
 
 class Regions(Enum):
-    V3 = V3()
+    V3V4 = V3V4()
 
     @classmethod
     def all_regions(cls):
