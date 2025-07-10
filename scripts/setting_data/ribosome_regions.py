@@ -1,4 +1,4 @@
-from enum import Enum
+import tomlkit
 
 # qiime dada2 denoise-paired \
 # 	--quiet \
@@ -31,6 +31,18 @@ class Region:
             f"trunc_len_f={self.trunc_len_f}, trunc_len_r={self.trunc_len_r})"
         )
 
+    def to_toml(self) -> tomlkit.TOMLDocument:
+        """
+        Convert the region to a TOML document.
+        """
+        doc = tomlkit.document()
+        doc.add("name", self.name)
+        doc.add("trim_left_f", self.trim_left_f)
+        doc.add("trim_left_r", self.trim_left_r)
+        doc.add("trunc_len_f", self.trunc_len_f)
+        doc.add("trunc_len_r", self.trunc_len_r)
+        return doc
+
 
 class V3V4(Region):
     def __init__(self):
@@ -41,11 +53,3 @@ class V3V4(Region):
             trunc_len_f=250,
             trunc_len_r=250,
         )
-
-
-class Regions(Enum):
-    V3V4 = V3V4()
-
-    @classmethod
-    def all_regions(cls):
-        return [region.value for region in cls]
