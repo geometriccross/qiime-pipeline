@@ -1,4 +1,17 @@
+import pytest
 from scripts.data_control.ribosome_regions import Region
+
+
+@pytest.fixture
+def region():
+    """Fixture to create a Region object for testing."""
+    return Region(
+        name="TestRegion",
+        trim_left_f=10,
+        trim_left_r=15,
+        trunc_len_f=200,
+        trunc_len_r=200,
+    )
 
 
 def test_region_initialization():
@@ -17,15 +30,8 @@ def test_region_initialization():
     assert region.trunc_len_r == 200
 
 
-def test_conversion_to_toml():
+def test_conversion_to_toml(region):
     """Test the conversion of the Region object to a TOML document."""
-    region = Region(
-        name="TestRegion",
-        trim_left_f=10,
-        trim_left_r=15,
-        trunc_len_f=200,
-        trunc_len_r=200,
-    )
     toml_doc = region.to_toml()
 
     assert toml_doc["name"] == "TestRegion"
