@@ -32,6 +32,29 @@ class Region:
             f"trunc_len_f={self.trunc_len_f}, trunc_len_r={self.trunc_len_r})"
         )
 
+    def __hash__(self):
+        return hash(
+            (
+                self.name,
+                self.trim_left_f,
+                self.trim_left_r,
+                self.trunc_len_f,
+                self.trunc_len_r,
+            )
+        )
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Region):
+            return NotImplemented
+        return (
+            self.name == other.name
+            and self.trim_left_f == other.trim_left_f
+            and self.trim_left_r == other.trim_left_r
+            and self.trunc_len_f == other.trunc_len_f
+            and self.trunc_len_r == other.trunc_len_r
+            and hash(self) == hash(other)
+        )
+
     def to_toml(self) -> tomlkit.TOMLDocument:
         """
         Convert the region to a TOML document.

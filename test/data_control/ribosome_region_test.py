@@ -30,6 +30,35 @@ def test_region_initialization():
     assert region.trunc_len_r == 200
 
 
+def test_region_equality():
+    """Test the equality of two Region objects."""
+    region1 = Region(
+        name="TestRegion",
+        trim_left_f=10,
+        trim_left_r=15,
+        trunc_len_f=200,
+        trunc_len_r=200,
+    )
+    region2 = Region(
+        name="TestRegion",
+        trim_left_f=10,
+        trim_left_r=15,
+        trunc_len_f=200,
+        trunc_len_r=200,
+    )
+    region3 = Region(
+        name="AnotherRegion",
+        trim_left_f=5,
+        trim_left_r=10,
+        trunc_len_f=150,
+        trunc_len_r=150,
+    )
+    assert region1 == region2
+    assert region1 != region3
+    assert hash(region1) == hash(region2)
+    assert hash(region1) != hash(region3)
+
+
 def test_conversion_to_toml(region):
     """Test the conversion of the Region object to a TOML document."""
     toml_doc = region.to_toml()
