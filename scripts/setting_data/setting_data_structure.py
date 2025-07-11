@@ -3,7 +3,7 @@ from pathlib import Path
 from collections.abc import Mapping
 import tomlkit
 from tomlkit.toml_file import TOMLFile
-from .ribosome_regions import Region
+from ..data_control.ribosome_regions import Region
 
 
 @dataclasses.dataclass
@@ -16,7 +16,6 @@ class SettingData(Mapping):
     dockerfile: Path
     databank_json_path: Path
 
-    region: Region
     sampling_depth: int
 
     def __post_init__(self):
@@ -39,6 +38,8 @@ class SettingData(Mapping):
                 case Path():
                     # Convert Path to string for TOML serialization
                     doc.add(key, str(value.absolute()))
+                case Region():
+                    doc.add(key, value.to_toml())
                 case _:
                     doc.add(key, value)
 
