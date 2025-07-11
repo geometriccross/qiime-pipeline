@@ -1,3 +1,4 @@
+from __future__ import annotations
 import tomlkit
 
 # qiime dada2 denoise-paired \
@@ -42,6 +43,19 @@ class Region:
         doc.add("trunc_len_f", self.trunc_len_f)
         doc.add("trunc_len_r", self.trunc_len_r)
         return doc
+
+    @classmethod
+    def from_toml(self, toml_doc: tomlkit.TOMLDocument) -> Region:
+        """
+        Initialize the region from a TOML document.
+        """
+        return Region(
+            name=toml_doc["name"],
+            trim_left_f=toml_doc["trim_left_f"],
+            trim_left_r=toml_doc["trim_left_r"],
+            trunc_len_f=toml_doc["trunc_len_f"],
+            trunc_len_r=toml_doc["trunc_len_r"],
+        )
 
 
 class V3V4(Region):

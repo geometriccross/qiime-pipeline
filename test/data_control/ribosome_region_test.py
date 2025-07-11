@@ -39,3 +39,16 @@ def test_conversion_to_toml(region):
     assert toml_doc["trim_left_r"] == 15
     assert toml_doc["trunc_len_f"] == 200
     assert toml_doc["trunc_len_r"] == 200
+
+
+def test_build_from_toml(region):
+    """Test the initialization of the Region object from a TOML document."""
+    toml_doc = region.to_toml()
+    new_region = Region.from_toml(toml_doc)
+
+    assert isinstance(new_region, Region)
+    assert new_region.name == "TestRegion"
+    assert new_region.trim_left_f == 10
+    assert new_region.trim_left_r == 15
+    assert new_region.trunc_len_f == 200
+    assert new_region.trunc_len_r == 200
