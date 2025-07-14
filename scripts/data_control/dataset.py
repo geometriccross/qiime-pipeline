@@ -1,7 +1,10 @@
+from __future__ import annotations
 import dataclasses
 import json
 from pathlib import Path
 from typing import Any
+import tomlkit
+from .ribosome_regions import Region
 
 
 class DatasetEncoder(json.JSONEncoder):
@@ -26,6 +29,7 @@ class Dataset:
     name: str
     fastq_folder: Path
     metadata_path: Path
+    region: Region
 
     def __get_fastq_files(self, fastq_folder: Path) -> list[Path]:
         return [
@@ -51,6 +55,29 @@ class Dataset:
     def __hash__(self):
         return hash((self.name, self.fastq_folder, self.metadata_path))
 
+    def to_toml(self) -> tomlkit.TOMLDocument:
+        """
+        Convert the dataset to a TOML document.
+        """
+        doc = tomlkit.document()
+        doc.add("name", self.name)
+        doc.add("fastq_folder", str(self.fastq_folder))
+        doc.add("metadata_path", str(self.metadata_path))
+        doc.add("region", self.region.to_toml())
+        return doc
+
+    @classmethod
+    def from_toml(cls, toml_doc: tomlkit.TOMLDocument) -> "Dataset":
+        """
+        Create a Dataset instance from a TOML document.
+        """
+        return Dataset(
+            name=toml_doc["name"],
+            fastq_folder=Path(toml_doc["fastq_folder"]),
+            metadata_path=Path(toml_doc["metadata_path"]),
+            region=Region.from_toml(toml_doc["region"]),
+        )
+
     def to_dict(self) -> dict:
         """オブジェクトを辞書形式に変換"""
         return {
@@ -59,6 +86,7 @@ class Dataset:
             "metadata_path": self.metadata_path,
             "fastq_files": self.fastq_files,
             "metadata": self.metadata,
+            "region": self.region.to_dict(),
         }
 
     def to_json(self) -> str:
