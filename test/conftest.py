@@ -2,6 +2,7 @@ import pytest
 from pathlib import Path
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 from scripts.data_control.dataset import Dataset
+from scripts.data_control.ribosome_regions import Region
 
 
 @pytest.fixture()
@@ -17,5 +18,6 @@ def temporary_dataset(temporay_files):
         name="test_dataset",
         fastq_folder=temporay_files["fastq"],
         metadata_path=temporay_files["meta"],
+        region=Region("SampleRegion", 0, 0, 0, 0),
     )
     yield dataset

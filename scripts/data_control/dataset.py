@@ -2,22 +2,8 @@ from __future__ import annotations
 import dataclasses
 import json
 from pathlib import Path
-from typing import Any
 import tomlkit
 from .ribosome_regions import Region
-
-
-class DatasetEncoder(json.JSONEncoder):
-    """カスタムJSONエンコーダー for Dataset/Databank"""
-
-    def default(self, obj: Any) -> Any:
-        if isinstance(obj, (Dataset, Databank)):
-            return obj.to_dict()
-        if isinstance(obj, Path):
-            return str(obj)
-        if isinstance(obj, set):
-            return list(obj)
-        return super().default(obj)
 
 
 @dataclasses.dataclass
@@ -89,20 +75,6 @@ class Dataset:
             "region": self.region.to_dict(),
         }
 
-    def to_json(self) -> str:
-        """オブジェクトをJSON文字列に変換"""
-        return json.dumps(self, cls=DatasetEncoder, indent=2)
-
-    @classmethod
-    def from_json(cls, json_str: str) -> "Dataset":
-        """JSON文字列からDatasetオブジェクトを生成"""
-        data = json.loads(json_str)
-        return cls(
-            name=data["name"],
-            fastq_folder=Path(data["fastq_folder"]),
-            metadata_path=Path(data["metadata_path"]),
-        )
-
 
 @dataclasses.dataclass
 class Databank:
@@ -120,15 +92,3 @@ class Databank:
     def to_dict(self) -> dict:
         """オブジェクトを辞書形式に変換"""
         return {"sets": self.sets}
-
-    def to_json(self) -> str:
-        """オブジェクトをJSON文字列に変換"""
-        return json.dumps(self, cls=DatasetEncoder, indent=2)
-
-    @classmethod
-    def from_json(cls, json_str: str) -> "Databank":
-        """JSON文字列からDatabankオブジェクトを生成"""
-        data = json.loads(json_str)
-        return cls(
-            sets={Dataset.from_json(json.dumps(d, indent=2)) for d in data["sets"]}
-        )
