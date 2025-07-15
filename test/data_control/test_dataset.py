@@ -1,6 +1,6 @@
-import json
 import pytest
 from pathlib import Path
+import tomlkit
 from scripts.data_control.dataset import Dataset, Databank
 from scripts.data_control.ribosome_regions import Region
 
@@ -77,16 +77,19 @@ def test_databank_instance_has_current_attributes(temporary_dataset):
 
 
 def test_databank_serialization(temporary_dataset):
-    """Databankのシリアライズとデシリアライズのテスト"""
     databank = Databank(sets={temporary_dataset})
+    toml_doc = databank.to_toml()
 
-    # シリアライズとデシリアライズ
-    json_str = databank.to_json()
-    restored = Databank.from_json(json_str)
+    assert toml_doc["sets"][0] == temporary_dataset.to_toml()
 
-    assert len(restored.sets) == 1
-    assert restored.test_dataset.name == temporary_dataset.name
-    assert hash(restored.test_dataset) == hash(temporary_dataset)
+
+def test_databank_from_toml(temporary_dataset):
+    databank = Databank(sets={temporary_dataset})
+    toml_doc = databank.to_toml()
+    new_databank = Databank.from_toml(toml_doc)
+
+    assert len(new_databank.sets) == 1
+    assert new_databank.sets.pop() == temporary_dataset
 
 
 def test_serialization_error_handling():

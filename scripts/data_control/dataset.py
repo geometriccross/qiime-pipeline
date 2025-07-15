@@ -1,6 +1,5 @@
 from __future__ import annotations
 import dataclasses
-import json
 from pathlib import Path
 import tomlkit
 from .ribosome_regions import Region
@@ -92,3 +91,23 @@ class Databank:
     def to_dict(self) -> dict:
         """オブジェクトを辞書形式に変換"""
         return {"sets": self.sets}
+
+    def to_toml(self) -> tomlkit.TOMLDocument:
+        """
+        Convert the databank to a TOML document.
+        """
+        doc = tomlkit.document()
+        aot = tomlkit.aot()
+        [aot.append(dataset.to_toml()) for dataset in self.sets]
+        doc.add("sets", aot)
+        return doc
+
+    @classmethod
+    def from_toml(cls, toml_doc: tomlkit.TOMLDocument) -> "Databank":
+        """
+        Create a Databank instance from a TOML document.
+        """
+        s = set()
+        for dataset in toml_doc["sets"]:
+            s.add(Dataset.from_toml(dataset))
+        return Databank(sets=s)
