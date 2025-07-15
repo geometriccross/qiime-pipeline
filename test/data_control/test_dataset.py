@@ -1,4 +1,3 @@
-import pytest
 from pathlib import Path
 from scripts.data_control.dataset import Dataset, Databank
 from scripts.data_control.ribosome_regions import Region
