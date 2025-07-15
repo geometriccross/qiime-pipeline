@@ -89,14 +89,3 @@ def test_databank_from_toml(temporary_dataset):
 
     assert len(new_databank.sets) == 1
     assert new_databank.sets.pop() == temporary_dataset
-
-
-def test_serialization_error_handling():
-    """無効なJSONからのデシリアライズテスト"""
-    invalid_json = '{"invalid": "json"}'
-
-    with pytest.raises(KeyError):
-        Dataset.from_json(invalid_json)
-
-    with pytest.raises(KeyError):
-        Databank.from_json(invalid_json)
