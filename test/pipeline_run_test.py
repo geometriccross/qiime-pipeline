@@ -43,3 +43,6 @@ def test_loading_data_if_setting_file_exists(temporary_dataset):
         assert isinstance(after_conversion, Databank)
         assert len(after_conversion.sets) == 1  # Since we wrote an empty TOML
         assert after_conversion.sets.pop() == temporary_dataset
+
+
+# 設定ファイルが存在しない場合のテストはused_data.pyのテストと同義であるため、省略
