@@ -2,7 +2,8 @@ import pytest
 import docker
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from scripts.pipeline_run import data_specification
+from tomlkit.toml_file import TOMLFile
+from scripts.pipeline_run import loading_data
 from scripts.executor import Executor
 from scripts.data_control.dataset import Databank
 
@@ -31,11 +32,14 @@ def provid_executor():
 #
 
 
-def test_data_specification_is_json_exists(temporary_dataset):
-    with NamedTemporaryFile(delete=True) as tmp_json:
-        json_data = '{"sets": [' + temporary_dataset.to_json() + "]}"
-        tmp_json.write(json_data.encode("utf-8"))
-        tmp_json.flush()
-        databank = data_specification(Path(tmp_json.name))
-        assert isinstance(databank, Databank)
-        assert len(databank.sets) == 1  # Since we wrote an empty JSON
+def test_loading_data_if_setting_file_exists(temporary_dataset):
+    before_conversion = Databank(sets=[temporary_dataset])
+    toml_doc = before_conversion.to_toml()
+    with NamedTemporaryFile(delete=True) as tmp_file:
+        toml_file = TOMLFile(tmp_file.name)
+        toml_file.write(toml_doc)
+
+        after_conversion = loading_data(Path(tmp_file.name))
+        assert isinstance(after_conversion, Databank)
+        assert len(after_conversion.sets) == 1  # Since we wrote an empty TOML
+        assert after_conversion.sets.pop() == temporary_dataset

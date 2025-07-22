@@ -2,6 +2,7 @@ import datetime
 import random
 import string
 from pathlib import Path
+from tomlkit.toml_file import TOMLFile
 from scripts.data_control.dataset import Databank
 from scripts.data_control.used_data import used_data
 
@@ -26,25 +27,23 @@ def generate_id() -> str:
     return f"{month}{datetime_str}_{random_str}"
 
 
-def data_specification(
-    saved_json_path: Path,
+def loading_data(
+    saved_toml_path: Path | None,
     container_side_fastq_folder: Path = Path("/data/fastq"),
     container_side_meta_folder: Path = Path("/data/metadata"),
 ) -> Databank:
-    """保存したjsonファイルからデータセットを読み込み、Databankを返す
+    """保存したtomlファイルからデータセットを読み込み、Databankを返す
     もしファイルが存在しない場合は、デフォルトのデータを返す。
-
-    Args:
-        saved_json_path (Path | None): 保存されたjsonファイルのパス
     """
-    if saved_json_path is None or not saved_json_path.exists():
+    if saved_toml_path is None or not saved_toml_path.exists():
         return used_data(
             container_side_fastq_stored_path=container_side_fastq_folder,
             container_side_meta_stored_path=container_side_meta_folder,
         )
     else:
-        json_data = saved_json_path.read_text()
-        return Databank.from_json(json_data)
+        toml_file = TOMLFile(saved_toml_path)
+        toml_data = toml_file.read()
+        return Databank.from_toml(toml_data)
 
 
 # def pipeline_run():
