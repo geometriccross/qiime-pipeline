@@ -32,10 +32,6 @@ def dummy_setting_data(tmp_path, temporary_dataset):
 
     # Return a SettingData instance using the dummy paths
     return SettingData(
-        host_side_fastq_folder=host_side_fastq,
-        container_side_fastq_folder=container_side_fastq,
-        host_side_metadata_folder=host_side_metadata,
-        container_side_metadata_folder=container_side_metadata,
         dockerfile=dockerfile,
         sampling_depth=10000,
         databank=databank,
@@ -45,10 +41,6 @@ def dummy_setting_data(tmp_path, temporary_dataset):
 def test_setting_data_initialization():
     try:
         SettingData(
-            host_side_fastq_folder=Path("/nonexistent1"),
-            container_side_fastq_folder=Path("/nonexistent2"),
-            host_side_metadata_folder=Path("/nonexistent3"),
-            container_side_metadata_folder=Path("/nonexistent4"),
             dockerfile=Path("/nonexistent/Dockerfile"),
             sampling_depth="incorrect_type",
             databank="No Object",

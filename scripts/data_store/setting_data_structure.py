@@ -8,11 +8,6 @@ from .dataset import Databank
 
 @dataclasses.dataclass
 class SettingData(Mapping):
-    host_side_fastq_folder: Path
-    container_side_fastq_folder: Path
-    host_side_metadata_folder: Path
-    container_side_metadata_folder: Path
-
     dockerfile: Path
 
     sampling_depth: int
