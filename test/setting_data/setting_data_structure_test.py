@@ -3,10 +3,11 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile
 import tomlkit
 from scripts.setting_data import SettingData
+from scripts.data_control.dataset import Databank, Dataset
 
 
 @pytest.fixture
-def dummy_setting_data(tmp_path):
+def dummy_setting_data(tmp_path, temporary_dataset):
     # Create two directories for fastq mounts
     host_side_fastq = tmp_path / "host_fastq"
     container_side_fastq = tmp_path / "container_fastq"
@@ -26,8 +27,8 @@ def dummy_setting_data(tmp_path):
     # Create a dummy Dockerfile and databank JSON file
     dockerfile = tmp_path / "Dockerfile"
     dockerfile.write_text("FROM python:3.8\n")
-    databank_json = tmp_path / "databank.json"
-    databank_json.write_text("{}\n")
+
+    databank = Databank(sets=[temporary_dataset])
 
     # Return a SettingData instance using the dummy paths
     return SettingData(
@@ -36,8 +37,8 @@ def dummy_setting_data(tmp_path):
         host_side_metadata_folder=host_side_metadata,
         container_side_metadata_folder=container_side_metadata,
         dockerfile=dockerfile,
-        databank_json_path=databank_json,
         sampling_depth=10000,
+        databank=databank,
     )
 
 
@@ -49,25 +50,27 @@ def test_setting_data_initialization():
             host_side_metadata_folder=Path("/nonexistent3"),
             container_side_metadata_folder=Path("/nonexistent4"),
             dockerfile=Path("/nonexistent/Dockerfile"),
-            databank_json_path=Path("/nonexistent/databank.json"),
             sampling_depth="incorrect_type",
+            databank="No Object",
         )
     except AssertionError:
         pass  # Expected to raise AssertionError due to non-existent paths
 
 
-def test_dumps(dummy_setting_data):
+def test_correctly_convert_into_toml(dummy_setting_data):
     with NamedTemporaryFile(delete=True, mode="w", suffix=".toml") as saved_file:
         dummy_setting_data.write(saved_file.name)
         with open(saved_file.name, "r") as f:
             content = tomlkit.load(f)
             assert content is not None or content != ""
+
             for atr in dummy_setting_data.__dict__.keys():
-                match getattr(dummy_setting_data, atr):
-                    case Path():
-                        # Convert Path to string for TOML serialization
-                        assert content[atr] == str(
-                            getattr(dummy_setting_data, atr).absolute()
-                        )
-                    case _:
-                        assert content[atr] == getattr(dummy_setting_data, atr)
+                ins = getattr(dummy_setting_data, atr)
+
+                # Convert instance to toml or something for TOML comparation
+                if isinstance(ins, int):
+                    assert content[atr] == ins
+                if isinstance(ins, Path):
+                    assert content[atr] == str(ins.absolute())
+                elif isinstance(ins, Dataset):
+                    assert content[atr] == ins.to_toml()
