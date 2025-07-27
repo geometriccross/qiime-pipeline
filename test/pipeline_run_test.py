@@ -5,7 +5,7 @@ from tempfile import NamedTemporaryFile
 from tomlkit.toml_file import TOMLFile
 from scripts.pipeline_run import loading_data
 from scripts.executor import Executor
-from scripts.data_control.dataset import Databank
+from scripts.data_store.dataset import Databank
 
 
 @pytest.fixture(scope="module")

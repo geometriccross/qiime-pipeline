@@ -3,7 +3,7 @@ from pathlib import Path
 from collections.abc import Mapping
 import tomlkit
 from tomlkit.toml_file import TOMLFile
-from ..data_control.dataset import Databank
+from .dataset import Databank
 
 
 @dataclasses.dataclass

@@ -3,8 +3,8 @@ import random
 import string
 from pathlib import Path
 from tomlkit.toml_file import TOMLFile
-from scripts.data_control.dataset import Databank
-from scripts.data_control.used_data import used_data
+from scripts.data_store.dataset import Databank
+from scripts.data_store.used_data import used_data
 
 
 def generate_id() -> str:

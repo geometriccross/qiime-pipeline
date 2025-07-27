@@ -1,8 +1,8 @@
 import pytest
 from pathlib import Path
 from tempfile import NamedTemporaryFile, TemporaryDirectory
-from scripts.data_control.dataset import Dataset
-from scripts.data_control.ribosome_regions import Region
+from scripts.data_store.dataset import Dataset
+from scripts.data_store.ribosome_regions import Region
 
 
 @pytest.fixture()
