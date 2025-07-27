@@ -125,3 +125,12 @@ class Databank:
         for dataset in toml_doc["sets"]:
             s.add(Dataset.from_toml(dataset))
         return Databank(sets=s)
+
+    def mounts(self, container_base_dir: Path) -> str:
+        """
+        Return a formatted string for docker mounts.
+        """
+        mounts = []
+        for dataset in self.sets:
+            mounts.append(dataset.mount_format(container_base_dir))
+        return " ".join(mounts)
