@@ -74,6 +74,20 @@ class Dataset:
             "region": self.region.to_dict(),
         }
 
+    def mount_format(self, container_base_dir: Path) -> str:
+        """Return a formatterd string for docker mount"""
+        fastq = (
+            "--mount type=bind,"
+            + f"src={self.fastq_folder.resolve()},"
+            + f"dst={container_base_dir.resolve()},"
+        )
+        meta = (
+            "--mount type=bind,"
+            + f"src={self.metadata_path.resolve()},"
+            + f"dst={container_base_dir.resolve()}/metadata.csv,readonly"
+        )
+        return f"{fastq} {meta}"
+
 
 @dataclasses.dataclass
 class Databank:
