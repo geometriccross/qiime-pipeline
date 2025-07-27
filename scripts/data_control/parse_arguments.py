@@ -34,7 +34,7 @@ def argument_parser():
     parser = argparse.ArgumentParser(description="Run the QIIME pipeline.")
     parser.add_argument(
         "--data",
-        type=list[tuple[Path, Path]],
+        type=parse_pair,
         nargs="+",
         help="""
             Pairs of fastq and metadata paths to use for the pipeline.
