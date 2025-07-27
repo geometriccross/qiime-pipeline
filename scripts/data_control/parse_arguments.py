@@ -43,4 +43,21 @@ def argument_parser():
                        path/to/another_metadata:path/to/another_fastq_folder
             """,
     )
+    parser.add_argument(
+        "--dockerfile",
+        type=Path,
+        default=Path("Dockerfile"),
+        help="Path to the Dockerfile for building the container.",
+    )
+    parser.add_argument(
+        "--sampling_depth",
+        type=int,
+        default=10000,
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=Path("output"),
+        help="Output directory for the results.",
+    )
     return parser
