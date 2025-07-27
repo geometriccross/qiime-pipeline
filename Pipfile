@@ -10,6 +10,8 @@ debugpy = "*"
 pytest-xdist = "*"
 pytest-skip-slow = "*"
 tomlkit = "*"
+pytest-mock = "*"
+python-on-whales = "*"
 
 [dev-packages]
 
