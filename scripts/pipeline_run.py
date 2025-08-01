@@ -31,7 +31,7 @@ def generate_id() -> str:
     return f"{month}{datetime_str}_{random_str}"
 
 
-def setup_databank(arg) -> SettingData:
+def setup_databank(arg: Namespace) -> SettingData:
     data = []
     for metadata_path, fastq_folder in arg.data:
         # Use the basename of the metadata path as the dataset name
