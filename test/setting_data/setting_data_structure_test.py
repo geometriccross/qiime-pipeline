@@ -8,21 +8,8 @@ from scripts.data_store.dataset import Databank, Dataset
 
 @pytest.fixture
 def dummy_setting_data(tmp_path, temporary_dataset):
-    # Create two directories for fastq mounts
-    host_side_fastq = tmp_path / "host_fastq"
-    container_side_fastq = tmp_path / "container_fastq"
-
-    # Create two directories for metadata mounts
-    host_side_metadata = tmp_path / "host_metadata"
-    container_side_metadata = tmp_path / "container_metadata"
-
-    for dir in [
-        host_side_fastq,
-        container_side_fastq,
-        host_side_metadata,
-        container_side_metadata,
-    ]:
-        dir.mkdir(parents=True, exist_ok=True)
+    workspace = tmp_path / "workspace"
+    workspace.mkdir(parents=True, exist_ok=True)
 
     # Create a dummy Dockerfile and databank JSON file
     dockerfile = tmp_path / "Dockerfile"
@@ -32,6 +19,7 @@ def dummy_setting_data(tmp_path, temporary_dataset):
 
     # Return a SettingData instance using the dummy paths
     return SettingData(
+        workspace_path=workspace,
         dockerfile=dockerfile,
         sampling_depth=10000,
         databank=databank,
@@ -41,6 +29,7 @@ def dummy_setting_data(tmp_path, temporary_dataset):
 def test_setting_data_initialization():
     try:
         SettingData(
+            workspace_path=Path("nonexistent/workspace"),
             dockerfile=Path("/nonexistent/Dockerfile"),
             sampling_depth="incorrect_type",
             databank="No Object",

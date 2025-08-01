@@ -8,11 +8,12 @@ from .dataset import Databank
 
 @dataclasses.dataclass
 class SettingData(Mapping):
-    workspace_path: Path = dataclasses.field(default_factory=lambda: Path("workspace"))
     dockerfile: Path
 
     sampling_depth: int
     databank: Databank
+
+    workspace_path: Path = dataclasses.field(default_factory=lambda: Path("workspace"))
 
     def __post_init__(self):
         for p in filter(lambda item: isinstance(item, Path), self.__dict__.values()):
