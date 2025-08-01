@@ -8,6 +8,7 @@ from .dataset import Databank
 
 @dataclasses.dataclass
 class SettingData(Mapping):
+    workspace_path: Path = dataclasses.field(default_factory=lambda: Path("workspace"))
     dockerfile: Path
 
     sampling_depth: int
