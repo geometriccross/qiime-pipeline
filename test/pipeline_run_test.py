@@ -3,7 +3,6 @@ import docker
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from tomlkit.toml_file import TOMLFile
-from scripts.pipeline_run import loading_data
 from scripts.executor import Executor
 from scripts.data_store.dataset import Databank
 
@@ -22,27 +21,3 @@ def provid_executor():
 
     with Executor(pipeline_ctn) as executor:
         yield executor
-
-
-# fastqが配置されたcontainerを用意する必要があるため、このテストは一時的にコメントアウト
-# def test_data_specification_is_json_is_not_exists():
-# databank = data_specification(None)
-# assert isinstance(databank, Databank)
-# assert len(databank.sets) == 1  # Since we wrote an empty JSON
-#
-
-
-def test_loading_data_if_setting_file_exists(temporary_dataset):
-    before_conversion = Databank(sets=[temporary_dataset])
-    toml_doc = before_conversion.to_toml()
-    with NamedTemporaryFile(delete=True) as tmp_file:
-        toml_file = TOMLFile(tmp_file.name)
-        toml_file.write(toml_doc)
-
-        after_conversion = loading_data(Path(tmp_file.name))
-        assert isinstance(after_conversion, Databank)
-        assert len(after_conversion.sets) == 1  # Since we wrote an empty TOML
-        assert after_conversion.sets.pop() == temporary_dataset
-
-
-# 設定ファイルが存在しない場合のテストはused_data.pyのテストと同義であるため、省略

@@ -1,10 +1,14 @@
 import datetime
 import random
 import string
+from python_on_whales import docker
 from pathlib import Path
+from argparse import Namespace
 from tomlkit.toml_file import TOMLFile
-from scripts.data_store.dataset import Databank
-from scripts.data_store.used_data import used_data
+from scripts.data_store.setting_data_structure import SettingData
+from scripts.data_store.dataset import Databank, Dataset
+from scripts.data_store.ribosome_regions import V3V4
+from scripts.data_control.parse_arguments import argument_parser
 
 
 def generate_id() -> str:
@@ -27,27 +31,49 @@ def generate_id() -> str:
     return f"{month}{datetime_str}_{random_str}"
 
 
-def loading_data(
-    saved_toml_path: Path | None,
-    container_side_fastq_folder: Path = Path("/data/fastq"),
-    container_side_meta_folder: Path = Path("/data/metadata"),
-) -> Databank:
-    """保存したtomlファイルからデータセットを読み込み、Databankを返す
-    もしファイルが存在しない場合は、デフォルトのデータを返す。
-    """
-    if saved_toml_path is None or not saved_toml_path.exists():
-        return used_data(
-            container_side_fastq_stored_path=container_side_fastq_folder,
-            container_side_meta_stored_path=container_side_meta_folder,
+def setup_databank(arg) -> SettingData:
+    data = []
+    for metadata_path, fastq_folder in arg.data:
+        # Use the basename of the metadata path as the dataset name
+        data.append(
+            Dataset(
+                name=metadata_path.basename(),
+                fastq_folder=fastq_folder,
+                metadata_path=metadata_path,
+                region=V3V4(),
+            )
         )
-    else:
-        toml_file = TOMLFile(saved_toml_path)
-        toml_data = toml_file.read()
-        return Databank.from_toml(toml_data)
+
+    databank = Databank(sets=set(data))
+
+    return SettingData(
+        dockerfile=arg.dockerfile,
+        sampling_depth=arg.sampling_depth,
+        databank=databank,
+    )
 
 
-# def pipeline_run():
-#     pipeline_ctn = provid_container()
-#     with Executor(pipeline_ctn) as executor:
-#         yield executor
-#
+def pipeline_run(setting_data: SettingData):
+    if docker.images("qiime").__len__() == 0:
+        print("Building Docker image for QIIME...")
+        docker.build(
+            path=Path("."),
+            dockerfile=setting_data.dockerfile,
+            tag="qiime",
+        )
+
+    with docker.container.run(
+        "qiime",
+        detach=True,
+        remove=True,
+        mounts=setting_data.databank.mounts(Path("/data")),
+    ) as ctn:
+        ctn
+
+
+if __name__ == "__main__":
+    args = argument_parser().parse_args()
+    setting_data = setup_databank(args)
+    TOMLFile(args.output / "settings.toml").write(setting_data.to_toml())
+
+    pipeline_run(setting_data)
