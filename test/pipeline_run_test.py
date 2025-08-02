@@ -17,3 +17,24 @@ def provid_executor():
 
     with Executor(pipeline_ctn) as executor:
         yield executor
+
+
+def test_run():
+    from scripts.pipeline_run import pipeline_run, setup_databank
+    from argparse import Namespace
+
+    # Mock arguments
+    args = Namespace(
+        dockerfile="Dockerfile",
+        sampling_depth=10000,
+        data=[("metadata.tsv", "fastq_folder")],
+        workspace_path="/workspace",
+    )
+
+    setting_data = setup_databank(args)
+
+    # Run the pipeline
+    pipeline_run(setting_data)
+
+    # Check if the container is running
+    assert docker.containers.get("qiime_container").status == "running"

@@ -53,6 +53,27 @@ def setup_databank(arg: Namespace) -> SettingData:
     )
 
 
+def arg_factory(workdir: Path, command: list[str]) -> dict:
+    # docker execではentorypointを経由せず直接コマンドを実行するためbase環境が認識されない
+    # そのためexecを使用する際にはbaseを認識させなければならない
+    cmd_line = [
+        "micromamba",
+        "run",
+        "-n",
+        "base",
+        "bash",
+        "-exc",
+        f'{" ".join(command)}',
+    ]
+
+    return {
+        "command": " ".join(cmd_line),
+        "workdir": workdir,
+        "detach": True,
+        "remove": True,
+    }
+
+
 def pipeline_run(setting_data: SettingData):
     if docker.images("qiime").__len__() == 0:
         print("Building Docker image for QIIME...")
@@ -62,13 +83,21 @@ def pipeline_run(setting_data: SettingData):
             tag="qiime",
         )
 
+    ctn_name = "qiime" + generate_id()
     with docker.container.run(
-        "qiime",
+        image="qiime",
+        name=ctn_name,
         detach=True,
         remove=True,
         mounts=setting_data.databank.mounts(Path("/data")),
     ) as ctn:
-        ctn
+        print(f"Container {ctn_name} is running...")
+        ctn.execute(
+            **arg_factory(
+                workdir=setting_data.workspace_path,
+                command="qiime --help".split(),
+            )
+        )
 
 
 if __name__ == "__main__":
