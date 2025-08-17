@@ -1,4 +1,4 @@
-from python_on_whales import docker
+from python_on_whales import docker, exceptions
 from python_on_whales import Container
 from pathlib import Path
 from typing import Iterable, List
@@ -25,6 +25,23 @@ class Provider:
     def provide(self) -> Container:
         return self.__container
 
+    @classmethod
+    def get_status(cls, ctn: Container) -> str:
+        """
+        渡されたコンテナの状態を取得し、以下の結果が返される
+
+        running: コンテナが実行中\n
+        exited: コンテナが停止中\n
+        absent: コンテナが存在しない
+        """
+        try:
+            ctn.reload()
+        except exceptions.NoSuchContainer:
+            return "absent"
+
+        # ContainerStateオブジェクトからstatusのみを選択する
+        return ctn.state.status
+
 
 class Executor:
     def __init__(self, container: Container):
@@ -32,7 +49,6 @@ class Executor:
 
     def __enter__(self):
         """コンテナの起動"""
-        self.__container.start()
         return CommandRunner(
             self.__container,
         )
@@ -41,8 +57,7 @@ class Executor:
         """コンテナの停止"""
         try:
             self.__container.stop()
-        # コンテナが既に削除されている場合は無視
-        except docker.errors.NotFound:
+        except exceptions.NoSuchContainer:
             pass
 
     def status(self) -> str:
