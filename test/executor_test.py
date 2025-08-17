@@ -1,6 +1,7 @@
 import pytest
 import docker
-from scripts.executor import Executor
+from scripts.executor import Executor, Provider
+from python_on_whales import Container
 
 
 @pytest.fixture(scope="session")
@@ -14,6 +15,12 @@ def shared_container():
         container.remove(force=True)
     except docker.errors.APIError:
         pass
+
+
+def test_provider():
+    provider = Provider(image="alpine")
+    assert isinstance(provider, Provider)
+    assert isinstance(provider.provide(), Container)
 
 
 @pytest.mark.slow

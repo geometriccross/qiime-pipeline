@@ -1,8 +1,33 @@
-import docker
+from python_on_whales import docker
+from python_on_whales import Container
+from pathlib import Path
+from typing import Iterable, List
+
+
+class Provider:
+    def __init__(
+        self,
+        image: str,
+        mounts: Iterable[List[str]] = (),
+        workspace: Path = Path("."),
+        remove=True,
+    ):
+        self.__image = docker.image.pull(image)
+        self.__container = docker.container.run(
+            image=self.__image,
+            mounts=mounts,
+            workdir=workspace.absolute(),
+            command=["tail", "-f", "/dev/null"],
+            detach=True,
+            remove=remove,
+        )
+
+    def provide(self) -> Container:
+        return self.__container
 
 
 class Executor:
-    def __init__(self, container: docker.models.containers.Container):
+    def __init__(self, container: Container):
         self.__container = container
 
     def __enter__(self):
@@ -27,7 +52,7 @@ class Executor:
 
 
 class CommandRunner:
-    def __init__(self, container: docker.models.containers.Container):
+    def __init__(self, container: Container):
         self.__container = container
 
     def run(self, command: str, barcoding: str = "utf-8") -> str:
