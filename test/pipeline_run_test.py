@@ -1,10 +1,11 @@
 import pytest
 import docker
 from textwrap import dedent
-from scripts.executor import Executor
 from tempfile import TemporaryDirectory
 from pathlib import Path
 from typing import Generator
+from argparse import Namespace
+from scripts.executor import Executor
 
 
 @pytest.fixture
@@ -155,6 +156,19 @@ def data_path_pairs() -> Generator[list[tuple[Path, Path]]]:
     # namespaceにすぐに渡せるよう、metadataとfastq_folderの組み合わせを作っておく
     yield [(sample_dir / "metadata.csv", sample_dir) for sample_dir in root.iterdir()]
     temp_dir.cleanup()
+
+
+@pytest.fixture
+def namespace(data_path_pairs) -> Namespace:
+    with TemporaryDirectory() as tmp_dir:
+        return Namespace(
+            dockerfile="dockerfile",
+            sampling_depth=10000,
+            data=data_path_pairs,
+            # 適当なところから、TemporaryDirectoryのpathを取得
+            workspace_path=data_path_pairs[0][1],
+            output=Path(tmp_dir.name),
+        )
 
 
 @pytest.fixture(scope="module")
