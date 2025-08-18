@@ -70,8 +70,22 @@ class CommandRunner:
     def __init__(self, container: Container):
         self.__container = container
 
-    def run(self, command: str, barcoding: str = "utf-8") -> str:
-        """コマンドを実行する"""
-        exec_id = self.__container.client.api.exec_create(self.__container.id, command)
-        output = self.__container.client.api.exec_start(exec_id)
-        return output.decode(barcoding).strip()
+    def run(self, command: str) -> tuple[str, str]:
+        """
+        以下のような形式でcommandを受け取り、実行する
+
+        commands:
+            ["echo hello world"]
+            ["ls ."]
+
+        結果は標準出力・標準エラー出力のタプルとして返される
+        コマンドの出力が何もない場合、空の文字列が返される
+        """
+
+        out, err = "", ""
+        try:
+            out = self.__container.execute(command=command)
+        except exceptions.DockerException as e:
+            err = e.__str__()
+
+        return out, err
