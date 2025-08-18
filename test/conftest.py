@@ -1,6 +1,8 @@
 import pytest
 from pathlib import Path
 from tempfile import NamedTemporaryFile, TemporaryDirectory
+from python_on_whales import docker
+from scripts.executor import Provider
 from scripts.data_store.dataset import Dataset
 from scripts.data_store.ribosome_regions import Region
 
@@ -21,3 +23,12 @@ def temporary_dataset(temporay_files):
         region=Region("SampleRegion", 0, 0, 0, 0),
     )
     yield dataset
+
+
+@pytest.fixture
+def trusted_provider():
+    provider = Provider(image="alpine", remove=True)
+
+    yield provider
+
+    docker.container.remove(provider.provide(), force=True)

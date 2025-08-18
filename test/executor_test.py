@@ -1,15 +1,6 @@
 import pytest
 from scripts.executor import Executor, Provider
-from python_on_whales import docker, Container
-
-
-@pytest.fixture
-def trusted_provider():
-    provider = Provider(image="alpine", remove=True)
-
-    yield provider
-
-    docker.container.remove(provider.provide(), force=True)
+from python_on_whales import Container
 
 
 def test_provider():
