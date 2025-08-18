@@ -1,5 +1,5 @@
 from pathlib import Path
-from scripts.data_store.dataset import Dataset, Databank
+from scripts.data_store.dataset import Dataset, Datasets
 from scripts.data_store.ribosome_regions import Region
 
 
@@ -69,22 +69,22 @@ def test_dataset_from_toml(temporary_dataset):
     assert dataset.region.to_toml() == toml_doc["region"]
 
 
-def test_databank_instance_has_current_attributes(temporary_dataset):
-    databank = Databank(sets={temporary_dataset})
-    assert databank.test_dataset == temporary_dataset
+def test_datasets_instance_has_current_attributes(temporary_dataset):
+    datasets = Datasets(sets={temporary_dataset})
+    assert datasets.test_dataset == temporary_dataset
 
 
-def test_databank_serialization(temporary_dataset):
-    databank = Databank(sets={temporary_dataset})
-    toml_doc = databank.to_toml()
+def test_datasets_serialization(temporary_dataset):
+    datasets = Datasets(sets={temporary_dataset})
+    toml_doc = datasets.to_toml()
 
     assert toml_doc["sets"][0] == temporary_dataset.to_toml()
 
 
-def test_databank_from_toml(temporary_dataset):
-    databank = Databank(sets={temporary_dataset})
-    toml_doc = databank.to_toml()
-    new_databank = Databank.from_toml(toml_doc)
+def test_datasets_from_toml(temporary_dataset):
+    datasets = Datasets(sets={temporary_dataset})
+    toml_doc = datasets.to_toml()
+    new_datasets = Datasets.from_toml(toml_doc)
 
-    assert len(new_databank.sets) == 1
-    assert new_databank.sets.pop() == temporary_dataset
+    assert len(new_datasets.sets) == 1
+    assert new_datasets.sets.pop() == temporary_dataset

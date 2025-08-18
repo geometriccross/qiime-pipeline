@@ -3,7 +3,7 @@
 from tempfile import NamedTemporaryFile
 from pathlib import Path
 import pytest
-from scripts.data_store.dataset import Databank
+from scripts.data_store.dataset import Datasets
 from scripts.data_control.create_Mfiles import (
     search_fastq,
     get_header,
@@ -85,7 +85,7 @@ def test_createMfiles_is_currently_create_files(temporary_dataset):
     meta_file.write("#SampleID,feature1,feature2")
     meta_file.write("id1,abc,def")
     mani_file = NamedTemporaryFile(delete=True, mode="w+", newline="")
-    test_data = Databank(sets={temporary_dataset})
+    test_data = Datasets(sets={temporary_dataset})
 
     create_Mfiles(
         id_prefix="test_id",

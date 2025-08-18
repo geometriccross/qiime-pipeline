@@ -5,7 +5,7 @@ import csv
 import argparse
 from textwrap import dedent
 from pathlib import Path, PurePath
-from scripts.data_store.dataset import Databank
+from scripts.data_store.dataset import Datasets
 from scripts.data_store.used_data import used_data
 
 
@@ -61,7 +61,7 @@ def create_Mfiles(
     id_prefix: str,
     out_meta: str,
     out_mani: str,
-    data: Databank,
+    data: Datasets,
 ) -> None:
     """
     Create metadata and manifest files from the given data.

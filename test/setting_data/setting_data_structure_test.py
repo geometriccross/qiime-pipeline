@@ -3,7 +3,7 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile
 import tomlkit
 from scripts.data_store import SettingData
-from scripts.data_store.dataset import Databank, Dataset
+from scripts.data_store.dataset import Datasets, Dataset
 
 
 @pytest.fixture
@@ -11,18 +11,18 @@ def dummy_setting_data(tmp_path, temporary_dataset):
     workspace = tmp_path / "workspace"
     workspace.mkdir(parents=True, exist_ok=True)
 
-    # Create a dummy Dockerfile and databank JSON file
+    # Create a dummy Dockerfile and datasets JSON file
     dockerfile = tmp_path / "Dockerfile"
     dockerfile.write_text("FROM python:3.8\n")
 
-    databank = Databank(sets=[temporary_dataset])
+    datasets = Datasets(sets=[temporary_dataset])
 
     # Return a SettingData instance using the dummy paths
     return SettingData(
         workspace_path=workspace,
         dockerfile=dockerfile,
         sampling_depth=10000,
-        databank=databank,
+        datasets=datasets,
     )
 
 
@@ -32,7 +32,7 @@ def test_setting_data_initialization():
             workspace_path=Path("nonexistent/workspace"),
             dockerfile=Path("/nonexistent/Dockerfile"),
             sampling_depth="incorrect_type",
-            databank="No Object",
+            datasets="No Object",
         )
     except AssertionError:
         pass  # Expected to raise AssertionError due to non-existent paths

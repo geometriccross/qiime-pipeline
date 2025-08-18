@@ -1,11 +1,10 @@
 import pytest
-import docker
 from textwrap import dedent
 from tempfile import TemporaryDirectory
 from pathlib import Path
 from typing import Generator
 from argparse import Namespace
-from scripts.pipeline_run import setup_databank
+from scripts.pipeline_run import setup_datasets
 
 
 @pytest.fixture
@@ -167,15 +166,37 @@ def namespace(data_path_pairs) -> Namespace:
             data=data_path_pairs,
             # 適当なところから、TemporaryDirectoryのpathを取得
             workspace_path=data_path_pairs[0][1],
+            output=Path(tmp_dir),
+        )
 
-def test_setup_databank(namespace):
-    databank = setup_databank(namespace)
-    assert databank is not None
-    assert len(databank.sets) == 4  # data_path_pairで生成したものが4つのため
 
-    for datasets in databank.sets:
+def test_setup_datasets(namespace):
+    datasets = setup_datasets(namespace)
+    assert datasets is not None
+    assert len(datasets.sets) == 4  # data_path_pairで生成したものが4つのため
+
+    for datasets in datasets.sets:
         assert datasets.name in ["test1", "test2", "test3", "test4"]
         assert datasets.fastq_folder.exists()
         assert datasets.metadata_path.exists()
         assert datasets.region is not None
 
+
+# def test_run(trusted_provider, namspace):
+#
+#     # Mock arguments
+#     args = Namespace(
+#         dockerfile="Dockerfile",
+#         sampling_depth=10000,
+#         data=[("metadata.tsv", "fastq_folder")],
+#         workspace_path="/workspace",
+#     )
+#
+#     setting_data = setup_datasets(args)
+#
+#     # Run the pipeline
+#     pipeline_run(setting_data)
+#
+#     # Check if the container is running
+#     assert docker.containers.get("qiime_container").status == "running"
+#

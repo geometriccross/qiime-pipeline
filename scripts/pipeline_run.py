@@ -6,7 +6,7 @@ from pathlib import Path
 from argparse import Namespace
 from tomlkit.toml_file import TOMLFile
 from scripts.data_store.setting_data_structure import SettingData
-from scripts.data_store.dataset import Databank, Dataset
+from scripts.data_store.dataset import Datasets, Dataset
 from scripts.data_store.ribosome_regions import V3V4
 from scripts.data_control.parse_arguments import argument_parser
 
@@ -31,7 +31,7 @@ def generate_id() -> str:
     return f"{month}{datetime_str}_{random_str}"
 
 
-def setup_databank(arg: Namespace) -> Databank:
+def setup_datasets(arg: Namespace) -> Datasets:
     data = []
     for metadata_path, fastq_folder in arg.data:
         # Use the basename of the metadata path as the dataset name
@@ -44,13 +44,7 @@ def setup_databank(arg: Namespace) -> Databank:
             )
         )
 
-    return Databank(sets=set(data))
-
-    return SettingData(
-        dockerfile=arg.dockerfile,
-        sampling_depth=arg.sampling_depth,
-        databank=databank,
-    )
+    return Datasets(sets=set(data))
 
 
 def arg_factory(workdir: Path, command: list[str]) -> dict:
@@ -89,7 +83,7 @@ def pipeline_run(setting_data: SettingData):
         name=ctn_name,
         detach=True,
         remove=True,
-        mounts=setting_data.databank.mounts(Path("/data")),
+        mounts=setting_data.datasets.mounts(Path("/data")),
     ) as ctn:
         print(f"Container {ctn_name} is running...")
         ctn.execute(
@@ -102,7 +96,7 @@ def pipeline_run(setting_data: SettingData):
 
 if __name__ == "__main__":
     args = argument_parser().parse_args()
-    setting_data = setup_databank(args)
+    setting_data = setup_datasets(args)
     TOMLFile(args.output / "settings.toml").write(setting_data.to_toml())
 
     pipeline_run(setting_data)

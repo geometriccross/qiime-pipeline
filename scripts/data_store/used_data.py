@@ -1,13 +1,13 @@
 import docker
 from pathlib import Path
-from .dataset import Dataset, Databank
+from .dataset import Dataset, Datasets
 from .container import provid_container, mounts
 from .ribosome_regions import V3V4
 
 
 def used_data(
     container_side_fastq_stored_path: Path, container_side_meta_stored_path: Path
-) -> Databank:
+) -> Datasets:
     __bat_fleas = Dataset(
         name="bat_fleas",
         fastq_folder=container_side_fastq_stored_path.joinpath("/batfleas"),
@@ -36,7 +36,7 @@ def used_data(
         region=V3V4,
     )
 
-    return Databank(
+    return Datasets(
         sets=[
             __bat_fleas,
             __cat_fleas,

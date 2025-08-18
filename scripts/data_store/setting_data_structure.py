@@ -3,7 +3,7 @@ from pathlib import Path
 from collections.abc import Mapping
 import tomlkit
 from tomlkit.toml_file import TOMLFile
-from .dataset import Databank
+from .dataset import Datasets
 
 
 @dataclasses.dataclass
@@ -11,7 +11,7 @@ class SettingData(Mapping):
     dockerfile: Path
 
     sampling_depth: int
-    databank: Databank
+    datasets: Datasets
 
     workspace_path: Path = dataclasses.field(default_factory=lambda: Path("workspace"))
 

@@ -90,7 +90,7 @@ class Dataset:
 
 
 @dataclasses.dataclass
-class Databank:
+class Datasets:
     """
     A class to represent a dataset.
     """
@@ -108,7 +108,7 @@ class Databank:
 
     def to_toml(self) -> tomlkit.TOMLDocument:
         """
-        Convert the databank to a TOML document.
+        Convert the datasets to a TOML document.
         """
         doc = tomlkit.document()
         aot = tomlkit.aot()
@@ -117,14 +117,14 @@ class Databank:
         return doc
 
     @classmethod
-    def from_toml(cls, toml_doc: tomlkit.TOMLDocument) -> "Databank":
+    def from_toml(cls, toml_doc: tomlkit.TOMLDocument) -> "Datasets":
         """
-        Create a Databank instance from a TOML document.
+        Create a datasets instance from a TOML document.
         """
         s = set()
         for dataset in toml_doc["sets"]:
             s.add(Dataset.from_toml(dataset))
-        return Databank(sets=s)
+        return Datasets(sets=s)
 
     def mounts(self, container_base_dir: Path) -> str:
         """
