@@ -171,25 +171,7 @@ def namespace(data_path_pairs) -> Namespace:
         )
 
 
-@pytest.fixture(scope="module")
-def provid_executor():
-    docker_client = docker.from_env()
-    pipeline_img, _ = docker_client.images.build(
-        path=".",
-        dockerfile="Dockerfile",
-        tag="qiime",
-    )
-    pipeline_ctn = docker_client.containers.run(
-        pipeline_img, detach=True, remove=False, name="qiime_container"
-    )
-
-    with Executor(pipeline_ctn) as executor:
-        yield executor
-
-
-def test_run():
-    from scripts.pipeline_run import pipeline_run, setup_databank
-    from argparse import Namespace
+def test_run(trusted_provider, namspace):
 
     # Mock arguments
     args = Namespace(
