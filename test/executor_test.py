@@ -15,7 +15,12 @@ def trusted_provider():
 def test_provider():
     provider = Provider(image="alpine")
     assert isinstance(provider, Provider)
-    assert isinstance(provider.provide(), Container)
+
+    container = provider.provide()
+    assert isinstance(container, Container)
+    assert container.exists()
+
+    container.stop()
 
 
 @pytest.mark.parametrize("remove, expected", [(False, "exited"), (True, "absent")])
@@ -42,7 +47,7 @@ def test_command_execution(
         assert err == expected_err
 
 
-def test_command_execution_when_cmd_is_failed(trusted_provider):
+def test_command_execution_when_command_is_failed(trusted_provider):
     with Executor(trusted_provider.provide()) as executor:
         output, err = executor.run(["NonExistingCmd"])
         assert output == ""
