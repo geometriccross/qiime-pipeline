@@ -4,10 +4,11 @@ from textwrap import dedent
 from scripts.executor import Executor
 from tempfile import TemporaryDirectory
 from pathlib import Path
+from typing import Generator
 
 
 @pytest.fixture
-def dummy_files():
+def data_path_pairs() -> Generator[list[tuple[Path, Path]]]:
     """
     以下の構造を持つ一時ディレクトリを作成する
     使用後はこれらのファイルは削除される
