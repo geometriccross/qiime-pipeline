@@ -29,6 +29,9 @@ def dummy_files():
            ├─ R1.fastq
            ├─ R2.fastq
            └─ metadata.tsv
+
+    Returns:
+        一時ディレクトリのパス
     """
 
     data = {
