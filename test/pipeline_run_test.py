@@ -16,22 +16,27 @@ def dummy_files():
         ├─ test1/
         │  ├─ R1.fastq
         │  ├─ R2.fastq
-        │  └─ metadata.tsv
+        │  └─ metadata.csv
         ├─ test2/
         │  ├─ R1.fastq
         │  ├─ R2.fastq
-        │  └─ metadata.tsv
+        │  └─ metadata.csv
         ├─ test3/
         │  ├─ R1.fastq
         │  ├─ R2.fastq
-        │  └─ metadata.tsv
+        │  └─ metadata.csv
         └─ test4/
            ├─ R1.fastq
            ├─ R2.fastq
-           └─ metadata.tsv
+           └─ metadata.csv
 
     Returns:
-        一時ディレクトリのパス
+        List[Tuple[Path, Path]]
+
+        metadataとfastqファイルの入ったフォルダの組み合わせ。
+        以下のようなデータが返される
+
+        **[(test1/metadata.csv,test1),(test2/metadata.csv,test2),...]**
     """
 
     data = {
@@ -143,10 +148,11 @@ def dummy_files():
             if key in ("R1", "R2"):
                 filename = f"{sample_name}_{key}.fastq"
             else:
-                filename = "metadata.tsv"
+                filename = "metadata.csv"
             (sample_dir / filename).write_text(content)
 
-    yield root
+    # namespaceにすぐに渡せるよう、metadataとfastq_folderの組み合わせを作っておく
+    yield [(sample_dir / "metadata.csv", sample_dir) for sample_dir in root.iterdir()]
     temp_dir.cleanup()
 
 
