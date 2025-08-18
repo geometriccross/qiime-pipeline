@@ -5,11 +5,11 @@ from tempfile import TemporaryDirectory
 from pathlib import Path
 from typing import Generator
 from argparse import Namespace
-from scripts.executor import Executor
+from scripts.pipeline_run import setup_databank
 
 
 @pytest.fixture
-def data_path_pairs() -> Generator[list[tuple[Path, Path]]]:
+def data_path_pairs() -> Generator[list[tuple[Path, Path]], None, None]:
     """
     以下の構造を持つ一時ディレクトリを作成する
     使用後はこれらのファイルは削除される
@@ -167,24 +167,15 @@ def namespace(data_path_pairs) -> Namespace:
             data=data_path_pairs,
             # 適当なところから、TemporaryDirectoryのpathを取得
             workspace_path=data_path_pairs[0][1],
-            output=Path(tmp_dir.name),
-        )
 
+def test_setup_databank(namespace):
+    databank = setup_databank(namespace)
+    assert databank is not None
+    assert len(databank.sets) == 4  # data_path_pairで生成したものが4つのため
 
-def test_run(trusted_provider, namspace):
+    for datasets in databank.sets:
+        assert datasets.name in ["test1", "test2", "test3", "test4"]
+        assert datasets.fastq_folder.exists()
+        assert datasets.metadata_path.exists()
+        assert datasets.region is not None
 
-    # Mock arguments
-    args = Namespace(
-        dockerfile="Dockerfile",
-        sampling_depth=10000,
-        data=[("metadata.tsv", "fastq_folder")],
-        workspace_path="/workspace",
-    )
-
-    setting_data = setup_databank(args)
-
-    # Run the pipeline
-    pipeline_run(setting_data)
-
-    # Check if the container is running
-    assert docker.containers.get("qiime_container").status == "running"

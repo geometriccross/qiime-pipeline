@@ -31,20 +31,20 @@ def generate_id() -> str:
     return f"{month}{datetime_str}_{random_str}"
 
 
-def setup_databank(arg: Namespace) -> SettingData:
+def setup_databank(arg: Namespace) -> Databank:
     data = []
     for metadata_path, fastq_folder in arg.data:
         # Use the basename of the metadata path as the dataset name
         data.append(
             Dataset(
-                name=metadata_path.basename(),
+                name=fastq_folder.stem,
                 fastq_folder=fastq_folder,
                 metadata_path=metadata_path,
                 region=V3V4(),
             )
         )
 
-    databank = Databank(sets=set(data))
+    return Databank(sets=set(data))
 
     return SettingData(
         dockerfile=arg.dockerfile,
