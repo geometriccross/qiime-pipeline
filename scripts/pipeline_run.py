@@ -4,11 +4,11 @@ import string
 from python_on_whales import docker
 from pathlib import Path
 from argparse import Namespace
-from tomlkit.toml_file import TOMLFile
 from scripts.data_store.setting_data_structure import SettingData
 from scripts.data_store.dataset import Datasets, Dataset
 from scripts.data_store.ribosome_regions import V3V4
 from scripts.data_control.parse_arguments import argument_parser
+from scripts.executor import Executor, Provider
 
 
 def generate_id() -> str:
@@ -68,35 +68,27 @@ def arg_factory(workdir: Path, command: list[str]) -> dict:
     }
 
 
-def pipeline_run(setting_data: SettingData):
-    if docker.images("qiime").__len__() == 0:
-        print("Building Docker image for QIIME...")
-        docker.build(
-            path=Path("."),
-            dockerfile=setting_data.dockerfile,
-            tag="qiime",
+def pipeline_run(executor):
+    runner.execute()
+    executor.execute(
+        **arg_factory(
+            workdir=setting_data.workspace_path,
+            command="qiime --help".split(),
         )
-
-    ctn_name = "qiime" + generate_id()
-    with docker.container.run(
-        image="qiime",
-        name=ctn_name,
-        detach=True,
-        remove=True,
-        mounts=setting_data.datasets.mounts(Path("/data")),
-    ) as ctn:
-        print(f"Container {ctn_name} is running...")
-        ctn.execute(
-            **arg_factory(
-                workdir=setting_data.workspace_path,
-                command="qiime --help".split(),
-            )
-        )
+    )
 
 
 if __name__ == "__main__":
     args = argument_parser().parse_args()
-    setting_data = setup_datasets(args)
-    TOMLFile(args.output / "settings.toml").write(setting_data.to_toml())
+    setting_data = SettingData(
+        workspace_path=args.workspace,
+        dockerfile=args.dockerfile,
+        datasets=setup_datasets(args),
+    )
 
-    pipeline_run(setting_data)
+    # 設定データを保存
+    setting_data.write(args.output / "settings.toml")
+
+    provider = Provider.from_dockerfile(setting_data.dockerfile, remove=True)
+    with Executor(provider.provide()) as runner:
+        pipeline_run(runner)
