@@ -1,4 +1,6 @@
+from pathlib import Path
 import pytest
+from tempfile import NamedTemporaryFile
 from scripts.executor import Executor, Provider
 from python_on_whales import Container
 
@@ -12,6 +14,22 @@ def test_provider():
     assert container.exists()
 
     container.stop()
+
+
+def test_provider_from_dokerfile():
+    with NamedTemporaryFile(suffix=".Dockerfile", delete=True) as tmp_file:
+        tmp_file.write(b"FROM alpine")
+        tmp_file.flush()
+
+        dockerfile_path = Path(tmp_file.name)
+        provider = Provider.from_dockerfile(dockerfile_path, remove=True)
+        assert isinstance(provider, Provider)
+
+        container = provider.provide()
+        assert isinstance(container, Container)
+        assert container.exists()
+
+        container.stop()
 
 
 @pytest.mark.parametrize("remove, expected", [(False, "exited"), (True, "absent")])

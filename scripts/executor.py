@@ -1,18 +1,22 @@
-from python_on_whales import docker, exceptions
-from python_on_whales import Container
 from pathlib import Path
 from typing import Iterable, List
+from python_on_whales import docker, exceptions
+from python_on_whales import Container, Image
 
 
 class Provider:
     def __init__(
         self,
-        image: str,
+        image: str | Image,
         mounts: Iterable[List[str]] = (),
         workspace: Path = Path("."),
         remove=True,
     ):
-        self.__image = docker.image.pull(image)
+        if isinstance(image, str):
+            self.__image = docker.image.pull(image)
+        else:
+            self.__image = image
+
         self.__container = docker.container.run(
             image=self.__image,
             mounts=mounts,
@@ -24,6 +28,17 @@ class Provider:
 
     def provide(self) -> Container:
         return self.__container
+
+    @classmethod
+    def from_dockerfile(
+        cls,
+        dockerfile: Path,
+        mounts: Iterable[List[str]] = (),
+        workspace: Path = Path("."),
+        remove=True,
+    ):
+        image = docker.image.build(context_path=dockerfile.parent, file=dockerfile)
+        return cls(image=image, mounts=mounts, workspace=workspace, remove=remove)
 
     @classmethod
     def get_status(cls, ctn: Container) -> str:
