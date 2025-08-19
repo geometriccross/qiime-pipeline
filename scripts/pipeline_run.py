@@ -1,7 +1,6 @@
 import datetime
 import random
 import string
-from python_on_whales import docker
 from pathlib import Path
 from argparse import Namespace
 from scripts.data_store.setting_data_structure import SettingData
