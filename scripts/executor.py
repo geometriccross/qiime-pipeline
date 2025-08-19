@@ -85,6 +85,17 @@ class CommandRunner:
     def __init__(self, container: Container):
         self.__container = container
 
+    @classmethod
+    def __wrap_cmd(command: str) -> str:
+        """
+        docker execではentorypointを経由せず直接コマンドを実行するためbase環境が認識されない。
+        それを回避するため、micromambaを使用してbase環境を明示的に指定する。
+
+        これは渡されたcommandに必要な引数を付加して返す関数である。
+        """
+        pre_cmd = "micromamba run -n base bash -exc "
+        return pre_cmd + command
+
     def run(self, command: str) -> tuple[str, str]:
         """
         以下のような形式でcommandを受け取り、実行する

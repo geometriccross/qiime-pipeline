@@ -46,37 +46,6 @@ def setup_datasets(arg: Namespace) -> Datasets:
     return Datasets(sets=set(data))
 
 
-def arg_factory(workdir: Path, command: list[str]) -> dict:
-    # docker execではentorypointを経由せず直接コマンドを実行するためbase環境が認識されない
-    # そのためexecを使用する際にはbaseを認識させなければならない
-    cmd_line = [
-        "micromamba",
-        "run",
-        "-n",
-        "base",
-        "bash",
-        "-exc",
-        f'{" ".join(command)}',
-    ]
-
-    return {
-        "command": " ".join(cmd_line),
-        "workdir": workdir,
-        "detach": True,
-        "remove": True,
-    }
-
-
-def pipeline_run(executor):
-    runner.execute()
-    executor.execute(
-        **arg_factory(
-            workdir=setting_data.workspace_path,
-            command="qiime --help".split(),
-        )
-    )
-
-
 if __name__ == "__main__":
     args = argument_parser().parse_args()
     setting_data = SettingData(
