@@ -98,11 +98,7 @@ class CommandRunner:
 
     def run(self, command: str) -> tuple[str, str]:
         """
-        以下のような形式でcommandを受け取り、実行する
-
-        commands:
-            ["echo hello world"]
-            ["ls ."]
+        文字列としてcommandを受け取り、実行する
 
         結果は標準出力・標準エラー出力のタプルとして返される
         コマンドの出力が何もない場合、空の文字列が返される
@@ -110,7 +106,7 @@ class CommandRunner:
 
         out, err = "", ""
         try:
-            out = self.__container.execute(command=command)
+            out = self.__container.execute(CommandRunner.__wrap_cmd(command))
         except exceptions.DockerException as e:
             err = e.__str__()
 
