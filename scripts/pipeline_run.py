@@ -46,6 +46,10 @@ def setup_datasets(arg: Namespace) -> Datasets:
     return Datasets(sets=set(data))
 
 
+def pipeline_run(runner):
+    runner.run("echo hoge")
+
+
 if __name__ == "__main__":
     args = argument_parser().parse_args()
     setting_data = SettingData(
@@ -57,6 +61,12 @@ if __name__ == "__main__":
     # 設定データを保存
     setting_data.write(args.output / "settings.toml")
 
-    provider = Provider.from_dockerfile(setting_data.dockerfile, remove=True)
+    provider = Provider.from_dockerfile(
+        setting_data.dockerfile,
+        mounts=setting_data.datasets.mounts,
+        workspace=setting_data.workspace_path,
+        remove=True,
+    )
+
     with Executor(provider.provide()) as runner:
         pipeline_run(runner)

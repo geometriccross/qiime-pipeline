@@ -4,7 +4,9 @@ from tempfile import TemporaryDirectory
 from pathlib import Path
 from typing import Generator
 from argparse import Namespace
-from scripts.pipeline_run import setup_datasets
+from scripts.pipeline_run import setup_datasets, pipeline_run
+from scripts.executor import Executor, Provider
+from scripts.data_store.setting_data_structure import SettingData
 
 
 @pytest.fixture
@@ -161,7 +163,7 @@ def data_path_pairs() -> Generator[list[tuple[Path, Path]], None, None]:
 def namespace(data_path_pairs) -> Namespace:
     with TemporaryDirectory() as tmp_dir:
         return Namespace(
-            dockerfile="dockerfile",
+            dockerfile=Path("dockerfiles/Dockerfile"),
             sampling_depth=10000,
             data=data_path_pairs,
             # 適当なところから、TemporaryDirectoryのpathを取得
@@ -182,21 +184,20 @@ def test_setup_datasets(namespace):
         assert datasets.region is not None
 
 
-# def test_run(trusted_provider, namspace):
-#
-#     # Mock arguments
-#     args = Namespace(
-#         dockerfile="Dockerfile",
-#         sampling_depth=10000,
-#         data=[("metadata.tsv", "fastq_folder")],
-#         workspace_path="/workspace",
-#     )
-#
-#     setting_data = setup_datasets(args)
-#
-#     # Run the pipeline
-#     pipeline_run(setting_data)
-#
-#     # Check if the container is running
-#     assert docker.containers.get("qiime_container").status == "running"
-#
+def test_run(trusted_provider, namespace):
+    datasets = setup_datasets(namespace)
+    setting_data = SettingData(
+        dockerfile=namespace.dockerfile,
+        sampling_depth=namespace.sampling_depth,
+        datasets=datasets,
+        workspace_path=namespace.workspace_path,
+    )
+    provider = Provider.from_dockerfile(
+        setting_data.dockerfile,
+        mounts=setting_data.datasets.mounts,
+        workspace=setting_data.workspace_path,
+        remove=True,
+    )
+
+    # Run the pipeline
+    pipeline_run(provider)
