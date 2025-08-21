@@ -6,7 +6,7 @@ from scripts.data_store.setting_data_structure import SettingData
 from scripts.data_store.dataset import Datasets, Dataset
 from scripts.data_store.ribosome_regions import V3V4
 from .parse_arguments import argument_parser
-from scripts.pipeline_support.executor import Executor, Provider
+from .executor import Executor, Provider
 
 
 def generate_id() -> str:

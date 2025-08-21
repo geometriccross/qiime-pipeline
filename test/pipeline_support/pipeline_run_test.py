@@ -4,8 +4,8 @@ from tempfile import TemporaryDirectory
 from pathlib import Path
 from typing import Generator
 from argparse import Namespace
-from scripts.pipeline_support.pipeline_run import setup_datasets, pipeline_run
-from scripts.pipeline_support.executor import Provider
+from scripts.pipeline.support.pipeline_run import setup_datasets, pipeline_run
+from scripts.pipeline.support.executor import Provider
 from scripts.data_store.setting_data_structure import SettingData
 
 
