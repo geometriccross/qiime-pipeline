@@ -1,6 +1,8 @@
 __pycache__
 sandbox
 data
+!scripts/data
+!test/data
 
 temp*
 .env
