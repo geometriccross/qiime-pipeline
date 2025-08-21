@@ -3,7 +3,7 @@
 import csv
 import argparse
 from textwrap import dedent
-from scripts.validate_pattern.validate_pattern import (
+from scripts.pipeline.support.validate_pattern import (
     extract_pattern,
     check_current_pair,
 )

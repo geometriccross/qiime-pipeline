@@ -1,5 +1,5 @@
 import pytest
-from scripts.validate_pattern.validate_pattern import (
+from scripts.pipeline.support.validate_pattern import (
     Direction,
     Pattern,
     extract_filename,
