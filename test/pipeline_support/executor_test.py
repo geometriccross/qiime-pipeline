@@ -32,13 +32,15 @@ def test_provider_from_dokerfile():
         container.stop()
 
 
-@pytest.mark.parametrize("remove, expected", [(False, "exited"), (True, "absent")])
+@pytest.mark.parametrize("remove, expected", [(False, "exited"), (True, "removing")])
 def test_provider_container_status(remove, expected):
     container = Provider(image="alpine", remove=remove).provide()
-
-    assert Provider.get_status(container) == "running"
-    container.stop()
-    assert Provider.get_status(container) == expected
+    try:
+        assert Provider.get_status(container) == "running"
+        container.stop()
+        assert Provider.get_status(container) == expected
+    finally:
+        container.remove(force=True)
 
 
 @pytest.mark.parametrize(
