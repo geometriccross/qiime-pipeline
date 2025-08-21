@@ -3,8 +3,8 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 from python_on_whales import docker
 from scripts.pipeline.support.executor import Provider
-from scripts.data_store.dataset import Dataset
-from scripts.data_store.ribosome_regions import Region
+from scripts.data.store.dataset import Dataset
+from scripts.data.store.ribosome_regions import Region
 
 
 @pytest.fixture()

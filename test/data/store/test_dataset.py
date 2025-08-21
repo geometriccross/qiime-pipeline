@@ -1,6 +1,6 @@
 from pathlib import Path
-from scripts.data_store.dataset import Dataset, Datasets
-from scripts.data_store.ribosome_regions import Region
+from scripts.data.store.dataset import Dataset, Datasets
+from scripts.data.store.ribosome_regions import Region
 
 
 def test_dataset_raise_error_when_specify_incorrect_path(temporay_files):

@@ -2,9 +2,9 @@ import datetime
 import random
 import string
 from argparse import Namespace
-from scripts.data_store.setting_data_structure import SettingData
-from scripts.data_store.dataset import Datasets, Dataset
-from scripts.data_store.ribosome_regions import V3V4
+from scripts.data.store.setting_data_structure import SettingData
+from scripts.data.store.dataset import Datasets, Dataset
+from scripts.data.store.ribosome_regions import V3V4
 from .parse_arguments import argument_parser
 from .executor import Executor, Provider
 

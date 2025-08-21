@@ -5,8 +5,8 @@ import csv
 import argparse
 from textwrap import dedent
 from pathlib import Path, PurePath
-from scripts.data_store.dataset import Datasets
-from scripts.data_store.used_data import used_data
+from scripts.data.store.dataset import Datasets
+from scripts.data.store.used_data import used_data
 
 
 # queryで渡されたidを持つfastqファイルを返す

@@ -2,8 +2,8 @@ import pytest
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 import tomlkit
-from scripts.data_store import SettingData
-from scripts.data_store.dataset import Datasets, Dataset
+from scripts.data.store import SettingData
+from scripts.data.store.dataset import Datasets, Dataset
 
 
 @pytest.fixture
