@@ -1,7 +1,6 @@
 import pytest
 from pathlib import Path
 from tempfile import NamedTemporaryFile, TemporaryDirectory
-from python_on_whales import docker
 from scripts.pipeline.support.executor import Provider
 from scripts.data.store.dataset import Dataset
 from scripts.data.store.ribosome_regions import Region
@@ -30,5 +29,3 @@ def trusted_provider():
     provider = Provider(image="alpine", remove=True)
 
     yield provider
-
-    docker.container.remove(provider.provide(), force=True)
