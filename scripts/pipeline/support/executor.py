@@ -80,6 +80,20 @@ class Executor:
         self.__container.reload()
         return self.__container.status
 
+    def run(self, command: list[str]) -> tuple[str, str]:
+        """コンテナ内でコマンドを実行する
+
+        Args:
+            command (list[str])
+                以下の形式でコマンドを指定する
+                ["echo", "Hello World!"]
+
+        Returns:
+            tuple[str, str]: 実行結果の標準出力と標準エラー出力
+        """
+
+        return CommandRunner(self.__container).run(command=command)
+
 
 class CommandRunner:
     def __init__(self, container: Container):
