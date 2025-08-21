@@ -184,7 +184,7 @@ def test_setup_datasets(namespace):
         assert datasets.region is not None
 
 
-def test_run(trusted_provider, namespace):
+def test_run(namespace):
     datasets = setup_datasets(namespace)
     setting_data = SettingData(
         dockerfile=namespace.dockerfile,
@@ -192,6 +192,7 @@ def test_run(trusted_provider, namespace):
         datasets=datasets,
         workspace_path=namespace.workspace_path,
     )
+
     provider = Provider.from_dockerfile(
         setting_data.dockerfile,
         mounts=setting_data.datasets.mounts,
