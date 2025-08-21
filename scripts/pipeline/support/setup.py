@@ -6,7 +6,8 @@ from scripts.data.store.setting_data_structure import SettingData
 from scripts.data.store.dataset import Datasets, Dataset
 from scripts.data.store.ribosome_regions import V3V4
 from .parse_arguments import argument_parser
-from .executor import Executor, Provider
+from .executor import Executor, Provider, CommandRunner
+from typing import Generator
 
 
 def generate_id() -> str:
@@ -45,11 +46,7 @@ def setup_datasets(arg: Namespace) -> Datasets:
     return Datasets(sets=set(data))
 
 
-def pipeline_run(runner):
-    runner.run("echo hoge")
-
-
-if __name__ == "__main__":
+def setup() -> Generator[CommandRunner, None, None]:
     args = argument_parser().parse_args()
     setting_data = SettingData(
         workspace_path=args.workspace,
@@ -68,4 +65,4 @@ if __name__ == "__main__":
     )
 
     with Executor(provider.provide()) as runner:
-        pipeline_run(runner)
+        yield runner
