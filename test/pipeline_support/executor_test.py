@@ -50,7 +50,7 @@ def test_provider_container_status(remove, expected):
     ],
 )
 def test_command_execution(
-    trusted_provider, command: list, expected_out: str, expected_err: str
+    trusted_provider, command: list[str], expected_out: str, expected_err: str
 ):
     with Executor(trusted_provider.provide()) as executor:
         output, err = executor.run(command)
