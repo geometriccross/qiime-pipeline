@@ -1,6 +1,6 @@
 import pytest
 from pathlib import Path
-from scripts.data_control.parse_arguments import parse_pair
+from scripts.pipeline_support.parse_arguments import parse_pair
 
 
 @pytest.mark.parametrize(

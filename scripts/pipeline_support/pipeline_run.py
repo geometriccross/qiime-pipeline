@@ -1,13 +1,12 @@
 import datetime
 import random
 import string
-from pathlib import Path
 from argparse import Namespace
 from scripts.data_store.setting_data_structure import SettingData
 from scripts.data_store.dataset import Datasets, Dataset
 from scripts.data_store.ribosome_regions import V3V4
-from scripts.data_control.parse_arguments import argument_parser
-from scripts.executor import Executor, Provider
+from .parse_arguments import argument_parser
+from scripts.pipeline_support.executor import Executor, Provider
 
 
 def generate_id() -> str:

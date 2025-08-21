@@ -1,7 +1,7 @@
 from pathlib import Path
 import pytest
 from tempfile import NamedTemporaryFile
-from scripts.executor import Executor, Provider
+from scripts.pipeline_support.executor import Executor, Provider
 from python_on_whales import Container
 
 

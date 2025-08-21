@@ -2,7 +2,7 @@ import pytest
 from pathlib import Path
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 from python_on_whales import docker
-from scripts.executor import Provider
+from scripts.pipeline_support.executor import Provider
 from scripts.data_store.dataset import Dataset
 from scripts.data_store.ribosome_regions import Region
 
