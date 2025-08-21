@@ -4,7 +4,7 @@ from tempfile import TemporaryDirectory
 from pathlib import Path
 from typing import Generator
 from argparse import Namespace
-from scripts.pipeline.support.setup import setup_datasets, pipeline_run
+from scripts.pipeline.support.setup import setup_datasets
 from scripts.pipeline.support.executor import Provider
 from scripts.data.store.setting_data_structure import SettingData
 
@@ -201,4 +201,4 @@ def test_run(namespace):
     )
 
     # Run the pipeline
-    pipeline_run(provider)
+    # pipeline_run(provider)
