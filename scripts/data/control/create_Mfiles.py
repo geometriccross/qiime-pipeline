@@ -76,7 +76,19 @@ def cat_data(datasets: Datasets) -> list[tuple[list[str], list[str]]]:
 def add_id(
     rows_with_files: tuple[list[str], list[str]], id_prefix: str = "id", start: int = 1
 ) -> list[tuple[list[str], list[str]]]:
-    # ソート済みデータにIDを付与
+    """
+    Listの各行にIDを追加して返す
+
+    Args:
+        rows_with_files (tuple[list[str], list[str]]): 各行のデータと対応するfastqファイルのリスト
+        id_prefix (str, optional): 追加するIDのプレフィックス. Defaults to "id".
+        start (int, optional): IDの開始番号. Defaults to 1.
+
+    Returns:
+        以下のように、それぞれの要素の先頭にidが付加されたリストを返す\n
+        [[id1, hoge, huga], [id1, forward-absolute-filepath, ...]]
+
+    """
 
     meta = []
     mani = []
