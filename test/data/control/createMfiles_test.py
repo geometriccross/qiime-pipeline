@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 
-from tempfile import NamedTemporaryFile
 from pathlib import Path
 import pytest
-from scripts.data.store.dataset import Datasets
 from scripts.data.control.create_Mfiles import (
     search_fastq,
     get_header,
     header_replaced,
     create_Mfiles,
+    cat_data,
 )
 
 
@@ -80,12 +79,14 @@ def test_header_replaced_success():
     assert result[0] == ["id", "RawID", "col1", "col2"]
 
 
-def test_createMfiles_is_currently_create_files(temporary_dataset):
-    meta_file = NamedTemporaryFile(delete=True, mode="w+", newline="")
-    meta_file.write("#SampleID,feature1,feature2")
-    meta_file.write("id1,abc,def")
-    mani_file = NamedTemporaryFile(delete=True, mode="w+", newline="")
-    test_data = Datasets(sets={temporary_dataset})
+def test_cat_data(dummy_datasets):
+    """cat_data関数の正常系テスト"""
+    result = cat_data(dummy_datasets)
+    assert isinstance(result, list)
+    assert all(isinstance(item, tuple) and len(item) == 2 for item in result)
+    assert all(
+        isinstance(item[0], list) and isinstance(item[1], list) for item in result
+    )
 
     create_Mfiles(
         id_prefix="test_id",
