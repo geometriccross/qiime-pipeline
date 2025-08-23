@@ -3,6 +3,8 @@ from typing import Generator
 from tempfile import TemporaryDirectory
 from textwrap import dedent
 import pytest
+from scripts.data.store.dataset import Datasets, Dataset
+from scripts.data.store.ribosome_regions import V3V4
 
 
 @pytest.fixture
@@ -153,3 +155,24 @@ def data_path_pairs() -> Generator[list[tuple[Path, Path]], None, None]:
     # namespaceにすぐに渡せるよう、metadataとfastq_folderの組み合わせを作っておく
     yield [(sample_dir / "metadata.csv", sample_dir) for sample_dir in root.iterdir()]
     temp_dir.cleanup()
+
+
+@pytest.fixture
+def dummy_datasets(
+    data_path_pairs: list[tuple[Path, Path]],
+) -> Generator[Datasets, None, None]:
+    """
+    data_path_pairsを使ってDatasetsオブジェクトを作成する
+
+    Returns:
+        Datasets: data_path_pairsの内容を持つDatasetsオブジェクト
+    """
+    sets = set()
+    for meta, folder in data_path_pairs:
+        sets.add(
+            Dataset(
+                name=folder.name, fastq_folder=folder, metadata_path=meta, region=V3V4
+            )
+        )
+
+    yield Datasets(sets=sets)
