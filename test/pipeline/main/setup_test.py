@@ -12,6 +12,7 @@ def test_setup_files_currently_created(dummy_datasets: Datasets):
         assert Path(manifest).exists()
 
         with open(meta) as f:
-            lines = f.readlines()
-            for i, line in enumerate(lines, start=1):
-                assert f"test{i}" in line
+            for i, line in enumerate(f.readlines()[1:], start=1):  # ヘッダーを除く
+                csv = line.split("\t")
+                assert csv[0] == f"id{i}"
+                assert csv[1] == f"test{i}"
