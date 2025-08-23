@@ -28,8 +28,8 @@ def search_fastq(q: str, data: list[str]) -> tuple[str]:
             )
         )
 
-    fwd = list(filter(lambda s: s.__contains__("_R1_"), correct)).pop()
-    rvs = list(filter(lambda s: s.__contains__("_R2_"), correct)).pop()
+    fwd = list(filter(lambda s: "_R1" in str(s), correct)).pop()
+    rvs = list(filter(lambda s: "_R2" in str(s), correct)).pop()
 
     fwd_abs_path = Path(fwd).absolute().__str__()
     rvs_abs_path = Path(rvs).absolute().__str__()
