@@ -70,26 +70,44 @@ def create_Mfiles(
         ["sample-id", "forward-absolute-filepath", "reverse-absolute-filepath"]
     ]
 
-    retrived_path = next(iter(data.sets)).metadata_path
-    header = header_replaced(get_header(retrived_path), id_prefix)
-    master_list = header
-
+    # 全データを一時リストに収集（ヘッダーなし）
+    rows_with_files = []
     for dataset in data.sets:
         with open(Path(dataset.metadata_path).absolute(), "r") as f:
             reader = csv.reader(f)
-            header_removed = [row for row in reader][1:]
-            for i, row in enumerate(header_removed):
-                # master csv
-                master_list.append([id_prefix + str(i), *row])
+            next(reader)  # ヘッダーをスキップ
+            # データセットの各行を保存（RawIDとfastqファイルのペア）
+            for row in reader:
+                rows_with_files.append((row, dataset.fastq_files))
 
-                # manifest
-                # 1列目にあるRawIDから対応するfastqファイルを取得
-                mani_result.append(
-                    [
-                        id_prefix + str(i),
-                        *search_fastq(row[0], dataset.fastq_files),
-                    ]
-                )
+    # RawIDでソート（test1, test2, ...の順）
+    rows_with_files.sort(key=lambda x: x[0][0])  # row[0][0]がRawID
+
+    # メタデータファイルを作成
+    # 最初のデータセットからヘッダーを取得
+    retrived_path = next(iter(data.sets)).metadata_path
+    header = header_replaced(get_header(retrived_path), id_prefix)
+    master_list = [header[0]]  # ヘッダー行のみを追加
+
+    # ソート済みデータにIDを付与
+    for i, (row, fastq_files) in enumerate(rows_with_files, start=1):
+        # master csv
+        master_list.append([id_prefix + str(i), *row])
+
+        # manifest
+        # RawIDから対応するfastqファイルを取得
+        mani_result.append(
+            [
+                id_prefix + str(i),
+                *search_fastq(row[0], fastq_files),
+            ]
+        )
+
+    # ヘッダーを含むmaniフォーマット
+    mani_result = [
+        ["sample-id", "forward-absolute-filepath", "reverse-absolute-filepath"],
+        *mani_result[1:],
+    ]
 
     with open(out_meta, "w") as f:
         writer = csv.writer(f, delimiter="\t")
