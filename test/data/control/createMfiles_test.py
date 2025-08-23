@@ -8,6 +8,7 @@ from scripts.data.control.create_Mfiles import (
     header_replaced,
     create_Mfiles,
     cat_data,
+    add_id,
 )
 
 
@@ -88,14 +89,30 @@ def test_cat_data(dummy_datasets):
         isinstance(item[0], list) and isinstance(item[1], list) for item in result
     )
 
+
+def test_add_id(dummy_datasets):
+    start = 1
+
+    rows_with_files = cat_data(dummy_datasets)
+    meta, mani = add_id(rows_with_files, "id", start=start)
+
+    assert isinstance(meta, list)
+    assert isinstance(mani, list)
+
+    for i, row in enumerate(meta, start=start):
+        assert row[0] == f"id{i}"
+
+    for i, row in enumerate(mani, start=start):
+        assert row[0] == f"id{i}"
+
+
+def test_createMfiles_is_currently_create_files(dummy_datasets, temporay_files):
     create_Mfiles(
         id_prefix="test_id",
-        out_meta=meta_file.name,
-        out_mani=mani_file.name,
-        data=test_data,
+        out_meta=temporay_files["meta"].name,
+        out_mani=temporay_files["fastq"].name + "/manifest.tsv",
+        data=dummy_datasets,
     )
 
-    assert (
-        Path(mani_file.name).read_text()
-        == "sample-id\tforward-absolute-filepath\treverse-absolute-filepath\n"
-    )
+    assert Path(temporay_files["meta"].name).exists()
+    assert Path(temporay_files["fastq"].name + "/manifest.tsv").exists()

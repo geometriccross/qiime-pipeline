@@ -73,6 +73,29 @@ def cat_data(datasets: Datasets) -> list[tuple[list[str], list[str]]]:
     return combined
 
 
+def add_id(
+    rows_with_files: tuple[list[str], list[str]], id_prefix: str = "id", start: int = 1
+) -> list[tuple[list[str], list[str]]]:
+    # ソート済みデータにIDを付与
+
+    meta = []
+    mani = []
+    for i, (row, fastq_files) in enumerate(rows_with_files, start=1):
+        # master csv
+        meta.append([id_prefix + str(i), *row])
+
+        # manifest
+        # RawIDから対応するfastqファイルを取得
+        mani.append(
+            [
+                id_prefix + str(i),
+                *search_fastq(row[0], fastq_files),
+            ]
+        )
+
+    return meta, mani
+
+
 def create_Mfiles(
     id_prefix: str,
     out_meta: str,
@@ -82,9 +105,6 @@ def create_Mfiles(
     """
     Create metadata and manifest files from the given data.
     """
-    mani_result = [
-        ["sample-id", "forward-absolute-filepath", "reverse-absolute-filepath"]
-    ]
 
     rows_with_files = cat_data(data)
     rows_with_files.sort(
@@ -95,27 +115,15 @@ def create_Mfiles(
     # 最初のデータセットからヘッダーを取得
     retrived_path = next(iter(data.sets)).metadata_path
     header = header_replaced(get_header(retrived_path), id_prefix)
+
     master_list = [header[0]]  # ヘッダー行のみを追加
-
-    # ソート済みデータにIDを付与
-    for i, (row, fastq_files) in enumerate(rows_with_files, start=1):
-        # master csv
-        master_list.append([id_prefix + str(i), *row])
-
-        # manifest
-        # RawIDから対応するfastqファイルを取得
-        mani_result.append(
-            [
-                id_prefix + str(i),
-                *search_fastq(row[0], fastq_files),
-            ]
-        )
-
-    # ヘッダーを含むmaniフォーマット
     mani_result = [
         ["sample-id", "forward-absolute-filepath", "reverse-absolute-filepath"],
-        *mani_result[1:],
     ]
+
+    added_meta, added_mani = add_id(rows_with_files, id_prefix, 1)
+    master_list.extend(added_meta)
+    mani_result.extend(added_mani)
 
     with open(out_meta, "w") as f:
         writer = csv.writer(f, delimiter="\t")
