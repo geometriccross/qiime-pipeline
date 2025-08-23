@@ -25,7 +25,7 @@ def is_sra_pattern(pattern: str) -> bool:
     return "_1.fast" in pattern or "_2.fast" in pattern
 
 
-def extract_filename(row: dict) -> str:
+def extract_filename(row: dict) -> tuple[str, str]:
     """
     Extract the filename from the row.
     """
