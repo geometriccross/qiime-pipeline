@@ -128,22 +128,22 @@ def create_Mfiles(
     retrived_path = next(iter(data.sets)).metadata_path
     header = header_replaced(get_header(retrived_path), id_prefix)
 
-    master_list = [header[0]]  # ヘッダー行のみを追加
-    mani_result = [
+    meta = [header[0]]  # ヘッダー行のみを追加
+    mani = [
         ["sample-id", "forward-absolute-filepath", "reverse-absolute-filepath"],
     ]
 
     added_meta, added_mani = add_id(rows_with_files, id_prefix, 1)
-    master_list.extend(added_meta)
-    mani_result.extend(added_mani)
+    meta.extend(added_meta)
+    mani.extend(added_mani)
 
     with open(out_meta, "w") as f:
         writer = csv.writer(f, delimiter="\t")
-        writer.writerows(master_list)
+        writer.writerows(meta)
 
     with open(out_mani, "w") as f:
         writer = csv.writer(f, delimiter="\t")
-        writer.writerows(mani_result)
+        writer.writerows(mani)
 
 
 if __name__ == "__main__":
