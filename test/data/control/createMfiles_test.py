@@ -2,6 +2,7 @@
 
 from pathlib import Path
 import pytest
+from tempfile import TemporaryDirectory
 from scripts.data.control.create_Mfiles import (
     search_fastq,
     get_header,
@@ -106,13 +107,14 @@ def test_add_id(dummy_datasets):
         assert row[0] == f"id{i}"
 
 
-def test_createMfiles_is_currently_create_files(dummy_datasets, temporay_files):
-    create_Mfiles(
-        id_prefix="test_id",
-        out_meta=temporay_files["meta"].name,
-        out_mani=temporay_files["fastq"].name + "/manifest.tsv",
-        data=dummy_datasets,
-    )
+def test_createMfiles_is_currently_creating_files(dummy_datasets):
+    with TemporaryDirectory() as temp_dir:
+        create_Mfiles(
+            id_prefix="test_id",
+            out_meta=temp_dir + "/metadata.tsv",
+            out_mani=temp_dir + "/manifest.tsv",
+            data=dummy_datasets,
+        )
 
-    assert Path(temporay_files["meta"].name).exists()
-    assert Path(temporay_files["fastq"].name + "/manifest.tsv").exists()
+        assert Path(temp_dir + "/metadata.tsv").exists()
+        assert Path(temp_dir + "/manifest.tsv").exists()
