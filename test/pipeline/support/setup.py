@@ -1,21 +1,4 @@
-import pytest
-from tempfile import TemporaryDirectory
-from pathlib import Path
-from argparse import Namespace
 from scripts.pipeline.support.setup import setup_datasets
-
-
-@pytest.fixture
-def namespace(data_path_pairs) -> Namespace:
-    with TemporaryDirectory() as tmp_dir:
-        return Namespace(
-            dockerfile=Path("dockerfiles/Dockerfile"),
-            sampling_depth=10000,
-            data=data_path_pairs,
-            # 適当なところから、TemporaryDirectoryのpathを取得
-            workspace_path=data_path_pairs[0][1],
-            output=Path(tmp_dir),
-        )
 
 
 def test_setup_datasets(namespace):

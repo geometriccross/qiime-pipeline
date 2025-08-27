@@ -1,4 +1,5 @@
 import pytest
+from argparse import Namespace
 from pathlib import Path
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 from textwrap import dedent
@@ -6,6 +7,7 @@ from typing import Generator
 from scripts.pipeline.support.executor import Provider
 from scripts.data.store.dataset import Dataset, Datasets
 from scripts.data.store.ribosome_regions import Region, V3V4
+from scripts.data.store.setting_data_structure import SettingData
 
 
 @pytest.fixture()
@@ -208,3 +210,27 @@ def dummy_datasets(
         )
 
     yield Datasets(sets=sets)
+
+
+@pytest.fixture
+def namespace(data_path_pairs) -> Namespace:
+    with TemporaryDirectory() as tmp_dir:
+        return Namespace(
+            dockerfile=Path("dockerfiles/Dockerfile"),
+            sampling_depth=10000,
+            data=data_path_pairs,
+            # 適当なところから、TemporaryDirectoryのpathを取得
+            workspace_path=data_path_pairs[0][1],
+            output=Path(tmp_dir),
+        )
+
+
+@pytest.fixture
+def setting(namespace) -> SettingData:
+    return SettingData(
+        dockerfile=namespace.dockerfile,
+        sampling_depth=namespace.sampling_depth,
+        data=namespace.data,
+        workspace_path=namespace.workspace_path,
+        output=namespace.output,
+    )
