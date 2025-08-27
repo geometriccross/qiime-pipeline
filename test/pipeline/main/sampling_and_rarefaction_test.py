@@ -1,83 +1,15 @@
 from pathlib import Path
-from unittest.mock import MagicMock, patch
 import pytest
 from scripts.pipeline.main.sampling_and_rarefaction import (
     run_rarefaction,
     run_sampling_depth,
     execute,
 )
-from scripts.pipeline.support.executor import Executor
 
 
 # テスト用の定数
 TEST_QZV_PATH = Path("alpha_rarefaction.qzv")
 TEST_BATCH_ID = "test_batch"
-
-
-@pytest.fixture
-def mock_setting(dummy_datasets, tmp_path):
-    """テスト用のSettingData"""
-    metadata_path = tmp_path / "metadata.tsv"
-    metadata_path.write_text("#SampleID,feature1\ntest1,value1\n")
-
-    manifest_path = tmp_path / "manifest.csv"
-    manifest_path.write_text(
-        "#SampleID,forward-absolute-filepath,reverse-absolute-filepath\n"
-        "test1,R1.fastq,R2.fastq\n"
-    )
-
-    return MagicMock(
-        manifest_path=manifest_path,
-        metadata_path=metadata_path,
-        datasets=dummy_datasets,
-        batch_id=TEST_BATCH_ID,
-    )
-
-
-@pytest.fixture
-def mock_executor():
-    """テスト用のExecutor"""
-    executor = MagicMock(spec=Executor)
-    executor.run.return_value = (str(TEST_QZV_PATH), "")
-    return executor
-
-
-@pytest.fixture
-def qzv_test_files(request):
-    """テスト用のQZVファイルとディレクトリを作成するフィクスチャ
-
-    ディレクトリ構造:
-    out/
-    └── {TEST_BATCH_ID}/
-        └── result{n}.qzv
-
-    Args:
-        request: fixtureリクエスト（ファイル数を指定可能）
-
-    Yields:
-        作成されたQZVファイルのリスト
-    """
-    # テスト用のディレクトリを作成
-    out_dir = Path(f"out/{TEST_BATCH_ID}")
-    out_dir.mkdir(parents=True, exist_ok=True)
-
-    # テストファイルを作成
-    import zipfile
-
-    file_count = getattr(request, "param", 2)  # デフォルトは2ファイル
-    test_files = [out_dir / f"result{i+1}.qzv" for i in range(file_count)]
-    for qzv_file in test_files:
-        with zipfile.ZipFile(qzv_file, "w") as zf:
-            zf.writestr("data/index.html", "<html></html>")
-
-    yield test_files
-
-    # クリーンアップ
-    for qzv_file in test_files:
-        if qzv_file.exists():
-            qzv_file.unlink()
-    if out_dir.exists():
-        out_dir.rmdir()
 
 
 def test_run_rarefaction(mock_setting, mock_executor):
@@ -182,11 +114,7 @@ def test_execute_creates_output_directory(mock_setting, mock_executor):
     mock_executor.run.assert_any_call(["mkdir", "-p", str(Path("/tmp/out"))])
 
 
-@patch.dict("os.environ", {"BROWSER": "firefox", "WSL_DISTRO_NAME": "Ubuntu"})
-@patch("scripts.pipeline.main.sampling_and_rarefaction.QzvViewer")
-def test_qzv_file_processing(
-    mock_qzv_viewer_class, mock_setting, mock_executor, qzv_test_files
-):
+def test_qzv_file_processing(mock_setting, mock_executor, qzv_test_files, mocker):
     """QZVファイルの処理テスト
 
     シナリオ:
@@ -194,10 +122,14 @@ def test_qzv_file_processing(
     2. QzvViewerが正しく初期化される
     3. コピーされたQZVファイルが正しく処理される
     """
+    mocker.patch.dict("os.environ", {"BROWSER": "firefox", "WSL_DISTRO_NAME": "Ubuntu"})
+    mock_qzv_viewer_class = mocker.patch(
+        "scripts.pipeline.main.sampling_and_rarefaction.QzvViewer"
+    )
     mock_viewer_instance = mock_qzv_viewer_class.return_value
+    mocker.patch("pathlib.Path.glob", return_value=qzv_test_files)
 
-    with patch("pathlib.Path.glob", return_value=qzv_test_files):
-        run_sampling_depth(mock_setting, mock_executor, TEST_QZV_PATH)
+    run_sampling_depth(mock_setting, mock_executor, TEST_QZV_PATH)
 
     # 検証
     # 1. DockerコンテナからQZVファイルがコピーされたことを確認
