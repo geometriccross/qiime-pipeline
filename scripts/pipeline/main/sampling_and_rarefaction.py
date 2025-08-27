@@ -4,6 +4,7 @@ from pathlib import Path
 from scripts.data.store.setting_data_structure import SettingData
 from scripts.pipeline.support.executor import Executor
 from scripts.pipeline.support.qiime_command import QiimeCommandBuilder
+from scripts.pipeline.support.view import QzvViewer, ViewError
 
 
 def run_rarefaction(setting: SettingData, executor: Executor) -> Path:
@@ -101,9 +102,13 @@ def run_sampling_depth(
     # Copy QZV file from container
     executor.run(["docker", "cp", f"{setting.batch_id}:{qzv_path}", str(out_dir)])
 
-    # Find QZV files and run view.sh
-    for qzv_file in out_dir.glob("*.qzv"):
-        executor.run(["./scripts/view.sh", str(qzv_file)])
+    try:
+        # Find QZV files and display using QzvViewer
+        viewer = QzvViewer()
+        for qzv_file in out_dir.glob("*.qzv"):
+            viewer.view(qzv_file)
+    except ViewError as e:
+        print(f"Warning: Failed to display QZV file: {str(e)}")
 
 
 def execute(setting: SettingData, executor: Executor) -> None:

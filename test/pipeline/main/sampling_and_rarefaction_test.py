@@ -42,6 +42,44 @@ def mock_executor():
     return executor
 
 
+@pytest.fixture
+def qzv_test_files(request):
+    """テスト用のQZVファイルとディレクトリを作成するフィクスチャ
+
+    ディレクトリ構造:
+    out/
+    └── {TEST_BATCH_ID}/
+        └── result{n}.qzv
+
+    Args:
+        request: fixtureリクエスト（ファイル数を指定可能）
+
+    Yields:
+        作成されたQZVファイルのリスト
+    """
+    # テスト用のディレクトリを作成
+    out_dir = Path(f"out/{TEST_BATCH_ID}")
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    # テストファイルを作成
+    import zipfile
+
+    file_count = getattr(request, "param", 2)  # デフォルトは2ファイル
+    test_files = [out_dir / f"result{i+1}.qzv" for i in range(file_count)]
+    for qzv_file in test_files:
+        with zipfile.ZipFile(qzv_file, "w") as zf:
+            zf.writestr("data/index.html", "<html></html>")
+
+    yield test_files
+
+    # クリーンアップ
+    for qzv_file in test_files:
+        if qzv_file.exists():
+            qzv_file.unlink()
+    if out_dir.exists():
+        out_dir.rmdir()
+
+
 def test_run_rarefaction(mock_setting, mock_executor):
     """run_rarefaction関数のテスト
 
@@ -144,29 +182,35 @@ def test_execute_creates_output_directory(mock_setting, mock_executor):
     mock_executor.run.assert_any_call(["mkdir", "-p", str(Path("/tmp/out"))])
 
 
-@patch("pathlib.Path.glob")
-def test_qzv_file_processing(mock_glob, mock_setting, mock_executor):
+@patch.dict("os.environ", {"BROWSER": "firefox", "WSL_DISTRO_NAME": "Ubuntu"})
+@patch("scripts.pipeline.main.sampling_and_rarefaction.QzvViewer")
+def test_qzv_file_processing(
+    mock_qzv_viewer_class, mock_setting, mock_executor, qzv_test_files
+):
     """QZVファイルの処理テスト
 
-    以下を確認:
-    1. glob関数が正しく呼び出される
-    2. 見つかった各QZVファイルに対してview.shが実行される
-    3. Docker CP処理が正しく実行される
+    シナリオ:
+    1. Dockerコンテナからファイルがコピーされる
+    2. QzvViewerが正しく初期化される
+    3. コピーされたQZVファイルが正しく処理される
     """
-    # テストデータの設定
-    test_qzv_files = [
-        Path(f"out/{TEST_BATCH_ID}/result1.qzv"),
-        Path(f"out/{TEST_BATCH_ID}/result2.qzv"),
-    ]
-    mock_glob.return_value = test_qzv_files
+    mock_viewer_instance = mock_qzv_viewer_class.return_value
 
-    qzv_path = TEST_QZV_PATH
-    run_sampling_depth(mock_setting, mock_executor, qzv_path)
+    with patch("pathlib.Path.glob", return_value=qzv_test_files):
+        run_sampling_depth(mock_setting, mock_executor, TEST_QZV_PATH)
 
-    # view.shが各QZVファイルに対して実行されたことを確認
-    view_sh_calls = [
-        call_args
-        for call_args in mock_executor.run.call_args_list
-        if "./scripts/view.sh" in str(call_args)
+    # 検証
+    # 1. DockerコンテナからQZVファイルがコピーされたことを確認
+    expected_docker_cp = [
+        "docker",
+        "cp",
+        f"{mock_setting.batch_id}:{TEST_QZV_PATH}",
+        str(qzv_test_files[0].parent),
     ]
-    assert len(view_sh_calls) == 2  # 2つのQZVファイルそれぞれに対して実行
+    mock_executor.run.assert_any_call(expected_docker_cp)
+
+    # 2. 各QZVファイルがビューワーで処理されたことを確認
+    assert mock_viewer_instance.view.call_count == len(qzv_test_files)
+    view_calls = mock_viewer_instance.view.call_args_list
+    view_args = [args[0][0] for args in view_calls]
+    assert view_args == qzv_test_files
