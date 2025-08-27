@@ -1,3 +1,4 @@
+from pathlib import Path
 import pytest
 from scripts.data.store.setting_data_structure import SettingData
 from scripts.pipeline.support.executor import Executor, Provider
@@ -8,11 +9,10 @@ from scripts.pipeline.main.sampling_and_rarefaction import (
 )
 
 
-@pytest.mark.slow
 def test_run_rarefaction(setting: SettingData):
-    provider = Provider.from_dockerfile(
-        setting.dockerfile,
-        mounts=setting.datasets.mounts,
+    provider = Provider(
+        image="quay.io/qiime2/amplicon:2024.10",
+        mounts=setting.datasets.mounts(Path("/data")),
         workspace=setting.workspace_path,
         remove=True,
     )

@@ -52,11 +52,13 @@ def setup() -> Generator[tuple[SettingData, Executor], None, None]:
     # 設定データを保存
     setting_data.write(args.output / "settings.toml")
 
-    provider = Provider.from_dockerfile(
-        setting_data.dockerfile,
-        mounts=setting_data.datasets.mounts,
-        workspace=setting_data.workspace_path,
-        remove=True,
-    )
+    provider = Provider(image="quay.io/qiime2/amplicon:2024.10")
+
+    # provider = Provider.from_dockerfile(
+    #     setting_data.dockerfile,
+    #     mounts=setting_data.datasets.mounts,
+    #     workspace=setting_data.workspace_path,
+    #     remove=True,
+    # )
 
     yield setting_data, Executor(provider.provide())
