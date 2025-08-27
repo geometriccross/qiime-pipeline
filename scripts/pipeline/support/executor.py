@@ -55,7 +55,13 @@ class Provider:
             return "absent"
 
         # ContainerStateオブジェクトからstatusのみを選択する
-        return ctn.state.status
+        status = getattr(ctn.state, "status", None)
+
+        # 処理能力の高低により、removing状態が取得される場合があるため
+        # 一括してabsentとしてみなす
+        if status == "removing":
+            return "absent"
+        return status
 
 
 class Executor:

@@ -32,7 +32,7 @@ def test_provider_from_dokerfile():
         container.stop()
 
 
-@pytest.mark.parametrize("remove, expected", [(False, "exited"), (True, "removing")])
+@pytest.mark.parametrize("remove, expected", [(False, "exited"), (True, "absent")])
 def test_provider_container_status(remove, expected):
     container = Provider(image="alpine", remove=remove).provide()
     try:
