@@ -4,6 +4,7 @@ import requests
 from pathlib import Path
 from python_on_whales import Container
 from scripts.pipeline.support.executor import Executor
+from scripts.pipeline.support.qiime_command import QiimeCommandBuilder
 
 
 class DatabaseBuilder:
@@ -64,23 +65,16 @@ class DatabaseBuilder:
 
     def _extract_reads(self):
         """リファレンスシーケンスを抽出する"""
-        command = [
-            "qiime",
-            "feature-classifier",
-            "extract-reads",
-            "--p-min-length",
-            "350",
-            "--p-max-length",
-            "500",
-            "--p-f-primer",
-            "CCTACGGGNGGCWGCAG",
-            "--p-r-primer",
-            "GACTACHVGGGTATCTAATCC",
-            "--i-sequences",
-            str(self.temp_dir / "silva-138-99-seqs.qza"),
-            "--o-reads",
-            str(self.temp_dir / "ref-seqs-silva-138.qza"),
-        ]
+        command = (
+            QiimeCommandBuilder("qiime feature-classifier extract-reads")
+            .add_parameter("min-length", "350")
+            .add_parameter("max-length", "500")
+            .add_parameter("f-primer", "CCTACGGGNGGCWGCAG")
+            .add_parameter("r-primer", "GACTACHVGGGTATCTAATCC")
+            .add_input("sequences", str(self.temp_dir / "silva-138-99-seqs.qza"))
+            .add_output("reads", str(self.temp_dir / "ref-seqs-silva-138.qza"))
+            .build()
+        )
 
         output, error = self.executor.run(command)
         if error:
@@ -88,17 +82,15 @@ class DatabaseBuilder:
 
     def _train_classifier(self):
         """DBを学習する"""
-        command = [
-            "qiime",
-            "feature-classifier",
-            "fit-classifier-naive-bayes",
-            "--i-reference-reads",
-            str(self.temp_dir / "ref-seqs-silva-138.qza"),
-            "--i-reference-taxonomy",
-            str(self.temp_dir / "silva-138-99-tax.qza"),
-            "--o-classifier",
-            str(self.temp_dir / "classifier-silva138.qza"),
-        ]
+        command = (
+            QiimeCommandBuilder("qiime feature-classifier fit-classifier-naive-bayes")
+            .add_input("reference-reads", str(self.temp_dir / "ref-seqs-silva-138.qza"))
+            .add_input(
+                "reference-taxonomy", str(self.temp_dir / "silva-138-99-tax.qza")
+            )
+            .add_output("classifier", str(self.temp_dir / "classifier-silva138.qza"))
+            .build()
+        )
 
         output, error = self.executor.run(command)
         if error:
