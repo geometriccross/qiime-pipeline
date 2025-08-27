@@ -3,8 +3,6 @@ from tempfile import TemporaryDirectory
 from pathlib import Path
 from argparse import Namespace
 from scripts.pipeline.support.setup import setup_datasets
-from scripts.pipeline.support.executor import Provider
-from scripts.data.store.setting_data_structure import SettingData
 
 
 @pytest.fixture
