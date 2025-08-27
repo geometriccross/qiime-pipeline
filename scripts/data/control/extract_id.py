@@ -1,32 +1,78 @@
 import csv
+import sys
 import argparse
 from textwrap import dedent
+from typing import Iterator, List, Set
 
 
-def extract_id(input_path, targets, column=0, exclude_mode=False):
+class ExtractError(Exception):
+    """抽出処理に関連するエラーを表すカスタム例外クラス"""
+
+    pass
+
+
+def process_rows(
+    file, targets: Set[str], column: int, exclude_mode: bool
+) -> Iterator[List[str]]:
+    """ファイルの各行を処理するジェネレータ関数
+
+    Args:
+        file: 入力ファイルオブジェクト
+        targets: 抽出または除外対象のIDセット
+        column: 対象とする列のインデックス
+        exclude_mode: 除外モードフラグ
+
+    Yields:
+        処理対象の行データ
+    """
+    reader = csv.reader(file, delimiter="\t")
+
+    try:
+        header = next(reader)
+        yield header
+    except StopIteration:
+        raise ExtractError("ファイルが空です")
+
+    if column >= len(header):
+        raise ExtractError(f"指定された列インデックス {column} が範囲外です")
+
+    for row in reader:
+        if len(row) <= column:
+            continue
+
+        match = row[column] in targets
+        if (exclude_mode and not match) or (not exclude_mode and match):
+            yield row
+
+
+def extract_id(
+    input_path: str, targets: List[str], column: int = 0, exclude_mode: bool = False
+) -> Iterator[str]:
     """
     指定した列の値に基づいて、CSVデータの行を抽出または除外します。
+    ジェネレータを使用してメモリ効率を改善しています。
 
-    :param input_path: 入力ファイルのパス
-    :param targets: 抽出または除外するターゲットIDのリスト
-    :param column: 対象とする列のインデックス（0始まり）
-    :param exclude_mode: Trueの場合、ターゲットIDに一致する行を除外
+    Args:
+        input_path: 入力ファイルのパス
+        targets: 抽出または除外するターゲットIDのリスト
+        column: 対象とする列のインデックス（0始まり）
+        exclude_mode: Trueの場合、ターゲットIDに一致する行を除外
+
+    Yields:
+        処理された各行のタブ区切り文字列
+
+    Raises:
+        ExtractError: ファイルが空、または列インデックスが無効な場合
+        FileNotFoundError: 入力ファイルが存在しない場合
     """
-    with open(input_path, newline="") as file:
-        reader = csv.reader(file, delimiter="\t")
-        header = next(reader)
-        output_lines = ["\t".join(header)]
-        for row in reader:
-            # 列数が足りない行はスキップ
-            if len(row) <= column:
-                continue
-            # 指定された列の値がターゲットに含まれているかどうか
-            match = row[column] in targets
+    targets_set = set(targets)  # 検索効率向上のためsetに変換
 
-            if (exclude_mode and not match) or (not exclude_mode and match):
-                output_lines.append("\t".join(row))
-
-    return "\n".join(output_lines)
+    try:
+        with open(input_path, newline="") as file:
+            for row in process_rows(file, targets_set, column, exclude_mode):
+                yield "\t".join(row)
+    except FileNotFoundError:
+        raise ExtractError(f"ファイル '{input_path}' が見つかりません")
 
 
 if __name__ == "__main__":
@@ -74,9 +120,12 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-    input_path = args.input_path
-    targets = args.targets
-    column = args.column
-    exclude_mode = args.exclude
 
-    print(extract_id(input_path, targets, column, exclude_mode))
+    try:
+        for line in extract_id(
+            args.input_path, args.targets, args.column, args.exclude
+        ):
+            print(line)
+    except ExtractError as e:
+        print(f"エラー: {e}", file=sys.stderr)
+        sys.exit(1)
