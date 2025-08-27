@@ -4,6 +4,7 @@ from collections.abc import Mapping
 import tomlkit
 from tomlkit.toml_file import TOMLFile
 from .dataset import Datasets
+from .generate_id import generate_id
 
 
 @dataclasses.dataclass
@@ -15,6 +16,8 @@ class SettingData(Mapping):
     sampling_depth: int
 
     workspace_path: Path = dataclasses.field(default_factory=lambda: Path("workspace"))
+
+    batch_id: str = dataclasses.field(default_factory=generate_id)
 
     def __post_init__(self):
         for p in filter(lambda item: isinstance(item, Path), self.__dict__.values()):
