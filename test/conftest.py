@@ -203,7 +203,7 @@ def dummy_datasets(
     for meta, folder in data_path_pairs:
         sets.add(
             Dataset(
-                name=folder.name, fastq_folder=folder, metadata_path=meta, region=V3V4
+                name=folder.name, fastq_folder=folder, metadata_path=meta, region=V3V4()
             )
         )
 
