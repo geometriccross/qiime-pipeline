@@ -30,23 +30,3 @@ def test_setup_datasets(namespace):
         assert datasets.fastq_folder.exists()
         assert datasets.metadata_path.exists()
         assert datasets.region is not None
-
-
-def test_run(namespace):
-    datasets = setup_datasets(namespace)
-    setting_data = SettingData(
-        dockerfile=namespace.dockerfile,
-        sampling_depth=namespace.sampling_depth,
-        datasets=datasets,
-        workspace_path=namespace.workspace_path,
-    )
-
-    provider = Provider.from_dockerfile(
-        setting_data.dockerfile,
-        mounts=setting_data.datasets.mounts,
-        workspace=setting_data.workspace_path,
-        remove=True,
-    )
-
-    # Run the pipeline
-    # pipeline_run(provider)
