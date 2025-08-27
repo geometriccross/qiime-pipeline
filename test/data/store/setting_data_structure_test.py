@@ -16,23 +16,27 @@ def dummy_setting_data(tmp_path, temporary_dataset):
     dockerfile.write_text("FROM python:3.8\n")
 
     datasets = Datasets(sets=[temporary_dataset])
+    database = tmp_path / "database.qza"
+    database.write_text("")
 
     # Return a SettingData instance using the dummy paths
     return SettingData(
-        workspace_path=workspace,
         dockerfile=dockerfile,
-        sampling_depth=10000,
         datasets=datasets,
+        database=database,
+        sampling_depth=10000,
+        workspace_path=workspace,
     )
 
 
 def test_setting_data_initialization():
     try:
         SettingData(
-            workspace_path=Path("nonexistent/workspace"),
             dockerfile=Path("/nonexistent/Dockerfile"),
-            sampling_depth="incorrect_type",
             datasets="No Object",
+            database=Path("/nonexistent/database"),
+            sampling_depth="incorrect_type",
+            workspace_path=Path("nonexistent/workspace"),
         )
     except AssertionError:
         pass  # Expected to raise AssertionError due to non-existent paths

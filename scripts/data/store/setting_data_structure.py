@@ -10,8 +10,9 @@ from .dataset import Datasets
 class SettingData(Mapping):
     dockerfile: Path
 
-    sampling_depth: int
     datasets: Datasets
+    database: Path
+    sampling_depth: int
 
     workspace_path: Path = dataclasses.field(default_factory=lambda: Path("workspace"))
 
