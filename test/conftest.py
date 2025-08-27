@@ -32,7 +32,7 @@ def temporary_dataset(temporay_files):
         yield dataset
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def trusted_provider():
     provider = Provider(image="alpine", remove=True)
 

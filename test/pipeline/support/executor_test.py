@@ -5,18 +5,14 @@ from scripts.pipeline.support.executor import Executor, Provider
 from python_on_whales import Container
 
 
-def test_provider():
-    provider = Provider(image="alpine")
-    assert isinstance(provider, Provider)
-
-    container = provider.provide()
-    assert isinstance(container, Container)
-    assert container.exists()
-
+@pytest.fixture(scope="module")
+def shared_container(trusted_provider):
+    container = trusted_provider.provide()
+    yield container
     container.stop()
 
 
-def test_provider_from_dokerfile():
+def test_provider_from_dockerfile():
     with NamedTemporaryFile(suffix=".Dockerfile", delete=True) as tmp_file:
         tmp_file.write(b"FROM alpine")
         tmp_file.flush()
@@ -33,8 +29,14 @@ def test_provider_from_dokerfile():
 
 
 @pytest.mark.parametrize("remove, expected", [(False, "exited"), (True, "absent")])
-def test_provider_container_status(remove, expected):
-    container = Provider(image="alpine", remove=remove).provide()
+def test_provider_is_currently_create_instance_and_container_status(remove, expected):
+    provider = Provider(image="alpine", remove=remove)
+    assert isinstance(provider, Provider)
+
+    container = provider.provide()
+    assert isinstance(container, Container)
+    assert container.exists()
+
     try:
         assert Provider.get_status(container) == "running"
         container.stop()
@@ -50,16 +52,16 @@ def test_provider_container_status(remove, expected):
     ],
 )
 def test_command_execution(
-    trusted_provider, command: list[str], expected_out: str, expected_err: str
+    shared_container, command: list[str], expected_out: str, expected_err: str
 ):
-    with Executor(trusted_provider.provide()) as executor:
+    with Executor(shared_container) as executor:
         output, err = executor.run(command)
         assert output == expected_out
         assert err == expected_err
 
 
-def test_command_execution_when_command_is_failed(trusted_provider):
-    with Executor(trusted_provider.provide()) as executor:
+def test_command_execution_when_command_is_failed(shared_container):
+    with Executor(shared_container) as executor:
         output, err = executor.run(["NonExistingCmd"])
         assert output == ""
         assert err != ""

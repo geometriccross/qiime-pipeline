@@ -19,7 +19,9 @@
     "python.testing.unittestEnabled": false,
     "python.testing.nosetestsEnabled": false,
     "python.testing.pytestArgs": [
-        "test"
+        "test",
+        "-n",
+        "auto"
     ],
     "python.defaultInterpreterPath": "/home/geometriccross/.local/share/virtualenvs/qiime-pipeline-eARIDHR6/bin/python"
 }
