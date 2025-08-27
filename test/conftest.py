@@ -214,23 +214,24 @@ def dummy_datasets(
 
 @pytest.fixture
 def namespace(data_path_pairs) -> Namespace:
-    with TemporaryDirectory() as tmp_dir:
-        return Namespace(
-            dockerfile=Path("dockerfiles/Dockerfile"),
-            sampling_depth=10000,
-            data=data_path_pairs,
-            # 適当なところから、TemporaryDirectoryのpathを取得
-            workspace_path=data_path_pairs[0][1],
-            output=Path(tmp_dir),
-        )
+    return Namespace(
+        dockerfile=Path("dockerfiles/Dockerfile"),
+        sampling_depth=10000,
+        data=data_path_pairs,
+        database=Path("db/classifier.qza"),
+        # 適当なところから、TemporaryDirectoryのpathを取得
+        workspace_path=data_path_pairs[0][1],
+        output=data_path_pairs[0][1],
+    )
 
 
 @pytest.fixture
-def setting(namespace) -> SettingData:
+def setting(namespace, dummy_datasets) -> SettingData:
     return SettingData(
         dockerfile=namespace.dockerfile,
         sampling_depth=namespace.sampling_depth,
-        data=namespace.data,
+        datasets=dummy_datasets,
+        database=namespace.database,
         workspace_path=namespace.workspace_path,
-        output=namespace.output,
+        output_path=namespace.output,
     )

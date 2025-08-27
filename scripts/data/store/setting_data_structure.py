@@ -16,6 +16,7 @@ class SettingData(Mapping):
     sampling_depth: int
 
     workspace_path: Path = dataclasses.field(default_factory=lambda: Path("workspace"))
+    output_path: Path = dataclasses.field(default_factory=lambda: Path("output"))
 
     batch_id: str = dataclasses.field(default_factory=generate_id)
 
