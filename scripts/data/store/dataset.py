@@ -74,19 +74,19 @@ class Dataset:
             "region": self.region.to_dict(),
         }
 
-    def mount_format(self, container_base_dir: Path) -> str:
-        """Return a formatterd string for docker mount"""
-        fastq = (
-            "--mount type=bind,"
-            + f"src={self.fastq_folder.resolve()},"
-            + f"dst={container_base_dir.resolve()},"
-        )
-        meta = (
-            "--mount type=bind,"
-            + f"src={self.metadata_path.resolve()},"
-            + f"dst={container_base_dir.resolve()}/metadata.csv,readonly"
-        )
-        return f"{fastq} {meta}"
+    def mount_format(self, container_base_dir: Path) -> list[str]:
+        """Return a list of docker mount strings"""
+        fastq = [
+            "type=bind",
+            f"src={self.fastq_folder.resolve()}",
+            f"dst={container_base_dir / self.fastq_folder.name},readonly",
+        ]
+        meta = [
+            "type=bind",
+            f"src={self.metadata_path.resolve()}",
+            f"dst={container_base_dir / self.fastq_folder.name}/metadata.csv,readonly",
+        ]
+        return [fastq, meta]
 
 
 @dataclasses.dataclass
@@ -126,11 +126,11 @@ class Datasets:
             s.add(Dataset.from_toml(dataset))
         return Datasets(sets=s)
 
-    def mounts(self, container_base_dir: Path) -> str:
+    def mounts(self, container_base_dir: Path) -> list[str]:
         """
-        Return a formatted string for docker mounts.
+        Return a list of docker mount strings for all datasets.
         """
         mounts = []
         for dataset in self.sets:
-            mounts.append(dataset.mount_format(container_base_dir))
-        return " ".join(mounts)
+            mounts.extend(dataset.mount_format(container_base_dir))
+        return mounts
