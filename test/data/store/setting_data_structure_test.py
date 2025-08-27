@@ -11,6 +11,9 @@ def dummy_setting_data(tmp_path, temporary_dataset):
     workspace = tmp_path / "workspace"
     workspace.mkdir(parents=True, exist_ok=True)
 
+    output = tmp_path / "output"
+    output.mkdir(parents=True, exist_ok=True)
+
     # Create a dummy Dockerfile and datasets JSON file
     dockerfile = tmp_path / "Dockerfile"
     dockerfile.write_text("FROM python:3.8\n")
@@ -26,6 +29,7 @@ def dummy_setting_data(tmp_path, temporary_dataset):
         database=database,
         sampling_depth=10000,
         workspace_path=workspace,
+        output_path=output,
     )
 
 
