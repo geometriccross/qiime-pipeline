@@ -13,7 +13,7 @@ from scripts.data.control.create_Mfiles import (
 )
 
 
-def test_search_fastq_success():
+def test_search_fastq_correctly_pickup_pair_file():
     test_files = [
         "/path/to/sample1_R1_001.fastq.gz",
         "/path/to/sample1_R2_001.fastq.gz",
