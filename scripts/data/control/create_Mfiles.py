@@ -68,6 +68,7 @@ def cat_data(datasets: Datasets) -> list[tuple[list[str], list[str]]]:
             for row in reader:
                 combined.append((row, dataset.fastq_files))
 
+    combined.sort(key=lambda x: x[0][0])  # RawIDでソート（test1, test2, ...の順）
     return combined
 
 
@@ -117,9 +118,6 @@ def create_Mfiles(
     """
 
     rows_with_files = cat_data(data)
-    rows_with_files.sort(
-        key=lambda x: x[0][0]
-    )  # RawIDでソート（test1, test2, ...の順）
 
     # メタデータファイルを作成
     # 最初のデータセットからヘッダーを取得
