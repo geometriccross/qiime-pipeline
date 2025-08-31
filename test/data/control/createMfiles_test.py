@@ -14,20 +14,17 @@ from scripts.data.control.create_Mfiles import (
 
 
 def test_search_fastq_success():
-    """search_fastq関数の正常系テスト"""
-    # テストデータ
     test_files = [
         "/path/to/sample1_R1_001.fastq.gz",
         "/path/to/sample1_R2_001.fastq.gz",
         "/path/to/sample2_R1_001.fastq.gz",
     ]
 
-    # テスト実行
     fwd, rvs = search_fastq("sample1", test_files)
 
     # 検証
-    assert fwd.endswith("sample1_R1_001.fastq.gz")
-    assert rvs.endswith("sample1_R2_001.fastq.gz")
+    assert fwd.name == "sample1_R1_001.fastq.gz"
+    assert rvs.name == "sample1_R2_001.fastq.gz"
 
 
 def test_search_fastq_duplicate_error():

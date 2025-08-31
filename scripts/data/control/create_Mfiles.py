@@ -10,7 +10,7 @@ from scripts.data.store.used_data import used_data
 
 
 # queryで渡されたidを持つfastqファイルを返す
-def search_fastq(q: str, data: list[str]) -> tuple[str]:
+def search_fastq(q: str, data: list[str]) -> tuple[Path, Path]:
     correct = []
     for d in data:
         file_name = PurePath(d).name
@@ -31,9 +31,7 @@ def search_fastq(q: str, data: list[str]) -> tuple[str]:
     fwd = list(filter(lambda s: "_R1" in str(s), correct)).pop()
     rvs = list(filter(lambda s: "_R2" in str(s), correct)).pop()
 
-    fwd_abs_path = Path(fwd).absolute().__str__()
-    rvs_abs_path = Path(rvs).absolute().__str__()
-    return fwd_abs_path, rvs_abs_path
+    return Path(fwd), Path(rvs)
 
 
 def get_header(meta_path: str) -> list[str]:
