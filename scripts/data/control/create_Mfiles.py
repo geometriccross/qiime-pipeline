@@ -55,18 +55,13 @@ def header_replaced(header_arr: list[str], id_prefix) -> list[list[str]]:
     ]
 
 
-def cat_data(datasets: Datasets) -> list[tuple[list[str], list[str]]]:
+def combine_and_sort_by_key(datasets: Datasets) -> list[tuple[list[str], list[str]]]:
     """
     Datasetsに含まれる全てのDatasetのメタデータとfastqファイルを一つのリストにまとめて返す
     """
     combined = []
     for dataset in datasets.sets:
-        with open(Path(dataset.metadata_path).absolute(), "r") as f:
-            reader = csv.reader(f)
-            next(reader)  # ヘッダーをスキップ
-            # データセットの各行を保存（RawIDとfastqファイルのペア）
-            for row in reader:
-                combined.append((row, dataset.fastq_files))
+        combined.append((dataset.metadata, dataset.fastq_files))
 
     combined.sort(key=lambda x: x[0][0])  # RawIDでソート（test1, test2, ...の順）
     return combined
@@ -117,7 +112,7 @@ def create_Mfiles(
     Create metadata and manifest files from the given data.
     """
 
-    rows_with_files = cat_data(data)
+    rows_with_files = combine_and_sort_by_key(data)
 
     # メタデータファイルを作成
     # 最初のデータセットからヘッダーを取得
