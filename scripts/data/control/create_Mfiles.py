@@ -44,17 +44,6 @@ def get_header(meta_path: str) -> list[str]:
         return header_str.replace("#", "").replace("SampleID", "RawID").split(",")
 
 
-def header_replaced(header_arr: list[str], id_prefix) -> list[list[str]]:
-    # csv writerowsで正常に書き込むためには二次元配列でなければならない
-    return [
-        [
-            id_prefix,
-            header_arr[0].replace("SampleID", "RawID").replace("#", ""),
-            *header_arr[1:],
-        ]
-    ]
-
-
 def combine_all_metadata(datasets: Datasets) -> list[list[str]]:
     """
     Datasetsに含まれる全てのDatasetのメタデータを一つのリストにまとめて返す
