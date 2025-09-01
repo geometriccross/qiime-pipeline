@@ -55,16 +55,18 @@ def header_replaced(header_arr: list[str], id_prefix) -> list[list[str]]:
     ]
 
 
-def combine_and_sort_by_key(datasets: Datasets) -> list[tuple[list[str], list[str]]]:
+def combine_all_metadata(datasets: Datasets) -> list[list[str]]:
     """
-    Datasetsに含まれる全てのDatasetのメタデータとfastqファイルを一つのリストにまとめて返す
+    Datasetsに含まれる全てのDatasetのメタデータを一つのリストにまとめて返す
     """
-    combined = []
-    for dataset in datasets.sets:
-        combined.append((dataset.metadata, dataset.fastq_files))
 
-    combined.sort(key=lambda x: x[0][0])  # RawIDでソート（test1, test2, ...の順）
-    return combined
+    all_metadata = []
+    for dataset in datasets.sets:
+        header_removed = dataset.metadata[1:]
+        all_metadata.extend(header_removed)
+
+    all_metadata.sort(key=lambda x: x[0])  # RawIDでソート（test1, test2, ...の順）
+    return [get_header(list(datasets.sets)[0].metadata_path), *all_metadata]
 
 
 def add_id(
@@ -112,7 +114,7 @@ def create_Mfiles(
     Create metadata and manifest files from the given data.
     """
 
-    rows_with_files = combine_and_sort_by_key(data)
+    rows_with_files = combine_all_metadata(data)
 
     # メタデータファイルを作成
     # 最初のデータセットからヘッダーを取得

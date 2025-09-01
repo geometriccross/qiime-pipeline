@@ -24,7 +24,10 @@ class Dataset:
 
     def __get_metadata(self) -> list[str]:
         with self.metadata_path.open() as f:
-            return f.readlines()
+            return [
+                raw_csv_text.replace("\n", "").split(",")
+                for raw_csv_text in f.readlines()
+            ]
 
     def __post_init__(self):
         if not self.fastq_folder.exists():

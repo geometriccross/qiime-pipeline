@@ -8,7 +8,7 @@ from scripts.data.control.create_Mfiles import (
     get_header,
     header_replaced,
     create_Mfiles,
-    combine_and_sort_by_key,
+    combine_all_metadata,
     add_id,
 )
 
@@ -78,20 +78,27 @@ def test_header_replaced_success():
     assert result[0] == ["id", "RawID", "col1", "col2"]
 
 
-def test_combine_and_sort_by_key(dummy_datasets):
-    """combine_and_sort_by_key関数の正常系テスト"""
-    result = combine_and_sort_by_key(dummy_datasets)
-    assert isinstance(result, list)
-    assert all(isinstance(item, tuple) and len(item) == 2 for item in result)
-    assert all(
-        isinstance(item[0], list) and isinstance(item[1], list) for item in result
-    )
+def test_combine_all_metadata(dummy_datasets):
+    table = combine_all_metadata(dummy_datasets)
+    assert len(table) == len(dummy_datasets.sets) + 1
+
+    for i, row in enumerate(table):
+        assert len(row) == len(table[0]), f"{i}行目のカラム数が異なります。"
+
+    pre = None
+    for i, row in enumerate(table[1:]):
+        if pre is None:
+            pre = row
+            continue
+
+        after = row
+        assert pre[0] < after[0], f"{i}行目のIDが昇順ではありません。"
 
 
 def test_add_id(dummy_datasets):
     start = 1
 
-    rows_with_files = combine_and_sort_by_key(dummy_datasets)
+    rows_with_files = combine_all_metadata(dummy_datasets)
     meta, mani = add_id(rows_with_files, "id", start=start)
 
     assert isinstance(meta, list)
