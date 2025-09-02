@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from pathlib import Path
+from pathlib import Path, PurePath
 import pytest
 from tempfile import TemporaryDirectory
 from scripts.data.control.create_Mfiles import (
@@ -8,7 +8,9 @@ from scripts.data.control.create_Mfiles import (
     get_header,
     create_Mfiles,
     combine_all_metadata,
+    parwised_files,
     add_id,
+    Pair,
 )
 
 
@@ -41,6 +43,26 @@ def test_search_fastq_duplicate_error():
 
     # エラーメッセージに該当ファイルが含まれていることを確認
     assert "同名のファイルが3つ以上存在しています" in str(exc_info.value)
+
+
+def test_parwised_files():
+    test_files = [
+        "/path/to/sample1_R1_001.fastq.gz",
+        "/path/to/sample1_R2_001.fastq.gz",
+        "/path/to/sample2_R1_001.fastq.gz",
+        "/path/to/sample2_R2_001.fastq.gz",
+    ]
+
+    result = parwised_files(test_files)
+
+    assert (
+        len(result) == len(test_files) / 2
+    ), "テストファイル数と結果のペア数が一致しません。"
+    for key in result.keys():
+        assert isinstance(result[key], Pair)
+
+        assert PurePath(result[key].forward).name == f"{key}_R1_001.fastq.gz"
+        assert PurePath(result[key].reverse).name == f"{key}_R2_001.fastq.gz"
 
 
 def test_get_header_success(tmp_path):

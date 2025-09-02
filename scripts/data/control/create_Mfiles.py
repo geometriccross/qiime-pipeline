@@ -7,7 +7,7 @@ from textwrap import dedent
 from pathlib import Path, PurePath
 from scripts.data.store.dataset import Datasets
 from scripts.data.store.used_data import used_data
-from .validate_pattern import Direction, check_current_pair
+from .validate_pattern import Direction, check_current_pair, extract_first_underscore
 
 
 class Pair:
@@ -42,6 +42,25 @@ def search_fastq_pair(q: str, data: list[str]) -> Pair:
     rvs = list(filter(lambda s: "_R2" in str(s), correct)).pop()
 
     return Pair(fwd, rvs)
+
+
+def parwised_files(files: list[Path]) -> dict[Pair]:
+    # 破壊的な変更が起きないようコピー
+    bulk: list[Path] = files.copy()
+
+    result = dict()
+    while len(bulk) > 1:
+        prob_fwd = bulk.pop()
+        prob_rvs = bulk.pop()
+
+        if check_current_pair(prob_fwd, prob_rvs):
+            key = extract_first_underscore(PurePath(prob_fwd).name)
+            result[key] = Pair(str(prob_fwd), str(prob_rvs))
+        else:
+            bulk.append(prob_fwd)
+            bulk.append(prob_rvs)
+
+    return result
 
 
 def get_header(meta_path: str) -> list[str]:
