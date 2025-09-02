@@ -5,46 +5,51 @@ import pytest
 from tempfile import TemporaryDirectory
 from scripts.data.control.validate_pattern import extract_first_underscore
 from scripts.data.control.create_Mfiles import (
-    search_fastq_pair,
+    Pair,
     get_header,
-    create_Mfiles,
     combine_all_metadata,
     pairwised_files,
     linked_table_expose,
-    add_id,
-    Pair,
+    create_Mfiles,
 )
 
 
-def test_search_fastq_correctly_pickup_pair_file():
-    test_files = [
-        "/path/to/sample1_R1_001.fastq.gz",
-        "/path/to/sample1_R2_001.fastq.gz",
-        "/path/to/sample2_R1_001.fastq.gz",
-    ]
+def test_get_header_success(tmp_path):
+    # テスト用のメタデータファイルを作成
+    meta_file = tmp_path / "test_meta.csv"
+    meta_file.write_text("#SampleID,col1,col2\n")
 
-    fwd, rvs = search_fastq_pair("sample1", test_files)
+    # テスト実行
+    headers = get_header(str(meta_file))
 
     # 検証
-    assert fwd.name == "sample1_R1_001.fastq.gz"
-    assert rvs.name == "sample1_R2_001.fastq.gz"
+    assert headers == ["RawID", "col1", "col2"]
 
 
-def test_search_fastq_duplicate_error():
-    """search_fastq_pair関数の異常系テスト - ファイルが3つ以上存在する場合"""
-    # テストデータ - 同じプレフィックスを持つファイルが3つある
-    test_files = [
-        "/path/to/sample1_R1_001.fastq.gz",
-        "/path/to/sample1_R2_001.fastq.gz",
-        "/path/to/sample1_R3_001.fastq.gz",  # 余分なファイル
-    ]
+def test_get_header_file_not_found():
+    # 存在しないファイルパスでテスト
+    with pytest.raises(AssertionError) as exc_info:
+        get_header("/path/to/nonexistent/file.csv")
 
-    # エラーが発生することを確認
-    with pytest.raises(SyntaxError) as exc_info:
-        search_fastq_pair("sample1", test_files)
+    # エラーメッセージを確認
+    assert "does not exist" in str(exc_info.value)
 
-    # エラーメッセージに該当ファイルが含まれていることを確認
-    assert "同名のファイルが3つ以上存在しています" in str(exc_info.value)
+
+def test_combine_all_metadata(dummy_datasets):
+    table = combine_all_metadata(dummy_datasets)
+    assert len(table) == len(dummy_datasets.sets) + 1
+
+    for i, row in enumerate(table):
+        assert len(row) == len(table[0]), f"{i}行目のカラム数が異なります。"
+
+    pre = None
+    for i, row in enumerate(table[1:]):
+        if pre is None:
+            pre = row
+            continue
+
+        after = row
+        assert pre[0] < after[0], f"{i}行目のIDが昇順ではありません。"
 
 
 def test_pairwised_files():
@@ -103,62 +108,6 @@ def test_linked_table_expose(dummy_datasets):
         assert extract_first_underscore(prob_fwd) == extract_first_underscore(
             prob_rvs
         ), f"{i}行目のファイルパスがペアになっていません。"
-
-
-def test_get_header_success(tmp_path):
-    """get_header関数の正常系テスト"""
-    # テスト用のメタデータファイルを作成
-    meta_file = tmp_path / "test_meta.csv"
-    meta_file.write_text("#SampleID,col1,col2\n")
-
-    # テスト実行
-    headers = get_header(str(meta_file))
-
-    # 検証
-    assert headers == ["RawID", "col1", "col2"]
-
-
-def test_get_header_file_not_found():
-    """get_header関数の異常系テスト - ファイルが存在しない場合"""
-    # 存在しないファイルパスでテスト
-    with pytest.raises(AssertionError) as exc_info:
-        get_header("/path/to/nonexistent/file.csv")
-
-    # エラーメッセージを確認
-    assert "does not exist" in str(exc_info.value)
-
-
-def test_combine_all_metadata(dummy_datasets):
-    table = combine_all_metadata(dummy_datasets)
-    assert len(table) == len(dummy_datasets.sets) + 1
-
-    for i, row in enumerate(table):
-        assert len(row) == len(table[0]), f"{i}行目のカラム数が異なります。"
-
-    pre = None
-    for i, row in enumerate(table[1:]):
-        if pre is None:
-            pre = row
-            continue
-
-        after = row
-        assert pre[0] < after[0], f"{i}行目のIDが昇順ではありません。"
-
-
-def test_add_id(dummy_datasets):
-    start = 1
-
-    rows_with_files = combine_all_metadata(dummy_datasets)
-    meta, mani = add_id(rows_with_files, "id", start=start)
-
-    assert isinstance(meta, list)
-    assert isinstance(mani, list)
-
-    for i, row in enumerate(meta, start=start):
-        assert row[0] == f"id{i}"
-
-    for i, row in enumerate(mani, start=start):
-        assert row[0] == f"id{i}"
 
 
 def test_createMfiles_is_currently_creating_files(dummy_datasets):

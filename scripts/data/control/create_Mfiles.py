@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import re
 import csv
 import argparse
 from textwrap import dedent
@@ -18,30 +17,6 @@ class Pair:
         self.name: str = PurePath(forward).stem
         self.forward: Direction.Forward = forward
         self.reverse: Direction.Reverse = reverse
-
-
-def search_fastq_pair(q: str, data: list[str]) -> Pair:
-    correct = []
-    for d in data:
-        file_name = PurePath(d).name
-        if re.match(f"^{q.upper()}_", file_name.upper()):
-            correct.append(d)
-
-    # R1, R2以外に名前がかぶっているfastqファイルがあったら
-    if len(correct) > 2:
-        raise SyntaxError(
-            dedent(
-                f"""
-            同名のファイルが3つ以上存在しています。\n
-            {correct}
-        """
-            )
-        )
-
-    fwd = list(filter(lambda s: "_R1" in str(s), correct)).pop()
-    rvs = list(filter(lambda s: "_R2" in str(s), correct)).pop()
-
-    return Pair(fwd, rvs)
 
 
 def pairwised_files(files: list[Path]) -> dict[Pair]:
@@ -116,41 +91,6 @@ def linked_table_expose(
         metadata_table.append([id_name, *row[1:]])
 
     return metadata_table, manifest_table
-
-
-def add_id(
-    rows_with_files: tuple[list[str], list[str]], id_prefix: str = "id", start: int = 1
-) -> list[tuple[list[str], list[str]]]:
-    """
-    Listの各行にIDを追加して返す
-
-    Args:
-        rows_with_files (tuple[list[str], list[str]]): 各行のデータと対応するfastqファイルのリスト
-        id_prefix (str, optional): 追加するIDのプレフィックス. Defaults to "id".
-        start (int, optional): IDの開始番号. Defaults to 1.
-
-    Returns:
-        以下のように、それぞれの要素の先頭にidが付加されたリストを返す\n
-        [[id1, hoge, huga], [id1, forward-absolute-filepath, ...]]
-
-    """
-
-    meta = []
-    mani = []
-    for i, (row, fastq_files) in enumerate(rows_with_files, start=1):
-        # master csv
-        meta.append([id_prefix + str(i), *row])
-
-        # manifest
-        # RawIDから対応するfastqファイルを取得
-        mani.append(
-            [
-                id_prefix + str(i),
-                *search_fastq(row[0], fastq_files),
-            ]
-        )
-
-    return meta, mani
 
 
 def create_Mfiles(
