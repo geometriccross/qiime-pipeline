@@ -9,7 +9,7 @@ from scripts.data.control.create_Mfiles import (
     get_header,
     create_Mfiles,
     combine_all_metadata,
-    parwised_files,
+    pairwised_files,
     linked_table_expose,
     add_id,
     Pair,
@@ -47,7 +47,7 @@ def test_search_fastq_duplicate_error():
     assert "同名のファイルが3つ以上存在しています" in str(exc_info.value)
 
 
-def test_parwised_files():
+def test_pairwised_files():
     test_files = [
         "/path/to/sample1_R1_001.fastq.gz",
         "/path/to/sample1_R2_001.fastq.gz",
@@ -55,7 +55,7 @@ def test_parwised_files():
         "/path/to/sample2_R2_001.fastq.gz",
     ]
 
-    result = parwised_files(test_files)
+    result = pairwised_files(test_files)
 
     assert (
         len(result) == len(test_files) / 2
@@ -72,7 +72,7 @@ def test_linked_table_expose(dummy_datasets):
     for dataset in dummy_datasets.sets:
         all_fastq.extend(dataset.fastq_files)
 
-    pairwised = parwised_files(all_fastq)
+    pairwised = pairwised_files(all_fastq)
     metadata = combine_all_metadata(dummy_datasets)
 
     metatable, manifest = linked_table_expose(metadata, pairwised)

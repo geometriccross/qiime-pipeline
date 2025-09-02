@@ -44,7 +44,7 @@ def search_fastq_pair(q: str, data: list[str]) -> Pair:
     return Pair(fwd, rvs)
 
 
-def parwised_files(files: list[Path]) -> dict[Pair]:
+def pairwised_files(files: list[Path]) -> dict[Pair]:
     # 破壊的な変更が起きないようコピー
     bulk: list[Path] = files.copy()
 
