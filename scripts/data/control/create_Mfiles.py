@@ -7,10 +7,20 @@ from textwrap import dedent
 from pathlib import Path, PurePath
 from scripts.data.store.dataset import Datasets
 from scripts.data.store.used_data import used_data
+from .validate_pattern import Direction, check_current_pair
 
 
-# queryで渡されたidを持つfastqファイルを返す
-def search_fastq(q: str, data: list[str]) -> tuple[Path, Path]:
+class Pair:
+    def __init__(self, forward: str, reverse: str) -> None:
+        if not check_current_pair(forward, reverse):
+            raise ValueError(f"Invalid pair: {forward}, {reverse}")
+
+        self.name: str = PurePath(forward).stem
+        self.forward: Direction.Forward = forward
+        self.reverse: Direction.Reverse = reverse
+
+
+def search_fastq_pair(q: str, data: list[str]) -> Pair:
     correct = []
     for d in data:
         file_name = PurePath(d).name
@@ -31,7 +41,7 @@ def search_fastq(q: str, data: list[str]) -> tuple[Path, Path]:
     fwd = list(filter(lambda s: "_R1" in str(s), correct)).pop()
     rvs = list(filter(lambda s: "_R2" in str(s), correct)).pop()
 
-    return Path(fwd), Path(rvs)
+    return Pair(fwd, rvs)
 
 
 def get_header(meta_path: str) -> list[str]:

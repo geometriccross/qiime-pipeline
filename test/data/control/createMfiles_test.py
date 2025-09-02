@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 from tempfile import TemporaryDirectory
 from scripts.data.control.create_Mfiles import (
-    search_fastq,
+    search_fastq_pair,
     get_header,
     create_Mfiles,
     combine_all_metadata,
@@ -19,7 +19,7 @@ def test_search_fastq_correctly_pickup_pair_file():
         "/path/to/sample2_R1_001.fastq.gz",
     ]
 
-    fwd, rvs = search_fastq("sample1", test_files)
+    fwd, rvs = search_fastq_pair("sample1", test_files)
 
     # 検証
     assert fwd.name == "sample1_R1_001.fastq.gz"
@@ -27,7 +27,7 @@ def test_search_fastq_correctly_pickup_pair_file():
 
 
 def test_search_fastq_duplicate_error():
-    """search_fastq関数の異常系テスト - ファイルが3つ以上存在する場合"""
+    """search_fastq_pair関数の異常系テスト - ファイルが3つ以上存在する場合"""
     # テストデータ - 同じプレフィックスを持つファイルが3つある
     test_files = [
         "/path/to/sample1_R1_001.fastq.gz",
@@ -37,7 +37,7 @@ def test_search_fastq_duplicate_error():
 
     # エラーが発生することを確認
     with pytest.raises(SyntaxError) as exc_info:
-        search_fastq("sample1", test_files)
+        search_fastq_pair("sample1", test_files)
 
     # エラーメッセージに該当ファイルが含まれていることを確認
     assert "同名のファイルが3つ以上存在しています" in str(exc_info.value)
