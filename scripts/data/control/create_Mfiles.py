@@ -63,6 +63,19 @@ def pairwised_files(files: list[Path]) -> dict[Pair]:
     return result
 
 
+def pairwise(datasets: Datasets) -> dict[Pair]:
+    """
+    pairwised_filesを呼び出す関数
+    datasetsを適切な形に変換してpairwised_filesに渡す
+    """
+
+    all_fastq = []
+    for dataset in datasets.sets:
+        all_fastq.extend(dataset.fastq_files)
+
+    return pairwised_files(all_fastq)
+
+
 def get_header(meta_path: str) -> list[str]:
     """
     指定されたメタデータファイルのヘッダーを取得する
@@ -141,38 +154,26 @@ def add_id(
 
 
 def create_Mfiles(
-    id_prefix: str,
     out_meta: str,
     out_mani: str,
     data: Datasets,
+    id_prefix: str = "id",
 ) -> None:
     """
     Create metadata and manifest files from the given data.
     """
 
-    rows_with_files = combine_all_metadata(data)
-
-    # メタデータファイルを作成
-    # 最初のデータセットからヘッダーを取得
-    retrived_path = next(iter(data.sets)).metadata_path
-    header = header_replaced(get_header(retrived_path), id_prefix)
-
-    meta = [header[0]]  # ヘッダー行のみを追加
-    mani = [
-        ["sample-id", "forward-absolute-filepath", "reverse-absolute-filepath"],
-    ]
-
-    added_meta, added_mani = add_id(rows_with_files, id_prefix, 1)
-    meta.extend(added_meta)
-    mani.extend(added_mani)
+    metadata = combine_all_metadata(data)
+    pairwised = pairwise(data)
+    metatable, manifest = linked_table_expose(metadata, pairwised, id_prefix)
 
     with open(out_meta, "w") as f:
         writer = csv.writer(f, delimiter="\t")
-        writer.writerows(meta)
+        writer.writerows(metatable)
 
     with open(out_mani, "w") as f:
         writer = csv.writer(f, delimiter="\t")
-        writer.writerows(mani)
+        writer.writerows(manifest)
 
 
 if __name__ == "__main__":
