@@ -87,6 +87,24 @@ def combine_all_metadata(datasets: Datasets) -> list[list[str]]:
     return [get_header(list(datasets.sets)[0].metadata_path), *all_metadata]
 
 
+def linked_table_expose(
+    metadata: list[list[str]], pairwised: dict[Pair], id_prefix: str = "id"
+) -> tuple[list, list]:
+    manifest_table = [
+        ["sample-id", "forward-absolute-filepath", "reverse-absolute-filepath"]
+    ]
+    for i, key in enumerate([row[0] for row in metadata[1:]], start=1):
+        id_name = id_prefix + str(i)
+        manifest_table.append([id_name, pairwised[key].forward, pairwised[key].reverse])
+
+    metadata_table = [["#SampleID", *metadata[0]]]
+    for i, row in enumerate(metadata[1:], start=1):
+        id_name = id_prefix + str(i)
+        metadata_table.append([id_name, *row[1:]])
+
+    return metadata_table, manifest_table
+
+
 def add_id(
     rows_with_files: tuple[list[str], list[str]], id_prefix: str = "id", start: int = 1
 ) -> list[tuple[list[str], list[str]]]:

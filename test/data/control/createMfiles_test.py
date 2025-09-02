@@ -3,12 +3,14 @@
 from pathlib import Path, PurePath
 import pytest
 from tempfile import TemporaryDirectory
+from scripts.data.control.validate_pattern import extract_first_underscore
 from scripts.data.control.create_Mfiles import (
     search_fastq_pair,
     get_header,
     create_Mfiles,
     combine_all_metadata,
     parwised_files,
+    linked_table_expose,
     add_id,
     Pair,
 )
@@ -63,6 +65,44 @@ def test_parwised_files():
 
         assert PurePath(result[key].forward).name == f"{key}_R1_001.fastq.gz"
         assert PurePath(result[key].reverse).name == f"{key}_R2_001.fastq.gz"
+
+
+def test_linked_table_expose(dummy_datasets):
+    all_fastq = []
+    for dataset in dummy_datasets.sets:
+        all_fastq.extend(dataset.fastq_files)
+
+    pairwised = parwised_files(all_fastq)
+    metadata = combine_all_metadata(dummy_datasets)
+
+    metatable, manifest = linked_table_expose(metadata, pairwised)
+
+    assert isinstance(metatable, list)
+    assert isinstance(manifest, list)
+
+    assert len(metatable[0]) == len(metadata[0]) + 1
+    assert len(metatable) == len(manifest)
+
+    for i in range(len(metatable)):
+        if i == 0:
+            continue
+
+        assert metatable[i][0] == f"id{i}"
+        assert manifest[i][0] == f"id{i}"
+
+    # manifestの構造を検証
+    for i in range(len(manifest)):
+        if i == 0:
+            continue
+
+        prob_fwd = manifest[i][1]
+        prob_rvs = manifest[i][2]
+        assert "R1" in prob_fwd
+        assert "R2" in prob_rvs
+
+        assert extract_first_underscore(prob_fwd) == extract_first_underscore(
+            prob_rvs
+        ), f"{i}行目のファイルパスがペアになっていません。"
 
 
 def test_get_header_success(tmp_path):
