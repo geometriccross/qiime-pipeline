@@ -50,12 +50,12 @@ def parwised_files(files: list[Path]) -> dict[Pair]:
 
     result = dict()
     while len(bulk) > 1:
-        prob_fwd = bulk.pop()
-        prob_rvs = bulk.pop()
+        prob_fwd = str(bulk.pop())
+        prob_rvs = str(bulk.pop())
 
         if check_current_pair(prob_fwd, prob_rvs):
             key = extract_first_underscore(PurePath(prob_fwd).name)
-            result[key] = Pair(str(prob_fwd), str(prob_rvs))
+            result[key] = Pair(prob_fwd, prob_rvs)
         else:
             bulk.append(prob_fwd)
             bulk.append(prob_rvs)
