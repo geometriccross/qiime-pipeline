@@ -44,20 +44,32 @@ def argument_parser():
             """,
     )
     parser.add_argument(
+        "--image",
+        type=str,
+        default="quay.io/qiime2/amplicon:2024.10",
+        help="Docker image to use for the QIIME pipeline.",
+    )
+    parser.add_argument(
         "--dockerfile",
         type=Path,
         default=Path("Dockerfile"),
         help="Path to the Dockerfile for building the container.",
     )
     parser.add_argument(
+        "--local-output",
+        type=Path,
+        help="Output directory for the results.",
+    )
+    parser.add_argument(
+        "--local-database",
+        type=Path,
+        help="Path to the local database file.",
+    )
+    parser.add_argument(
         "--sampling_depth",
+        type=int,
         type=int,
         default=10000,
     )
-    parser.add_argument(
-        "--output",
-        type=Path,
-        default=Path("output"),
-        help="Output directory for the results.",
-    )
+
     return parser

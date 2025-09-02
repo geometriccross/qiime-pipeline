@@ -4,7 +4,11 @@ from argparse import Namespace
 from scripts.data.control.check_manifest import check_manifest
 from scripts.data.control.create_Mfiles import create_Mfiles
 from scripts.data.store.dataset import Datasets, Dataset
-from scripts.data.store.setting_data_structure import SettingData
+from scripts.data.store.setting_data_structure import (
+    ContainerData,
+    SettingData,
+    PairPath,
+)
 from scripts.data.store.ribosome_regions import V3V4
 from scripts.pipeline.support.executor import Executor, Provider
 from scripts.pipeline.support.parse_arguments import argument_parser
@@ -43,22 +47,37 @@ def setup_datasets(arg: Namespace) -> Datasets:
 
 def setup() -> Generator[tuple[SettingData, Executor], None, None]:
     args = argument_parser().parse_args()
-    setting_data = SettingData(
-        workspace_path=args.workspace,
-        dockerfile=args.dockerfile,
+
+    ctn_workspace = Path("/workspace")
+    ctn_data = ContainerData(
+        image_or_dockerfile=args.image,
+        workspace_path=ctn_workspace,
+        output_path=PairPath(
+            local_pos=args.local_output,
+            ctn_pos=ctn_workspace.joinpath("out"),
+        ),
+        database_path=PairPath(
+            local_pos=args.local_database,
+            ctn_pos=ctn_workspace.joinpath("/db").joinpath(args.local_database.name),
+        ),
+    )
+    setting = SettingData(
+        ctn_data=ctn_data,
         datasets=setup_datasets(args),
+        sampling_depth=args.sampling_depth,
     )
 
-    # 設定データを保存
-    setting_data.write(args.output / "settings.toml")
-
-    provider = Provider(image="quay.io/qiime2/amplicon:2024.10")
+    provider = Provider(
+        image=ctn_data.image_or_dockerfile,
+        mounts=setting.datasets.mounts(setting.workspace_path),
+        workspace=ctn_data.workspace_path,
+    )
 
     # provider = Provider.from_dockerfile(
-    #     setting_data.dockerfile,
-    #     mounts=setting_data.datasets.mounts,
-    #     workspace=setting_data.workspace_path,
+    #     setting.dockerfile,
+    #     mounts=setting.datasets.mounts,
+    #     workspace=setting.workspace_path,
     #     remove=True,
     # )
 
-    yield setting_data, Executor(provider.provide())
+    yield setting, Executor(provider.provide())
