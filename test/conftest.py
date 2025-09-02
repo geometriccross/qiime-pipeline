@@ -7,7 +7,11 @@ from typing import Generator
 from scripts.pipeline.support.executor import Provider
 from scripts.data.store.dataset import Dataset, Datasets
 from scripts.data.store.ribosome_regions import Region, V3V4
-from scripts.data.store.setting_data_structure import SettingData
+from scripts.data.store.setting_data_structure import (
+    PairPath,
+    ContainerData,
+    SettingData,
+)
 
 
 @pytest.fixture()
@@ -214,24 +218,36 @@ def dummy_datasets(
 
 @pytest.fixture
 def namespace(data_path_pairs) -> Namespace:
-    return Namespace(
-        dockerfile=Path("dockerfiles/Dockerfile"),
-        sampling_depth=10000,
-        data=data_path_pairs,
-        database=Path("db/classifier.qza"),
-        # 適当なところから、TemporaryDirectoryのpathを取得
-        workspace_path=data_path_pairs[0][1],
-        output=data_path_pairs[0][1],
-    )
+    with TemporaryDirectory() as temp_host_dir:
+        ctn_workspace = Path("/workspace")
+        return Namespace(
+            image="quay.io/qiime2/amplicon:2024.10",
+            dockerfile=Path("dockerfiles/Dockerfile"),
+            sampling_depth=10000,
+            data=data_path_pairs,
+            workspace_path=ctn_workspace,
+            output=PairPath(
+                local_pos=Path(temp_host_dir.name),
+                ctn_pos=ctn_workspace.joinpath("output"),
+            ),
+            database=PairPath(
+                local_pos=Path("db/classifier.qza"),
+                ctn_pos=ctn_workspace.joinpath("db/classifier.qza"),
+            ),
+        )
 
 
 @pytest.fixture
 def setting(namespace, dummy_datasets) -> SettingData:
-    return SettingData(
-        dockerfile=namespace.dockerfile,
-        sampling_depth=namespace.sampling_depth,
-        datasets=dummy_datasets,
-        database=namespace.database,
+    ctn_data = ContainerData(
+        image_or_dockerfile=namespace.image,
         workspace_path=namespace.workspace_path,
         output_path=namespace.output,
+        database_path=namespace.database,
+    )
+
+    return SettingData(
+        container_data=ctn_data,
+        sampling_depth=namespace.sampling_depth,
+        datasets=dummy_datasets,
     )
