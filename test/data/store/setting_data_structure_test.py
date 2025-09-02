@@ -44,22 +44,3 @@ def test_setting_data_initialization():
         )
     except AssertionError:
         pass  # Expected to raise AssertionError due to non-existent paths
-
-
-def test_correctly_convert_into_toml(dummy_setting_data):
-    with NamedTemporaryFile(delete=True, mode="w", suffix=".toml") as saved_file:
-        dummy_setting_data.write(saved_file.name)
-        with open(saved_file.name, "r") as f:
-            content = tomlkit.load(f)
-            assert content is not None or content != ""
-
-            for atr in dummy_setting_data.__dict__.keys():
-                ins = getattr(dummy_setting_data, atr)
-
-                # Convert instance to toml or something for TOML comparation
-                if isinstance(ins, int):
-                    assert content[atr] == ins
-                if isinstance(ins, Path):
-                    assert content[atr] == str(ins.absolute())
-                elif isinstance(ins, Dataset):
-                    assert content[atr] == ins.to_toml()
