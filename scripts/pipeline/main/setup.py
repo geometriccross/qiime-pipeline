@@ -69,7 +69,7 @@ def setup() -> Generator[tuple[SettingData, Executor], None, None]:
 
     provider = Provider(
         image=ctn_data.image_or_dockerfile,
-        mounts=setting.datasets.mounts(setting.workspace_path),
+        mounts=setting.datasets.mounts(setting.workspace_path).joinpath("data"),
         workspace=ctn_data.workspace_path,
     )
 
