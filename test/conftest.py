@@ -227,7 +227,7 @@ def namespace(data_path_pairs) -> Namespace:
             data=data_path_pairs,
             workspace_path=ctn_workspace,
             output=PairPath(
-                local_pos=Path(temp_host_dir.name),
+                local_pos=Path(temp_host_dir),
                 ctn_pos=ctn_workspace.joinpath("output"),
             ),
             database=PairPath(
