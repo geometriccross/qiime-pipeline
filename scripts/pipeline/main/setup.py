@@ -14,20 +14,6 @@ from scripts.pipeline.support.executor import Executor, Provider
 from scripts.pipeline.support.parse_arguments import argument_parser
 
 
-def setup_files(output: Path, datasets: Datasets) -> Tuple[Path, Path]:
-    create_Mfiles(
-        id_prefix="id",
-        out_meta=(metafile := output / "metadata.csv"),
-        out_mani=(manifest := output / "manifest.csv"),
-        data=datasets,
-    )
-
-    if not check_manifest(manifest):
-        raise ValueError("Manifest file is invalid")
-
-    return Path(metafile), Path(manifest)
-
-
 def setup_datasets(arg: Namespace) -> Datasets:
     data = []
     for metadata_path, fastq_folder in arg.data:
@@ -64,6 +50,20 @@ def setup_config(arg: Namespace) -> SettingData:
         sampling_depth=arg.sampling_depth,
     )
     return setting
+
+
+def setup_files(output: Path, datasets: Datasets) -> Tuple[Path, Path]:
+    create_Mfiles(
+        id_prefix="id",
+        out_meta=(metafile := output / "metadata.csv"),
+        out_mani=(manifest := output / "manifest.csv"),
+        data=datasets,
+    )
+
+    if not check_manifest(manifest):
+        raise ValueError("Manifest file is invalid")
+
+    return Path(metafile), Path(manifest)
 
 
 def setup_executor(setting: SettingData) -> Executor:
