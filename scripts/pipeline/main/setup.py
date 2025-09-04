@@ -45,32 +45,36 @@ def setup_datasets(arg: Namespace) -> Datasets:
     return Datasets(sets=set(data))
 
 
-def setup() -> Generator[tuple[SettingData, Executor], None, None]:
-    args = argument_parser().parse_args()
-
+def setup_config(arg: Namespace) -> SettingData:
     ctn_workspace = Path("/workspace")
     ctn_data = ContainerData(
-        image_or_dockerfile=args.image,
+        image_or_dockerfile=arg.image,
         workspace_path=ctn_workspace,
         output_path=PairPath(
-            local_pos=args.local_output,
+            local_pos=arg.local_output,
             ctn_pos=ctn_workspace.joinpath("out"),
         ),
         database_path=PairPath(
-            local_pos=args.local_database,
-            ctn_pos=ctn_workspace.joinpath("/db").joinpath(args.local_database.name),
+            local_pos=arg.local_database,
+            ctn_pos=ctn_workspace.joinpath("/db").joinpath(arg.local_database.name),
         ),
     )
     setting = SettingData(
         ctn_data=ctn_data,
-        datasets=setup_datasets(args),
-        sampling_depth=args.sampling_depth,
+        datasets=setup_datasets(arg),
+        sampling_depth=arg.sampling_depth,
     )
+    return setting
+
+
+def setup() -> Generator[tuple[SettingData, Executor], None, None]:
+    args = argument_parser().parse_args()
+    setting = setup_config(args)
 
     provider = Provider(
-        image=ctn_data.image_or_dockerfile,
+        image=setting.ctn_data.image_or_dockerfile,
         mounts=setting.datasets.mounts(setting.workspace_path).joinpath("data"),
-        workspace=ctn_data.workspace_path,
+        workspace=setting.ctn_data.workspace_path,
     )
 
     # provider = Provider.from_dockerfile(
