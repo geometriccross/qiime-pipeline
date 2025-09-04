@@ -68,7 +68,6 @@ def argument_parser():
     parser.add_argument(
         "--sampling_depth",
         type=int,
-        type=int,
         default=10000,
     )
 
