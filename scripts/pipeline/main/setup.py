@@ -12,7 +12,6 @@ from scripts.data.store.setting_data_structure import (
 from scripts.data.store.ribosome_regions import V3V4
 from scripts.pipeline.support.executor import Executor, Provider
 from scripts.pipeline.support.parse_arguments import argument_parser
-from typing import Generator
 
 
 def setup_files(output: Path, datasets: Datasets) -> Tuple[Path, Path]:
@@ -67,21 +66,19 @@ def setup_config(arg: Namespace) -> SettingData:
     return setting
 
 
-def setup() -> Generator[tuple[SettingData, Executor], None, None]:
-    args = argument_parser().parse_args()
-    setting = setup_config(args)
-
+def setup_executor(setting: SettingData) -> Executor:
     provider = Provider(
         image=setting.ctn_data.image_or_dockerfile,
         mounts=setting.datasets.mounts(setting.workspace_path).joinpath("data"),
         workspace=setting.ctn_data.workspace_path,
     )
 
-    # provider = Provider.from_dockerfile(
-    #     setting.dockerfile,
-    #     mounts=setting.datasets.mounts,
-    #     workspace=setting.workspace_path,
-    #     remove=True,
-    # )
+    return Executor(provider.provide())
 
-    yield setting, Executor(provider.provide())
+
+def setup() -> tuple[SettingData, Executor]:
+    args = argument_parser().parse_args()
+    setting = setup_config(args)
+    executor = setup_executor(setting)
+
+    return setting, executor
