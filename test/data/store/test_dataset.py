@@ -1,4 +1,5 @@
 from pathlib import Path
+from tempfile import TemporaryDirectory, NamedTemporaryFile
 from scripts.data.store.dataset import Dataset, Datasets
 from scripts.data.store.ribosome_regions import Region
 
@@ -51,6 +52,25 @@ def test_dataset_acctualy_get_fastq_files(temporay_files):
         sorted(dataset.fastq_files), sorted(temporay_files["fastq"].iterdir())
     ):
         assert fastq == base
+
+
+def test_relative_fastq_path():
+    fastq_dir = Path(TemporaryDirectory().name) / "foo/bar/baz/test"
+    fastq_dir.mkdir(parents=True, exist_ok=True)
+
+    fastq_file = fastq_dir / "test_R1.fastq.gz"
+    fastq_file.touch()
+
+    dataset = Dataset(
+        name="test",
+        fastq_folder=fastq_dir,
+        metadata_path=Path(NamedTemporaryFile(delete=False).name),
+        region=Region("SampleRegion", 0, 0, 0, 0),
+    )
+
+    relative_path = str(dataset.relative_fastq_path().pop())
+    assert "foo/bar/baz" not in relative_path
+    assert str(relative_path) == "test/test_R1.fastq.gz"
 
 
 def test_dataset_conversion_to_toml(temporary_dataset):

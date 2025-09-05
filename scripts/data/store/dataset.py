@@ -77,6 +77,16 @@ class Dataset:
             "region": self.region.to_dict(),
         }
 
+    def relative_fastq_path(self) -> list[Path]:
+        """fastq_filesのパスをfastq_folderからの相対パスに変換して返す"""
+        result = []
+        for path in self.fastq_files:
+            for i, part in enumerate(path.parts):
+                if part == self.fastq_folder.name:
+                    result.append(Path(*path.parts[i:]))
+
+        return result
+
     def mount_format(self, container_base_dir: Path) -> list[str]:
         """Return a list of docker mount strings"""
         fastq = [
