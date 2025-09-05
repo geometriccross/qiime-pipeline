@@ -47,6 +47,10 @@ def test_dataset_acctualy_get_fastq_files(temporay_files):
         region=Region("SampleRegion", 0, 0, 0, 0),
     )
     assert len(dataset.fastq_files) == file_count  # No fastq files in the temp file
+    for fastq, base in zip(
+        sorted(dataset.fastq_files), sorted(temporay_files["fastq"].iterdir())
+    ):
+        assert fastq == base
 
 
 def test_dataset_conversion_to_toml(temporary_dataset):
