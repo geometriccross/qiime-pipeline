@@ -41,6 +41,9 @@ def pairwise(datasets: Datasets) -> dict[Pair]:
     datasetsを適切な形に変換してpairwised_filesに渡す
     """
 
+    for dataset in datasets.sets:
+        dataset.fastq_files = dataset.relative_fastq_path()
+
     all_fastq = []
     for dataset in datasets.sets:
         all_fastq.extend(dataset.fastq_files)
@@ -73,26 +76,42 @@ def combine_all_metadata(datasets: Datasets) -> list[list[str]]:
 
 
 def linked_table_expose(
-    metadata: list[list[str]], pairwised: dict[Pair], id_prefix: str = "id"
+    metadata: list[list[str]],
+    pairwised: dict[Pair],
+    ctn_fastq_path: Path,
+    id_prefix: str = "id",
 ) -> tuple[list, list]:
-    manifest_table = [
-        ["sample-id", "forward-absolute-filepath", "reverse-absolute-filepath"]
-    ]
-    for i, key in enumerate([row[0] for row in metadata[1:]], start=1):
-        id_name = id_prefix + str(i)
-        manifest_table.append([id_name, pairwised[key].forward, pairwised[key].reverse])
-
     metadata_table = [["#SampleID", *metadata[0]]]
     for i, row in enumerate(metadata[1:], start=1):
         id_name = id_prefix + str(i)
         metadata_table.append([id_name, *row[1:]])
 
+    manifest_table = [
+        ["sample-id", "forward-absolute-filepath", "reverse-absolute-filepath"]
+    ]
+    for i, key in enumerate([row[0] for row in metadata[1:]], start=1):
+        id_name = id_prefix + str(i)
+        manifest_table.append(
+            [
+                id_name,
+                str(ctn_fastq_path / pairwised[key].forward),
+                str(ctn_fastq_path / pairwised[key].reverse),
+            ]
+        )
+
     return metadata_table, manifest_table
 
 
+def write_tsv(path: Path, table: list[list[str]]) -> None:
+    with path.open("w") as f:
+        writer = csv.writer(f, delimiter="\t")
+        writer.writerows(table)
+
+
 def create_Mfiles(
-    out_meta: str,
-    out_mani: str,
+    out_meta: Path,
+    out_mani: Path,
+    container_fastq_path: Path,
     data: Datasets,
     id_prefix: str = "id",
 ) -> None:
@@ -102,12 +121,10 @@ def create_Mfiles(
 
     metadata = combine_all_metadata(data)
     pairwised = pairwise(data)
-    metatable, manifest = linked_table_expose(metadata, pairwised, id_prefix)
 
-    with open(out_meta, "w") as f:
-        writer = csv.writer(f, delimiter="\t")
-        writer.writerows(metatable)
+    metatable, manifest = linked_table_expose(
+        metadata, pairwised, container_fastq_path, id_prefix
+    )
 
-    with open(out_mani, "w") as f:
-        writer = csv.writer(f, delimiter="\t")
-        writer.writerows(manifest)
+    write_tsv(out_meta, metatable)
+    write_tsv(out_mani, manifest)

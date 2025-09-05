@@ -2,15 +2,14 @@
 
 from pathlib import Path, PurePath
 import pytest
-from tempfile import TemporaryDirectory
 from scripts.data.control.validate_pattern import extract_first_underscore
 from scripts.data.control.create_Mfiles import (
     Pair,
     get_header,
     combine_all_metadata,
     pairwised_files,
+    pairwise,
     linked_table_expose,
-    create_Mfiles,
 )
 
 
@@ -73,14 +72,11 @@ def test_pairwised_files():
 
 
 def test_linked_table_expose(dummy_datasets):
-    all_fastq = []
-    for dataset in dummy_datasets.sets:
-        all_fastq.extend(dataset.fastq_files)
-
-    pairwised = pairwised_files(all_fastq)
+    pairwised = pairwise(dummy_datasets)
     metadata = combine_all_metadata(dummy_datasets)
+    ctn_fastq_path = Path("/container/path/to/fastq")
 
-    metatable, manifest = linked_table_expose(metadata, pairwised)
+    metatable, manifest = linked_table_expose(metadata, pairwised, ctn_fastq_path)
 
     assert isinstance(metatable, list)
     assert isinstance(manifest, list)
@@ -105,19 +101,9 @@ def test_linked_table_expose(dummy_datasets):
         assert "R1" in prob_fwd
         assert "R2" in prob_rvs
 
+        assert prob_fwd.startswith(str(ctn_fastq_path))
+        assert prob_rvs.startswith(str(ctn_fastq_path))
+
         assert extract_first_underscore(prob_fwd) == extract_first_underscore(
             prob_rvs
         ), f"{i}行目のファイルパスがペアになっていません。"
-
-
-def test_createMfiles_is_currently_creating_files(dummy_datasets):
-    with TemporaryDirectory() as temp_dir:
-        create_Mfiles(
-            id_prefix="test_id",
-            out_meta=temp_dir + "/metadata.tsv",
-            out_mani=temp_dir + "/manifest.tsv",
-            data=dummy_datasets,
-        )
-
-        assert Path(temp_dir + "/metadata.tsv").exists()
-        assert Path(temp_dir + "/manifest.tsv").exists()
