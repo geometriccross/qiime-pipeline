@@ -52,18 +52,18 @@ def setup_config(arg: Namespace) -> SettingData:
     return setting
 
 
-def setup_files(output: Path, datasets: Datasets) -> Tuple[Path, Path]:
+def setup_files(setting: SettingData) -> Tuple[Path, Path]:
     create_Mfiles(
-        id_prefix="id",
-        out_meta=(metafile := output / "metadata.csv"),
-        out_mani=(manifest := output / "manifest.csv"),
-        data=datasets,
+        out_meta=(metafile := setting.container_data.workspace_path / "metadata.tsv"),
+        out_mani=(manifest := setting.container_data.workspace_path / "manifest.tsv"),
+        container_fastq_path=(setting.ctn_data.workspace_path / "data"),
+        data=setting.datasets,
     )
 
     if not check_manifest(manifest):
         raise ValueError("Manifest file is invalid")
 
-    return Path(metafile), Path(manifest)
+    return metafile, manifest
 
 
 def setup_executor(setting: SettingData) -> Executor:
