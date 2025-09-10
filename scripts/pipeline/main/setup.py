@@ -44,7 +44,7 @@ def setup_config(arg: Namespace) -> SettingData:
         ),
     )
     setting = SettingData(
-        ctn_data=ctn_data,
+        container_data=ctn_data,
         datasets=setup_datasets(arg),
         sampling_depth=arg.sampling_depth,
     )
@@ -54,7 +54,7 @@ def setup_config(arg: Namespace) -> SettingData:
 def setup_files(setting: SettingData) -> Tuple[PairPath, PairPath]:
     local_metafile, local_manifest = create_Mfiles(
         local_output=setting.container_data.output_path.local_pos,
-        container_fastq_path=(setting.ctn_data.workspace_path / "data"),
+        container_fastq_path=(setting.container_data.workspace_path / "data"),
         data=setting.datasets,
     )
 
@@ -92,9 +92,9 @@ def setup_mounts(
 
 def setup_executor(mounts: list[str], setting: SettingData) -> Executor:
     provider = Provider(
-        image=setting.ctn_data.image_or_dockerfile,
+        image=setting.container_data.image_or_dockerfile,
         mounts=mounts,
-        workspace=setting.ctn_data.workspace_path,
+        workspace=setting.container_data.workspace_path,
     )
 
     return Executor(provider.provide())
