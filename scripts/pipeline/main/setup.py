@@ -114,8 +114,7 @@ class PipelineContext:
         self.setting: SettingData = setting
 
 
-def setup() -> PipelineContext:
-    args = argument_parser().parse_args()
+def setup_context(args: Namespace) -> PipelineContext:
     setting = setup_config(args)
 
     metadata, manifest = setup_files(setting)
@@ -133,3 +132,8 @@ def setup() -> PipelineContext:
         executor=executor,
         setting=setting,
     )
+
+
+def setup() -> PipelineContext:
+    args = argument_parser().parse_args()
+    return setup_context(args)
