@@ -1,2 +1,2 @@
-from scripts import data
-from scripts import pipeline
+from . import data
+from . import pipeline

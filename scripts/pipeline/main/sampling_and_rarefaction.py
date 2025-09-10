@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from pathlib import Path
-from pipeline import support
+from scripts.pipeline import support
 from .setup import PipelineContext
 
 
