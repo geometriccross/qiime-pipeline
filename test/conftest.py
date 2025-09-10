@@ -4,7 +4,7 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 from textwrap import dedent
 from typing import Generator
-from scripts.pipeline.support.executor import Provider
+from scripts.pipeline.support import Provider
 from scripts.data.store.dataset import Dataset, Datasets
 from scripts.data.store.ribosome_regions import Region, V3V4
 from scripts.data.store.setting_data_structure import (

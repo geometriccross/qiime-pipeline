@@ -1,6 +1,6 @@
 from pathlib import Path
 import pytest
-from scripts.pipeline.support.executor import Executor
+from scripts.pipeline.support import Executor
 
 TEST_QZV_PATH = Path("alpha_rarefaction.qzv")
 TEST_BATCH_ID = "test_batch"

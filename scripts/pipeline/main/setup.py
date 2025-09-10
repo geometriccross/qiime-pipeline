@@ -10,8 +10,7 @@ from scripts.data.store.setting_data_structure import (
     PairPath,
 )
 from scripts.data.store.ribosome_regions import V3V4
-from scripts.pipeline.support.executor import Executor, Provider
-from scripts.pipeline.support.parse_arguments import argument_parser
+from scripts.pipeline.support import Executor, Provider, argument_parser
 
 
 def setup_datasets(arg: Namespace) -> Datasets:
