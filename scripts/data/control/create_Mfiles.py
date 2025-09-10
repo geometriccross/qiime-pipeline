@@ -109,12 +109,11 @@ def write_tsv(path: Path, table: list[list[str]]) -> None:
 
 
 def create_Mfiles(
-    out_meta: Path,
-    out_mani: Path,
+    local_output: Path,
     container_fastq_path: Path,
     data: Datasets,
     id_prefix: str = "id",
-) -> None:
+) -> tuple[Path, Path]:
     """
     Create metadata and manifest files from the given data.
     """
@@ -126,5 +125,9 @@ def create_Mfiles(
         metadata, pairwised, container_fastq_path, id_prefix
     )
 
-    write_tsv(out_meta, metatable)
-    write_tsv(out_mani, manifest)
+    metatable_local_path = local_output / "metadata.tsv"
+    manifest_local_path = local_output / "manifest.tsv"
+    write_tsv(metatable_local_path, metatable)
+    write_tsv(manifest_local_path, manifest)
+
+    return metatable_local_path, manifest_local_path

@@ -52,24 +52,49 @@ def setup_config(arg: Namespace) -> SettingData:
     return setting
 
 
-def setup_files(setting: SettingData) -> Tuple[Path, Path]:
-    create_Mfiles(
-        out_meta=(metafile := setting.container_data.workspace_path / "metadata.tsv"),
-        out_mani=(manifest := setting.container_data.workspace_path / "manifest.tsv"),
+def setup_files(setting: SettingData) -> Tuple[PairPath, PairPath]:
+    local_metafile, local_manifest = create_Mfiles(
+        local_output=setting.container_data.output_path.local_pos,
         container_fastq_path=(setting.ctn_data.workspace_path / "data"),
         data=setting.datasets,
     )
 
-    if not check_manifest(manifest):
+    if not check_manifest(local_manifest):
         raise ValueError("Manifest file is invalid")
 
-    return metafile, manifest
+    def __builder(p: Path) -> PairPath:
+        return PairPath(
+            local_pos=p, ctn_pos=setting.container_data.workspace_path / p.name
+        )
+
+    return __builder(local_metafile), __builder(local_manifest)
 
 
-def setup_executor(setting: SettingData) -> Executor:
+def setup_mounts(
+    metafile_pairpath: PairPath,
+    manifest_pairpath: PairPath,
+    ctn_workspace_dir: Path,
+    datasets: Datasets,
+) -> list[str]:
+
+    def __convert_path_into_mount_format(pairpath: PairPath):
+        return [
+            "type=bind",
+            f"src={pairpath.local_pos.resolve()}",
+            f"dst={pairpath.ctn_pos},readonly",
+        ]
+
+    return [
+        __convert_path_into_mount_format(metafile_pairpath),
+        __convert_path_into_mount_format(manifest_pairpath),
+        *datasets.mounts(ctn_workspace_dir / "data"),
+    ]
+
+
+def setup_executor(mounts: list[str], setting: SettingData) -> Executor:
     provider = Provider(
         image=setting.ctn_data.image_or_dockerfile,
-        mounts=setting.datasets.mounts(setting.workspace_path).joinpath("data"),
+        mounts=mounts,
         workspace=setting.ctn_data.workspace_path,
     )
 
@@ -79,6 +104,11 @@ def setup_executor(setting: SettingData) -> Executor:
 def setup() -> tuple[SettingData, Executor]:
     args = argument_parser().parse_args()
     setting = setup_config(args)
-    executor = setup_executor(setting)
+    mounts = setup_mounts(
+        *setup_files(setting),
+        ctn_workspace_dir=setting.container_data.workspace_path,
+        datasets=setting.datasets,
+    )
+    executor = setup_executor(mounts, setting)
 
     return setting, executor
