@@ -101,14 +101,36 @@ def setup_executor(mounts: list[str], setting: SettingData) -> Executor:
     return Executor(provider.provide())
 
 
-def setup() -> tuple[SettingData, Executor]:
+class PipelineContext:
+    def __init__(
+        self,
+        ctn_metadata: Path,
+        ctn_manifest: Path,
+        executor: Executor,
+        setting: SettingData,
+    ):
+        self.ctn_metadata: Path = ctn_metadata
+        self.ctn_manifest: Path = ctn_manifest
+        self.executor: Executor = executor
+        self.setting: SettingData = setting
+
+
+def setup() -> PipelineContext:
     args = argument_parser().parse_args()
     setting = setup_config(args)
+
+    metadata, manifest = setup_files(setting)
     mounts = setup_mounts(
-        *setup_files(setting),
+        metafile_pairpath=metadata,
+        manifest_pairpath=manifest,
         ctn_workspace_dir=setting.container_data.workspace_path,
         datasets=setting.datasets,
     )
     executor = setup_executor(mounts, setting)
 
-    return setting, executor
+    return PipelineContext(
+        ctn_metadata=metadata.ctn_pos,
+        ctn_manifest=manifest.ctn_pos,
+        executor=executor,
+        setting=setting,
+    )
