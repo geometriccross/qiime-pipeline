@@ -1,8 +1,7 @@
 from pathlib import Path
 from typing import Tuple
 from argparse import Namespace
-from scripts.data.control.check_manifest import check_manifest
-from scripts.data.control.create_Mfiles import create_Mfiles
+from scripts.data.control import check_manifest, create_Mfiles
 from scripts.data.store import (
     Datasets,
     Dataset,
