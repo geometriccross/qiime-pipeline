@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from pathlib import Path
-from scripts.data.store.setting_data_structure import SettingData
+from scripts.data.store import SettingData
 from scripts.pipeline.support.executor import Executor
 from scripts.pipeline.support.qiime_command import QiimeCommandBuilder
 from scripts.pipeline.support.view import QzvViewer, ViewError

@@ -1,5 +1,5 @@
 from pathlib import Path
-from scripts.data.store.setting_data_structure import SettingData
+from scripts.data.store import SettingData
 from scripts.pipeline.support import Executor, Provider
 from scripts.pipeline.main.sampling_and_rarefaction import (
     run_rarefaction,

@@ -3,13 +3,14 @@ from typing import Tuple
 from argparse import Namespace
 from scripts.data.control.check_manifest import check_manifest
 from scripts.data.control.create_Mfiles import create_Mfiles
-from scripts.data.store.dataset import Datasets, Dataset
-from scripts.data.store.setting_data_structure import (
+from scripts.data.store import (
+    Datasets,
+    Dataset,
     ContainerData,
     SettingData,
     PairPath,
+    V3V4,
 )
-from scripts.data.store.ribosome_regions import V3V4
 from scripts.pipeline.support import Executor, Provider, argument_parser
 
 
