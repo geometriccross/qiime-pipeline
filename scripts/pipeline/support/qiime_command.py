@@ -10,8 +10,7 @@ class QiimeCommandBuilder:
         Args:
             base_command: 基本コマンド (e.g., "qiime tools import")
         """
-        self.command_parts = [base_command]
-        self.indent_level = 0
+        self.command_parts = base_command.split(" ")
 
     def add_input(self, name: str, value: Union[str, Path]) -> "QiimeCommandBuilder":
         """
@@ -24,7 +23,7 @@ class QiimeCommandBuilder:
         Returns:
             self: メソッドチェーン用
         """
-        self.command_parts.append(f"    --i-{name} {value}")
+        self.command_parts.extend([f"--i-{name}", f"{value}"])
         return self
 
     def add_output(self, name: str, value: Union[str, Path]) -> "QiimeCommandBuilder":
@@ -38,7 +37,7 @@ class QiimeCommandBuilder:
         Returns:
             self: メソッドチェーン用
         """
-        self.command_parts.append(f"    --o-{name} {value}")
+        self.command_parts.extend([f"--o-{name}", f"{value}"])
         return self
 
     def add_parameter(self, name: str, value: Union[str, int]) -> "QiimeCommandBuilder":
@@ -52,7 +51,7 @@ class QiimeCommandBuilder:
         Returns:
             self: メソッドチェーン用
         """
-        self.command_parts.append(f"    --p-{name} {value}")
+        self.command_parts.extend([f"--p-{name}", f"{value}"])
         return self
 
     def add_metadata(self, name: str, value: Union[str, Path]) -> "QiimeCommandBuilder":
@@ -66,7 +65,7 @@ class QiimeCommandBuilder:
         Returns:
             self: メソッドチェーン用
         """
-        self.command_parts.append(f"    --m-{name} {value}")
+        self.command_parts.extend([f"--m-{name}", f"{value}"])
         return self
 
     def add_option(self, name: str, value: str = "") -> "QiimeCommandBuilder":
@@ -80,10 +79,10 @@ class QiimeCommandBuilder:
         Returns:
             self: メソッドチェーン用
         """
-        option = f"    --{name}"
+        option = [f"--{name}"]
         if value:
-            option += f" {value}"
-        self.command_parts.append(option)
+            option.append(f"{value}")
+        self.command_parts.extend(option)
         return self
 
     def build(self) -> list[str]:

@@ -26,7 +26,7 @@ def run_rarefaction(context: PipelineContext) -> Path:
         .add_option("output-path", out_dir / "paired_end_demux.qza")
         .build()
     )
-    context.executor.run(" ".join(import_cmd))
+    context.executor.run(import_cmd)
 
     # Get region settings from the first dataset
     dataset = next(iter(context.setting.datasets.sets))
@@ -46,7 +46,7 @@ def run_rarefaction(context: PipelineContext) -> Path:
         .add_output("denoising-stats", out_dir / "denoised_stats.qza")
         .build()
     )
-    context.executor.run(" ".join(dada2_cmd))
+    context.executor.run(dada2_cmd)
 
     phylogeny_cmd = (
         support.QiimeCommandBuilder("qiime phylogeny align-to-tree-mafft-fasttree")
@@ -58,7 +58,7 @@ def run_rarefaction(context: PipelineContext) -> Path:
         .add_output("rooted-tree", out_dir / "rooted-tree.qza")
         .build()
     )
-    support.executor.run(" ".join(phylogeny_cmd))
+    context.executor.run(phylogeny_cmd)
 
     rarefaction_cmd = (
         support.QiimeCommandBuilder("qiime diversity alpha-rarefaction")
@@ -71,7 +71,7 @@ def run_rarefaction(context: PipelineContext) -> Path:
         .add_output("visualization", out_dir / "alpha_rarefaction.qzv")
         .build()
     )
-    context.executor.run(" ".join(rarefaction_cmd))
+    context.executor.run(rarefaction_cmd)
 
     return out_dir / "alpha_rarefaction.qzv"
 

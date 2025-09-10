@@ -116,7 +116,25 @@ class CommandRunner:
         pre_cmd = "micromamba run -n base bash -exc "
         return pre_cmd + command
 
-    def run(self, command: list[str]) -> tuple[str, str]:
+    def run(self, command: list[str]) -> str:
+        """
+        文字列としてcommandを受け取り、実行する
+        成功すれば標準出力を返し、失敗すれば例外を投げる
+        """
+
+        out, err = "", ""
+        try:
+            out = self.__container.execute(command)
+        except exceptions.DockerException as e:
+            err = e.__str__()
+
+        if err:
+            err = f"Command failed with error:\n {err}"
+            raise RuntimeError(err)
+
+        return out
+
+    def try_run(self, command: list[str]) -> tuple[str, str]:
         """
         文字列としてcommandを受け取り、実行する
 
@@ -126,8 +144,8 @@ class CommandRunner:
 
         out, err = "", ""
         try:
-            out = self.__container.execute(command)
-        except exceptions.DockerException as e:
+            out = self.run(command)
+        except Exception as e:
             err = e.__str__()
 
         return out, err
