@@ -103,6 +103,7 @@ def linked_table_expose(
 
 
 def write_tsv(path: Path, table: list[list[str]]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w") as f:
         writer = csv.writer(f, delimiter="\t")
         writer.writerows(table)
