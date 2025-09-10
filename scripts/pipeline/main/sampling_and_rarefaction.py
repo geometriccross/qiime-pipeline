@@ -20,7 +20,7 @@ def run_rarefaction(context: PipelineContext) -> Path:
     # Import sequences
     import_cmd = (
         support.QiimeCommandBuilder("qiime tools import")
-        .add_option("type", "'SampleData[PairedEndSequencesWithQuality]'")
+        .add_option("type", "SampleData[PairedEndSequencesWithQuality]")
         .add_option("input-format", "PairedEndFastqManifestPhred33V2")
         .add_option("input-path", str(context.ctn_manifest))
         .add_option("output-path", out_dir / "paired_end_demux.qza")
