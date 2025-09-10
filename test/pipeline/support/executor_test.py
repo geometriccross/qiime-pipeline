@@ -62,7 +62,4 @@ def test_command_execution(
 
 def test_command_execution_when_command_is_failed(shared_container):
     with Executor(shared_container) as executor:
-        output, err = executor.run(["NonExistingCmd"])
-        assert output == ""
-        assert err != ""
-        assert len(err) > 0
+        pytest.raises(RuntimeError, executor.run, ["NonExistingCmd"])
