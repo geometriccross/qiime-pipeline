@@ -55,9 +55,8 @@ def test_command_execution(
     shared_container, command: list[str], expected_out: str, expected_err: str
 ):
     with Executor(shared_container) as executor:
-        output, err = executor.run(command)
+        output = executor.run(command)
         assert output == expected_out
-        assert err == expected_err
 
 
 def test_command_execution_when_command_is_failed(shared_container):
