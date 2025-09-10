@@ -90,3 +90,29 @@ class V3V4(Region):
             trunc_len_f=250,
             trunc_len_r=250,
         )
+
+
+class Debug(Region):
+    def __init__(self):
+        super().__init__(
+            name="Debug",
+            trim_left_f=0,
+            trim_left_r=0,
+            trunc_len_f=100,
+            trunc_len_r=100,
+        )
+
+
+class Regions(dict[str, Region]):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self["V3V4"] = V3V4()
+        self["Debug"] = Debug()
+
+    def add_region(self, region: Region):
+        self[region.name] = region
+
+    def get_region(self, name: str) -> Region:
+        if name not in self:
+            raise ValueError(f"Region {name} not found.")
+        return self[name]

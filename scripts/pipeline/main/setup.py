@@ -8,7 +8,7 @@ from scripts.data.store import (
     ContainerData,
     SettingData,
     PairPath,
-    V3V4,
+    Regions,
 )
 from scripts.pipeline.support import Executor, Provider, argument_parser
 
@@ -22,7 +22,7 @@ def setup_datasets(arg: Namespace) -> Datasets:
                 name=fastq_folder.stem,
                 fastq_folder=fastq_folder,
                 metadata_path=metadata_path,
-                region=V3V4(),
+                region=Regions()[arg.dataset_region],
             )
         )
 

@@ -9,7 +9,7 @@ from scripts.data.store import (
     Dataset,
     Datasets,
     Region,
-    V3V4,
+    Regions,
     SettingData,
     ContainerData,
     PairPath,
@@ -211,7 +211,10 @@ def dummy_datasets(
     for meta, folder in data_path_pairs:
         sets.add(
             Dataset(
-                name=folder.name, fastq_folder=folder, metadata_path=meta, region=V3V4()
+                name=folder.name,
+                fastq_folder=folder,
+                metadata_path=meta,
+                region=Regions()["Debug"],
             )
         )
 
@@ -223,6 +226,7 @@ def namespace(data_path_pairs) -> Namespace:
     with Path(TemporaryDirectory().name) as temp_host_dir:
         return Namespace(
             data=data_path_pairs,
+            dataset_region="Debug",
             image="quay.io/qiime2/amplicon:2024.10",
             dockerfile=Path("dockerfiles/Dockerfile"),
             local_output=Path(temp_host_dir / "output"),

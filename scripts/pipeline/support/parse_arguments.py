@@ -44,6 +44,12 @@ def argument_parser():
             """,
     )
     parser.add_argument(
+        "--dataset-region",
+        type=str,
+        default="V3V4",
+        help="Region of the 16S rRNA gene for the dataset (default: V3V4).",
+    )
+    parser.add_argument(
         "--image",
         type=str,
         default="quay.io/qiime2/amplicon:2024.10",
