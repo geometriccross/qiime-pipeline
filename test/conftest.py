@@ -220,22 +220,14 @@ def dummy_datasets(
 
 @pytest.fixture
 def namespace(data_path_pairs) -> Namespace:
-    with TemporaryDirectory() as temp_host_dir:
-        ctn_workspace = Path("/workspace")
+    with Path(TemporaryDirectory().name) as temp_host_dir:
         return Namespace(
+            data=data_path_pairs,
             image="quay.io/qiime2/amplicon:2024.10",
             dockerfile=Path("dockerfiles/Dockerfile"),
+            local_output=Path(temp_host_dir / "output"),
+            local_database=Path("db/classifier.qza"),
             sampling_depth=10000,
-            data=data_path_pairs,
-            workspace_path=ctn_workspace,
-            output=PairPath(
-                local_pos=Path(temp_host_dir),
-                ctn_pos=ctn_workspace.joinpath("output"),
-            ),
-            database=PairPath(
-                local_pos=Path("db/classifier.qza"),
-                ctn_pos=ctn_workspace.joinpath("db/classifier.qza"),
-            ),
         )
 
 
