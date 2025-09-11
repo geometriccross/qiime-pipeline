@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 from typing import Iterable, List
 from python_on_whales import docker, exceptions
@@ -136,6 +137,11 @@ class CommandRunner:
 
         if err:
             err = f"Command failed with error:\n {err}"
+            if ".log" in err:
+                err += "\nPlease check the log file for details."
+                log_file = re.findall(r"/tmp/qiime2-q2cli-err-[\w]+\.log", err).pop()
+                log_content = self.run(["cat", log_file])
+                err += f"\nLog content:\n{log_content}"
             raise RuntimeError(err)
 
         return out
