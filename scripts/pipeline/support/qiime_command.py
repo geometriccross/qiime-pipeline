@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Union
 
 
-class QiimeCommandBuilder:
+class Q2CmdAssembly:
     """QIIME2コマンドを構築するためのビルダークラス"""
 
     def __init__(self, base_command: str):
@@ -12,7 +12,7 @@ class QiimeCommandBuilder:
         """
         self.command_parts = base_command.split(" ")
 
-    def add_input(self, name: str, value: Union[str, Path]) -> QiimeCommandBuilder:
+    def add_input(self, name: str, value: Union[str, Path]) -> Q2CmdAssembly:
         """
         渡されたnameとvalueを以下の形式でコマンドに追加する。\n
         **--i-{name} {value}**
@@ -21,7 +21,7 @@ class QiimeCommandBuilder:
         self.command_parts.extend([f"--i-{name}", f"{value}"])
         return self
 
-    def add_output(self, name: str, value: Union[str, Path]) -> QiimeCommandBuilder:
+    def add_output(self, name: str, value: Union[str, Path]) -> Q2CmdAssembly:
         """
         渡されたnameとvalueを以下の形式でコマンドに追加する。\n
         **--o-{name} {value}**
@@ -30,7 +30,7 @@ class QiimeCommandBuilder:
         self.command_parts.extend([f"--o-{name}", f"{value}"])
         return self
 
-    def add_parameter(self, name: str, value: Union[str, int]) -> QiimeCommandBuilder:
+    def add_parameter(self, name: str, value: Union[str, int]) -> Q2CmdAssembly:
         """
         渡されたnameとvalueを以下の形式でコマンドに追加する。\n
         **--p-{name} {value}**
@@ -39,7 +39,7 @@ class QiimeCommandBuilder:
         self.command_parts.extend([f"--p-{name}", f"{value}"])
         return self
 
-    def add_metadata(self, name: str, value: Union[str, Path]) -> QiimeCommandBuilder:
+    def add_metadata(self, name: str, value: Union[str, Path]) -> Q2CmdAssembly:
         """
         渡されたnameとvalueを以下の形式でコマンドに追加する。\n
         **--m-{name} {value}**
@@ -48,7 +48,7 @@ class QiimeCommandBuilder:
         self.command_parts.extend([f"--m-{name}", f"{value}"])
         return self
 
-    def add_option(self, name: str, value: str = "") -> QiimeCommandBuilder:
+    def add_option(self, name: str, value: str = "") -> Q2CmdAssembly:
         """
         渡されたnameとvalueを以下の形式でコマンドに追加する。\n
         **--{name} {value}**

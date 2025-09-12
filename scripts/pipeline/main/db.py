@@ -4,7 +4,7 @@ import requests
 from pathlib import Path
 from python_on_whales import Container
 from scripts.pipeline.support.executor import Executor
-from scripts.pipeline.support.qiime_command import QiimeCommandBuilder
+from scripts.pipeline.support.qiime_command import Q2CmdAssembly
 
 
 class DatabaseBuilder:
@@ -66,7 +66,7 @@ class DatabaseBuilder:
     def _extract_reads(self):
         """リファレンスシーケンスを抽出する"""
         command = (
-            QiimeCommandBuilder("qiime feature-classifier extract-reads")
+            Q2CmdAssembly("qiime feature-classifier extract-reads")
             .add_parameter("min-length", "350")
             .add_parameter("max-length", "500")
             .add_parameter("f-primer", "CCTACGGGNGGCWGCAG")
@@ -83,7 +83,7 @@ class DatabaseBuilder:
     def _train_classifier(self):
         """DBを学習する"""
         command = (
-            QiimeCommandBuilder("qiime feature-classifier fit-classifier-naive-bayes")
+            Q2CmdAssembly("qiime feature-classifier fit-classifier-naive-bayes")
             .add_input("reference-reads", str(self.temp_dir / "ref-seqs-silva-138.qza"))
             .add_input(
                 "reference-taxonomy", str(self.temp_dir / "silva-138-99-tax.qza")

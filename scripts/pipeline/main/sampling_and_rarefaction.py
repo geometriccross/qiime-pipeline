@@ -19,7 +19,7 @@ def run_rarefaction(context: PipelineContext) -> Path:
 
     # Import sequences
     import_cmd = (
-        support.QiimeCommandBuilder("qiime tools import")
+        support.Q2CmdAssembly("qiime tools import")
         .add_option("type", "SampleData[PairedEndSequencesWithQuality]")
         .add_option("input-format", "PairedEndFastqManifestPhred33V2")
         .add_option("input-path", str(context.ctn_manifest))
@@ -33,7 +33,7 @@ def run_rarefaction(context: PipelineContext) -> Path:
     region = dataset.region
 
     dada2_cmd = (
-        support.QiimeCommandBuilder("qiime dada2 denoise-paired")
+        support.Q2CmdAssembly("qiime dada2 denoise-paired")
         .add_option("quiet")
         .add_input("demultiplexed-seqs", base_dir / "paired_end_demux.qza")
         .add_parameter("n-threads", "0")
@@ -49,7 +49,7 @@ def run_rarefaction(context: PipelineContext) -> Path:
     context.executor.run(dada2_cmd)
 
     phylogeny_cmd = (
-        support.QiimeCommandBuilder("qiime phylogeny align-to-tree-mafft-fasttree")
+        support.Q2CmdAssembly("qiime phylogeny align-to-tree-mafft-fasttree")
         .add_option("quiet")
         .add_input("sequences", base_dir / "denoised_seq.qza")
         .add_output("alignment", out_dir / "aligned-rep-seqs.qza")
@@ -61,7 +61,7 @@ def run_rarefaction(context: PipelineContext) -> Path:
     context.executor.run(phylogeny_cmd)
 
     rarefaction_cmd = (
-        support.QiimeCommandBuilder("qiime diversity alpha-rarefaction")
+        support.Q2CmdAssembly("qiime diversity alpha-rarefaction")
         .add_option("quiet")
         .add_parameter("min-depth", "1")
         .add_parameter("max-depth", "50000")
