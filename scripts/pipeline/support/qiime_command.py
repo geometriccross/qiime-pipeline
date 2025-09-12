@@ -10,7 +10,8 @@ class Q2CmdAssembly:
         """
         実行するコマンドを指定する
         """
-        self.command_parts = base_command.split(" ")
+        self.__base_cmd = base_command.split(" ")
+        self.command_parts = []
 
     def add_input(self, name: str, value: Union[str, Path]) -> Q2CmdAssembly:
         """
@@ -67,4 +68,4 @@ class Q2CmdAssembly:
         Returns:
             list[str]: コマンドのリスト
         """
-        return self.command_parts
+        return self.__base_cmd + self.command_parts
