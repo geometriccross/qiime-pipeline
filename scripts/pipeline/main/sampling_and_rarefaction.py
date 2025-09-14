@@ -5,18 +5,9 @@ from scripts.pipeline import support
 from .setup import PipelineContext
 
 
-def run_rarefaction(context: PipelineContext) -> Path:
-    """
-    Perform rarefaction analysis using QIIME2.
-
-    Returns:
-        Path to the generated QZV file
-    """
-
-    out_dir = context.setting.container_data.workspace_path
-    base_dir = out_dir  # ここではout_dirとbase_dirは同じに設定
-    context.executor.run(["mkdir", "-p", out_dir.as_posix()])
-
+def command_list(
+    context: PipelineContext, base_dir: Path, out_dir: Path
+) -> list[support.Q2CmdAssembly]:
     # Import sequences
     import_cmd = (
         support.Q2CmdAssembly("qiime tools import")
@@ -24,9 +15,7 @@ def run_rarefaction(context: PipelineContext) -> Path:
         .add_option("input-format", "PairedEndFastqManifestPhred33V2")
         .add_option("input-path", str(context.ctn_manifest))
         .add_option("output-path", out_dir / "paired_end_demux.qza")
-        .build()
     )
-    context.executor.run(import_cmd)
 
     # Get region settings from the first dataset
     dataset = next(iter(context.setting.datasets.sets))
@@ -44,9 +33,7 @@ def run_rarefaction(context: PipelineContext) -> Path:
         .add_output("table", out_dir / "denoised_table.qza")
         .add_output("representative-sequences", out_dir / "denoised_seq.qza")
         .add_output("denoising-stats", out_dir / "denoised_stats.qza")
-        .build()
     )
-    context.executor.run(dada2_cmd)
 
     phylogeny_cmd = (
         support.Q2CmdAssembly("qiime phylogeny align-to-tree-mafft-fasttree")
@@ -56,9 +43,7 @@ def run_rarefaction(context: PipelineContext) -> Path:
         .add_output("masked-alignment", out_dir / "masked-aligned-rep-seqs.qza")
         .add_output("tree", out_dir / "unrooted-tree.qza")
         .add_output("rooted-tree", out_dir / "rooted-tree.qza")
-        .build()
     )
-    context.executor.run(phylogeny_cmd)
 
     rarefaction_cmd = (
         support.Q2CmdAssembly("qiime diversity alpha-rarefaction")
@@ -69,9 +54,26 @@ def run_rarefaction(context: PipelineContext) -> Path:
         .add_input("table", base_dir / "denoised_table.qza")
         .add_input("phylogeny", base_dir / "rooted-tree.qza")
         .add_output("visualization", out_dir / "alpha_rarefaction.qzv")
-        .build()
     )
-    context.executor.run(rarefaction_cmd)
+
+    return [import_cmd, dada2_cmd, phylogeny_cmd, rarefaction_cmd]
+
+
+def run_rarefaction(context: PipelineContext) -> Path:
+    """
+    Perform rarefaction analysis using QIIME2.
+
+    Returns:
+        Path to the generated QZV file
+    """
+
+    out_dir = context.setting.container_data.workspace_path
+    base_dir = out_dir  # ここではout_dirとbase_dirは同じに設定
+    context.executor.run(["mkdir", "-p", out_dir.as_posix()])
+
+    for cmd in command_list(context, base_dir, out_dir):
+        print(cmd)
+        context.executor.run(cmd.build())
 
     return out_dir / "alpha_rarefaction.qzv"
 
