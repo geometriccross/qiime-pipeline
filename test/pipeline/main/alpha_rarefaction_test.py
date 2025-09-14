@@ -1,6 +1,6 @@
 import pytest
 from scripts.pipeline.main.setup import setup_context
-from scripts.pipeline.main.sampling_and_rarefaction import (
+from scripts.pipeline.main.alpha_rarefaction import (
     run_rarefaction,
 )
 
