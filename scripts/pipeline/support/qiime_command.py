@@ -13,6 +13,9 @@ class Q2CmdAssembly:
         self.__base_cmd = base_command.split(" ")
         self.command_parts = []
 
+    def __str__(self):
+        return " ".join(self.__base_cmd)
+
     def add_input(self, name: str, value: Union[str, Path]) -> Q2CmdAssembly:
         """
         渡されたnameとvalueを以下の形式でコマンドに追加する。\n
