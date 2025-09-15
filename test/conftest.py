@@ -1,5 +1,7 @@
+from os import getenv
 import subprocess
 import pytest
+from dotenv import load_dotenv
 from argparse import Namespace
 from pathlib import Path
 from tempfile import NamedTemporaryFile, TemporaryDirectory
@@ -46,6 +48,50 @@ def trusted_provider():
     yield provider
 
 
+def check_test_data_exist(store_folder: Path) -> bool:
+    if not store_folder.exists():
+        return False
+
+    result = []
+    for folder in store_folder.iterdir():
+        if folder.is_file():
+            continue
+
+        files_str = "".join([p.name for p in folder.iterdir()])
+        result.append("_R1" in files_str)
+        result.append("_R2" in files_str)
+        result.append("metadata.csv" in files_str)
+
+    return all(result)
+
+
+def get_ids() -> dict[str, str]:
+    load_dotenv()
+    dic = {}
+    for item in getenv("GOOGLE_DRIVE_TEST_DATA_IDS").split(","):
+        key, value = item.split(":")
+        dic[key] = value
+
+    return dic
+
+
+def download_test_data(store_folder: Path):
+    store_folder.mkdir(exist_ok=True)
+    for sample_name, file_id in get_ids().items():
+        url = f"https://drive.google.com/uc?export=download&id={file_id}"
+        tar_file = str(Path("/tmp") / f"{sample_name}.tar")
+        subprocess.run(["wget", url, "-O", tar_file])
+        subprocess.run(
+            [
+                "tar",
+                "-xf",
+                tar_file,
+                "-C",
+                str(store_folder),
+            ]
+        )
+
+
 @pytest.fixture
 def data_path_pairs() -> Generator[list[tuple[Path, Path]], None, None]:
     """
@@ -78,45 +124,6 @@ def data_path_pairs() -> Generator[list[tuple[Path, Path]], None, None]:
 
         **[(test1/metadata.csv,test1),(test2/metadata.csv,test2),...]**
     """
-
-    def check_test_data_exist(store_folder: Path) -> bool:
-        if not store_folder.exists():
-            return False
-
-        result = []
-        for folder in store_folder.iterdir():
-            if folder.is_file():
-                continue
-
-            files_str = "".join([p.name for p in folder.iterdir()])
-            result.append("_R1" in files_str)
-            result.append("_R2" in files_str)
-            result.append("metadata.csv" in files_str)
-
-        return all(result)
-
-    def download_test_data(store_folder: Path):
-        ids = {
-            "test1": "1NTd-nsFFLrCWihqlnSh22X7FV2Q8vhvd",
-            "test2": "1ITppDXMdg3DBucI84DaaZbC327og8tX-",
-            "test3": "1GllNI0FmBvVv_lXyaLJ9VG9bLo4qH80_",
-            "test4": "1z5X1dxTn2u-dMuhTtNb8aOJn4y3Zkinw",
-        }
-
-        store_folder.mkdir(exist_ok=True)
-        for sample_name, file_id in ids.items():
-            url = f"https://drive.google.com/uc?export=download&id={file_id}"
-            tar_file = str(Path("/tmp") / f"{sample_name}.tar")
-            subprocess.run(["wget", url, "-O", tar_file])
-            subprocess.run(
-                [
-                    "tar",
-                    "-xf",
-                    tar_file,
-                    "-C",
-                    str(store_folder),
-                ]
-            )
 
     store_path = Path("/tmp/qiime_pipeline_test_data")
     if check_test_data_exist(store_path) is False:
