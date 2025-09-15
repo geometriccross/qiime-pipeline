@@ -12,6 +12,7 @@ pytest-skip-slow = "*"
 tomlkit = "*"
 pytest-mock = "*"
 python-on-whales = "*"
+dotenv = "*"
 
 [dev-packages]
 
