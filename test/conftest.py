@@ -145,7 +145,7 @@ def dummy_datasets(
                 name=folder.name,
                 fastq_folder=folder,
                 metadata_path=meta,
-                region=Regions()["Debug"],
+                region=Regions()["V3V4"],
             )
         )
 
