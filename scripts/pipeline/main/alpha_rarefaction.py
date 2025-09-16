@@ -45,11 +45,19 @@ def command_list(
         .add_output("rooted-tree", out_dir / "rooted-tree.qza")
     )
 
+    # 実行時のエラーを避けるため
+    # steps, iterationsはサンプルのmax featureよりも十分に小さくする
     rarefaction_cmd = (
         support.Q2CmdAssembly("qiime diversity alpha-rarefaction")
         .add_option("quiet")
         .add_parameter("min-depth", "1")
         .add_parameter("max-depth", context.setting.sampling_depth)
+        .add_parameter(
+            "steps", str(2) if context.setting.sampling_depth < 10 else str(10)
+        )
+        .add_parameter(
+            "iterations", str(1) if context.setting.sampling_depth < 10 else str(10)
+        )
         .add_metadata("metadata-file", str(context.ctn_metadata))
         .add_input("table", base_dir / "denoised_table.qza")
         .add_input("phylogeny", base_dir / "rooted-tree.qza")
@@ -74,7 +82,10 @@ def run_rarefaction(context: PipelineContext) -> Path:
 
     for cmd in command_list(context, base_dir, out_dir):
         print(cmd)
-        context.executor.run(cmd.build())
+        if isinstance(cmd, support.Q2CmdAssembly):
+            cmd = cmd.build()
+
+        context.executor.run(cmd)
 
     return out_dir / "alpha_rarefaction.qzv"
 

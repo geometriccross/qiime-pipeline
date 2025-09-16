@@ -5,7 +5,12 @@ from scripts.pipeline.main.alpha_rarefaction import (
 )
 
 
-@pytest.mark.slow
+@pytest.mark.pipeline
 def test_run_rarefaction(namespace):
     context = setup_context(namespace)
-    run_rarefaction(context)
+
+    ctn_output_file = run_rarefaction(context)
+    stdout, stderr = context.executor.run(["test", "-f", str(ctn_output_file)])
+    assert stderr == ""
+
+    context.executor.__container.stop()
