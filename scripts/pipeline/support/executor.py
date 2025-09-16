@@ -73,6 +73,7 @@ class Provider:
 class Executor:
     def __init__(self, container: Container):
         self.__container = container
+        self.run(["apt", "update", "&&", "apt", "upgrade", "-y"])
 
     def __enter__(self):
         """コンテナの起動"""
