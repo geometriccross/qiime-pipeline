@@ -8,6 +8,7 @@ from .util import copy_from_container
 def command_list(context: PipelineContext) -> list[str]:
     workspace = context.setting.container_data.workspace_path
 
+    lib_fresh = ["bash", "-c", "apt update && apt upgrade -y"]
     mkdir = ["mkdir", "-p", str(workspace)]
 
     download = (
@@ -35,7 +36,7 @@ def command_list(context: PipelineContext) -> list[str]:
         .add_output("classifier", str(workspace / "classifier-silva138.qza"))
     )
 
-    return [mkdir, download.build(), extract_reads.build(), train.build()]
+    return [lib_fresh, mkdir, download.build(), extract_reads.build(), train.build()]
 
 
 def run_setup_database(context: PipelineContext) -> str:
