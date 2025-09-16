@@ -164,12 +164,12 @@ def namespace(data_path_pairs) -> Namespace:
     with Path(TemporaryDirectory().name) as temp_host_dir:
         return Namespace(
             data=data_path_pairs,
-            dataset_region="Debug",
-            image="quay.io/qiime2/amplicon:2024.10",
+            dataset_region="V3V4",
+            image="quay.io/qiime2/amplicon:latest",
             dockerfile=Path("dockerfiles/Dockerfile"),
             local_output=Path(temp_host_dir / "output"),
             local_database=Path("db/classifier.qza"),
-            sampling_depth=10000,
+            sampling_depth=5,
         )
 
 
