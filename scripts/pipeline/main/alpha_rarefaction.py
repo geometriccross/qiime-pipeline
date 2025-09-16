@@ -69,6 +69,7 @@ def run_rarefaction(context: PipelineContext) -> Path:
 
     out_dir = context.setting.container_data.workspace_path
     base_dir = out_dir  # ここではout_dirとbase_dirは同じに設定
+    context.executor.run(["bash", "-c", "apt update && apt upgrade -y"])
     context.executor.run(["mkdir", "-p", out_dir.as_posix()])
 
     for cmd in command_list(context, base_dir, out_dir):
