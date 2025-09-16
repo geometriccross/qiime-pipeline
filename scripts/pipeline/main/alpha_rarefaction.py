@@ -3,6 +3,7 @@
 from pathlib import Path
 from scripts.pipeline import support
 from .setup import PipelineContext
+from .util import copy_from_container
 
 
 def command_list(
@@ -90,18 +91,6 @@ def run_rarefaction(context: PipelineContext) -> Path:
     return out_dir / "alpha_rarefaction.qzv"
 
 
-def copy_from_container(context: PipelineContext, ctn_target_file: Path) -> Path:
-    out_dir = Path(f"out/{context.setting.batch_id}")
-    out_dir.mkdir(parents=True, exist_ok=True)
-
-    # Copy QZV file from container
-    context.executor.run(
-        ["docker", "cp", f"{context.setting.batch_id}:{ctn_target_file}", str(out_dir)]
-    )
-
-    return out_dir / ctn_target_file.name
-
-
 def execute(context: PipelineContext) -> None:
     """
     Execute the full workflow of rarefaction analysis and sampling depth processing.
@@ -114,9 +103,3 @@ def execute(context: PipelineContext) -> None:
     except Exception as e:
         print(f"Error during execution: {str(e)}")
         raise
-
-
-if __name__ == "__main__":
-    # This script is intended to be imported and used with SettingData,
-    # not run directly from the command line
-    pass
