@@ -49,7 +49,7 @@ def command_list(
         support.Q2CmdAssembly("qiime diversity alpha-rarefaction")
         .add_option("quiet")
         .add_parameter("min-depth", "1")
-        .add_parameter("max-depth", "50000")
+        .add_parameter("max-depth", context.setting.sampling_depth)
         .add_metadata("metadata-file", str(context.ctn_metadata))
         .add_input("table", base_dir / "denoised_table.qza")
         .add_input("phylogeny", base_dir / "rooted-tree.qza")
