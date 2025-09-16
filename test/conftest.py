@@ -6,7 +6,6 @@ from argparse import Namespace
 from pathlib import Path
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 from typing import Generator
-from scripts.pipeline.support import Provider
 from scripts.data.store import (
     Dataset,
     Datasets,
@@ -39,13 +38,6 @@ def temporary_dataset(temporay_files):
             region=Region("SampleRegion", 0, 0, 0, 0),
         )
         yield dataset
-
-
-@pytest.fixture(scope="module")
-def trusted_provider():
-    provider = Provider(image="alpine", remove=True)
-
-    yield provider
 
 
 def check_test_data_exist(store_folder: Path) -> bool:
