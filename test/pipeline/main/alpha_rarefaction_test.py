@@ -5,12 +5,23 @@ from scripts.pipeline.main.alpha_rarefaction import (
 )
 
 
-@pytest.mark.pipeline
-def test_run_rarefaction(namespace):
+@pytest.fixture
+def alpha_rare_context(namespace):
     context = setup_context(namespace)
+    context.setting.sampling_depth = 4
 
-    ctn_output_file = run_rarefaction(context)
-    stdout, stderr = context.executor.run(["test", "-f", str(ctn_output_file)])
-    assert stderr == ""
+    yield context
 
-    context.executor.__container.stop()
+    try:
+        context.executor.__container.stop()
+    except Exception as e:
+        raise e
+
+
+@pytest.mark.pipeline
+def test_run_rarefaction(alpha_rare_context):
+    ctn_output_file = run_rarefaction(alpha_rare_context)
+    files = alpha_rare_context.executor.run(["ls"]).split()
+    assert (
+        ctn_output_file.name in files
+    ), f"File {ctn_output_file} does not exist in the container."
