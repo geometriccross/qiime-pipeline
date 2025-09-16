@@ -17,16 +17,22 @@ class Provider:
         else:
             self.__image = image
 
-        self.__container = docker.container.run(
-            image=self.__image,
-            mounts=mounts,
-            workdir=workspace.absolute(),
-            command=["tail", "-f", "/dev/null"],
-            detach=True,
-            remove=remove,
-        )
+        self.__mounts = mounts
+        self.__workspace = workspace
+        self.__remove = remove
+
+        self.__container: Container = None
 
     def provide(self) -> Container:
+        self.__container = docker.container.run(
+            image=self.__image,
+            mounts=self.__mounts,
+            workdir=self.__workspace.absolute(),
+            command=["tail", "-f", "/dev/null"],
+            detach=True,
+            remove=self.__remove,
+        )
+
         return self.__container
 
     @classmethod
