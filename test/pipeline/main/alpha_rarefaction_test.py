@@ -1,8 +1,6 @@
 import pytest
 from scripts.pipeline.main.setup import setup_context
-from scripts.pipeline.main.alpha_rarefaction import (
-    run_rarefaction,
-)
+from scripts.pipeline.main.alpha_rarefaction import run_rarefaction, command_list
 
 
 @pytest.fixture
@@ -16,6 +14,15 @@ def alpha_rare_context(namespace):
         context.executor.__container.stop()
     except Exception as e:
         raise e
+
+
+def test_command_list_check_current(alpha_rare_context):
+    context = alpha_rare_context
+    out_dir = context.setting.container_data.workspace_path
+    base_dir = out_dir
+    assembly = command_list(context, base_dir, out_dir)
+
+    assembly.sort_commands()
 
 
 @pytest.mark.pipeline
