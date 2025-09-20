@@ -58,6 +58,16 @@ class Q2CmdAssembly:
             return NotImplemented
         return not (self < other or self > other)
 
+    def is_equal(self, other: Q2CmdAssembly) -> bool:
+        """==をオーバーライドしたため、元の等価性チェックを別途実装"""
+        if not isinstance(other, Q2CmdAssembly):
+            return NotImplemented
+
+        return (
+            self.command_parts == other.command_parts
+            and self.__base_cmd == other.__base_cmd
+        )
+
     def __str__(self):
         return " ".join(self.__base_cmd)
 

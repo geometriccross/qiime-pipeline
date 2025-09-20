@@ -84,3 +84,17 @@ def test_no_dependency():
     assert cmd1 == cmd2  # 順序は同等
     assert not cmd1 < cmd2
     assert not cmd2 < cmd1
+
+
+def test_is_equal():
+    """is_equalメソッドのテスト"""
+    cmd1 = Q2CmdAssembly("cmd").add_input("in", "file.qza").add_output("out", "out.qza")
+    cmd2 = Q2CmdAssembly("cmd").add_input("in", "file.qza").add_output("out", "out.qza")
+    cmd3 = (
+        Q2CmdAssembly("cmd")
+        .add_input("in", "different.qza")
+        .add_output("out", "out.qza")
+    )
+
+    assert cmd1.is_equal(cmd2)  # 内容が同じ場合
+    assert not cmd1.is_equal(cmd3)  # 内容が異なる場合
