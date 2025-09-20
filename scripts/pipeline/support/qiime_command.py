@@ -13,6 +13,47 @@ class Q2CmdAssembly:
         self.__base_cmd = base_command.split(" ")
         self.command_parts = []
 
+    def _get_paths_from_parts(self, prefix: str) -> list[str]:
+        """
+        command_partsから特定のプレフィックスを持つパスを取得する
+
+        Args:
+            prefix: '--i-' または '--o-'
+
+        Returns:
+            list[str]: 見つかったパスのリスト
+        """
+        paths = []
+        for i, part in enumerate(self.command_parts):
+            if part.startswith(prefix) and i + 1 < len(self.command_parts):
+                paths.append(self.command_parts[i + 1])
+        return paths
+
+    def __lt__(self, other: Q2CmdAssembly) -> bool:
+        """
+        < 演算子のオーバーライド
+        selfの出力がotherの入力として使用される場合にTrue
+        """
+        my_outputs = set(self._get_paths_from_parts("--o-"))
+        other_inputs = set(other._get_paths_from_parts("--i-"))
+        return bool(my_outputs & other_inputs)
+
+    def __gt__(self, other: Q2CmdAssembly) -> bool:
+        """
+        > 演算子のオーバーライド
+        otherの出力がselfの入力として使用される場合にTrue
+        """
+        return other < self
+
+    def __eq__(self, other: Q2CmdAssembly) -> bool:
+        """
+        == 演算子のオーバーライド
+        依存関係がない場合にTrue
+        """
+        if not isinstance(other, Q2CmdAssembly):
+            return NotImplemented
+        return not (self < other or self > other)
+
     def __str__(self):
         return " ".join(self.__base_cmd)
 
