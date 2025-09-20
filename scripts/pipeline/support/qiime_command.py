@@ -200,3 +200,12 @@ class Q2CmdAssembly(Iterable[Q2Cmd]):
         cmd = Q2Cmd(base_command)
         self.commands.append(cmd)
         return cmd
+
+    def build_all(self) -> list[list[str]]:
+        """
+        全てのコマンドをビルドする
+
+        Returns:
+            list[list[str]]: 各コマンドのリスト
+        """
+        return [cmd.build() for cmd in self.commands]

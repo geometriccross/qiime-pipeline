@@ -151,3 +151,21 @@ def test_is_equal():
 
     assert cmd1 == cmd2
     assert not cmd1 == cmd3  # 内容が異なる場合
+
+
+def test_build_all():
+    assembly = Q2CmdAssembly()
+
+    cmd1 = assembly.new_cmd("qiime cmd1")
+    cmd1.add_input("in", "input1.qza")
+    cmd1.add_output("out", "output1.qza")
+
+    cmd2 = assembly.new_cmd("qiime cmd2")
+    cmd2.add_input("in", "output1.qza")
+    cmd2.add_output("out", "output2.qza")
+
+    built_commands = assembly.build_all()
+    assert built_commands == [
+        ["qiime", "cmd1", "--i-in", "input1.qza", "--o-out", "output1.qza"],
+        ["qiime", "cmd2", "--i-in", "output1.qza", "--o-out", "output2.qza"],
+    ]
