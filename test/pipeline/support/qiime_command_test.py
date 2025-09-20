@@ -1,4 +1,8 @@
-from scripts.pipeline.support import Q2CmdAssembly
+from scripts.pipeline.support import (
+    Q2CmdAssembly,
+    CircularDependencyError,
+    IsolatedCommandError,
+)
 
 
 def test_Q2Cmd_convert_to_str():
@@ -85,9 +89,12 @@ def test_command_chaining():
     assert str(process1_cmd) in process_cmds
     assert str(process2_cmd) in process_cmds
 
-    # 循環依存関係のテスト
+
+def test_circular_dependency():
+    """循環依存関係の検出とエラーメッセージのテスト"""
     cyclic_assembly = Q2CmdAssembly()
     cmd1 = cyclic_assembly.new_cmd("cmd1")
+    cmd1.add_input("in", "input1.qza")
     cmd1.add_output("out", "file1.qza")
 
     cmd2 = cyclic_assembly.new_cmd("cmd2")
@@ -96,13 +103,23 @@ def test_command_chaining():
 
     cmd3 = cyclic_assembly.new_cmd("cmd3")
     cmd3.add_input("in", "file2.qza")
-    cmd3.add_output("out", "file1.qza")  # 循環依存を作成
+    cmd3.add_output("out", "input1.qza")  # cmd1を参照する
 
     try:
         cyclic_assembly.sort_commands()
         assert False, "循環依存関係が検出されるべき"
-    except ValueError as e:
-        assert str(e) == "循環依存関係が検出されました"
+    except CircularDependencyError as e:
+        error_msg = str(e)
+        # エラーメッセージに全てのコマンドが含まれていることを確認
+        assert "cmd1" in error_msg
+        assert "cmd2" in error_msg
+        assert "cmd3" in error_msg
+
+        # 依存関係の順序が正しく表示されていることを確認
+        # cmd1 <- cmd3: cmd3の出力がcmd1の入力として使用される
+        assert "cmd1 <- cmd3" in error_msg
+        assert "cmd3 <- cmd2" in error_msg
+        assert "cmd2 <- cmd1" in error_msg
 
 
 def test_isolated_command():
@@ -123,9 +140,10 @@ def test_isolated_command():
     try:
         assembly.sort_commands()
         assert False, "孤立したコマンドが検出されるべき"
-    except ValueError as e:
-        assert str(e).startswith("孤立したコマンドが検出されました")
-        assert "qiime isolated-command" in str(e)
+    except IsolatedCommandError as e:
+        error_msg = str(e)
+        assert error_msg.startswith("孤立したコマンドが検出されました")
+        assert "qiime isolated-command" in error_msg
 
 
 def test_is_equal():
