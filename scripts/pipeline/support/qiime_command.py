@@ -1,17 +1,18 @@
 from __future__ import annotations
 from pathlib import Path
-from typing import Union
+from typing import Union, Iterable
 
 
-class Q2CmdAssembly:
-    """QIIME2コマンドを構築するためのビルダークラス"""
-
+class Q2Cmd:
     def __init__(self, base_command: str):
         """
         実行するコマンドを指定する
         """
         self.__base_cmd = base_command.split(" ")
         self.command_parts = []
+
+    def __str__(self):
+        return " ".join(self.__base_cmd)
 
     def _get_paths_from_parts(self, prefix: str) -> list[str]:
         """
@@ -27,9 +28,10 @@ class Q2CmdAssembly:
         for i, part in enumerate(self.command_parts):
             if part.startswith(prefix) and i + 1 < len(self.command_parts):
                 paths.append(self.command_parts[i + 1])
+
         return paths
 
-    def __lt__(self, other: Q2CmdAssembly) -> bool:
+    def __lt__(self, other: Q2Cmd) -> bool:
         """
         < 演算子のオーバーライド
         selfの出力がotherの入力として使用される場合にTrue
@@ -42,36 +44,29 @@ class Q2CmdAssembly:
 
         return False
 
-    def __gt__(self, other: Q2CmdAssembly) -> bool:
+    def __gt__(self, other: Q2Cmd) -> bool:
         """
         > 演算子のオーバーライド
         otherの出力がselfの入力として使用される場合にTrue
         """
         return other < self
 
-    def __eq__(self, other: Q2CmdAssembly) -> bool:
+    def __eq__(self, other: Q2Cmd) -> bool:
         """
         == 演算子のオーバーライド
         依存関係がない場合にTrue
         """
-        if not isinstance(other, Q2CmdAssembly):
-            return NotImplemented
-        return not (self < other or self > other)
-
-    def is_equal(self, other: Q2CmdAssembly) -> bool:
-        """==をオーバーライドしたため、元の等価性チェックを別途実装"""
-        if not isinstance(other, Q2CmdAssembly):
+        if not isinstance(other, Q2Cmd):
             return NotImplemented
 
-        return (
+        no_dependency = not (self < other or self > other)
+        same_value = (
             self.command_parts == other.command_parts
             and self.__base_cmd == other.__base_cmd
         )
+        return no_dependency and same_value
 
-    def __str__(self):
-        return " ".join(self.__base_cmd)
-
-    def add_input(self, name: str, value: Union[str, Path]) -> Q2CmdAssembly:
+    def add_input(self, name: str, value: Union[str, Path]) -> Q2Cmd:
         """
         渡されたnameとvalueを以下の形式でコマンドに追加する。\n
         **--i-{name} {value}**
@@ -80,7 +75,7 @@ class Q2CmdAssembly:
         self.command_parts.extend([f"--i-{name}", f"{value}"])
         return self
 
-    def add_output(self, name: str, value: Union[str, Path]) -> Q2CmdAssembly:
+    def add_output(self, name: str, value: Union[str, Path]) -> Q2Cmd:
         """
         渡されたnameとvalueを以下の形式でコマンドに追加する。\n
         **--o-{name} {value}**
@@ -89,7 +84,7 @@ class Q2CmdAssembly:
         self.command_parts.extend([f"--o-{name}", f"{value}"])
         return self
 
-    def add_parameter(self, name: str, value: Union[str, int]) -> Q2CmdAssembly:
+    def add_parameter(self, name: str, value: Union[str, int]) -> Q2Cmd:
         """
         渡されたnameとvalueを以下の形式でコマンドに追加する。\n
         **--p-{name} {value}**
@@ -98,7 +93,7 @@ class Q2CmdAssembly:
         self.command_parts.extend([f"--p-{name}", f"{value}"])
         return self
 
-    def add_metadata(self, name: str, value: Union[str, Path]) -> Q2CmdAssembly:
+    def add_metadata(self, name: str, value: Union[str, Path]) -> Q2Cmd:
         """
         渡されたnameとvalueを以下の形式でコマンドに追加する。\n
         **--m-{name} {value}**
@@ -107,7 +102,7 @@ class Q2CmdAssembly:
         self.command_parts.extend([f"--m-{name}", f"{value}"])
         return self
 
-    def add_option(self, name: str, value: str = "") -> Q2CmdAssembly:
+    def add_option(self, name: str, value: str = "") -> Q2Cmd:
         """
         渡されたnameとvalueを以下の形式でコマンドに追加する。\n
         **--{name} {value}**
@@ -127,3 +122,14 @@ class Q2CmdAssembly:
             list[str]: コマンドのリスト
         """
         return self.__base_cmd + self.command_parts
+
+
+class Q2CmdAssembly(Iterable[Q2Cmd]):
+    """Q2CMDを保有し、依存関係を解決する"""
+
+    def __init__(self):
+        self.commands: list[Q2Cmd] = []
+        self._index = 0
+
+    def __iter__(self) -> Iterable[Q2Cmd]:
+        return iter(self.commands)

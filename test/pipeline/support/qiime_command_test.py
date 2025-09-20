@@ -1,13 +1,13 @@
-from scripts.pipeline.support import Q2CmdAssembly
+from scripts.pipeline.support import Q2CmdAssembly, Q2Cmd
 
 
-def test_Q2CmdAssembly_convert_to_str():
-    assembly = Q2CmdAssembly("qiime tools import")
-    assert str(assembly) == "qiime tools import"
+def test_Q2Cmd_convert_to_str():
+    cmd = Q2Cmd("qiime tools import")
+    assert str(cmd) == "qiime tools import"
 
 
 def test_get_paths():
-    cmd = Q2CmdAssembly("qiime tools import")
+    cmd = Q2Cmd("qiime tools import")
     cmd.add_input("data", "input1.qza")
     cmd.add_input("mapping", "input2.qza")
 
@@ -20,26 +20,25 @@ def test_get_paths():
 def test_command_ordering():
     """コマンド順序付けのテスト"""
     # ケース1: 直接的な依存関係あり
-    cmd1 = Q2CmdAssembly("cmd1").add_output("out", "file1.qza")
-    cmd2 = Q2CmdAssembly("cmd2").add_input("in", "file1.qza")
+    cmd1 = Q2Cmd("cmd1").add_output("out", "file1.qza")
+    cmd2 = Q2Cmd("cmd2").add_input("in", "file1.qza")
     assert cmd1 < cmd2  # cmd1が先に実行される
     assert cmd2 > cmd1  # cmd2は後に実行される
     assert not cmd2 < cmd1  # 逆の関係は成り立たない
 
     # ケース2: 依存関係なし
-    cmd3 = Q2CmdAssembly("cmd3").add_input("in", "other.qza")
-    assert cmd1 == cmd3  # 順序は同等
+    cmd3 = Q2Cmd("cmd3").add_input("in", "other.qza")
     assert not cmd1 < cmd3
     assert not cmd3 < cmd1
 
     # ケース3: 複数の依存関係
     cmd4 = (
-        Q2CmdAssembly("cmd4")
+        Q2Cmd("cmd4")
         .add_input("in1", "cmd4_input.qza")
         .add_output("in2", "cmd4_output.qza")
     )
     cmd5 = (
-        Q2CmdAssembly("cmd5")
+        Q2Cmd("cmd5")
         .add_input("in", "cmd4_output.qza")
         .add_output("out", "final_output.qza")
     )
@@ -50,27 +49,27 @@ def test_command_chaining():
     """コマンドチェーンのテスト"""
     # インポート → 処理 → エクスポートの順序チェック
     import_cmd = (
-        Q2CmdAssembly("qiime tools import")
+        Q2Cmd("qiime tools import")
         .add_input("data", "raw.fastq")
-        .add_output("output-seq", "imported_seq.qza")
-        .add_output("output-table", "imported_table.qza")
+        .add_output("output-seq", "imported-seq.qza")
+        .add_output("output-table", "imported-table.qza")
     )
 
     process1_cmd = (
-        Q2CmdAssembly("qiime process1")
+        Q2Cmd("qiime process1")
         .add_input("data", "imported-seq.qza")
         .add_output("output", "processed-seq.qza")
     )
 
     process2_cmd = (
-        Q2CmdAssembly("qiime process2")
-        .add_input("data", "imported_table.qza")
-        .add_output("output", "processed_table.qza")
+        Q2Cmd("qiime process2")
+        .add_input("data", "imported-table.qza")
+        .add_output("output", "processed-table.qza")
     )
     export_cmd = (
-        Q2CmdAssembly("qiime tools export")
+        Q2Cmd("qiime tools export")
         .add_input("data", "processed-seq.qza")
-        .add_input("data", "processed_table.qza")
+        .add_input("data", "processed-table.qza")
         .add_output("output", "final.qza")
     )
 
@@ -87,9 +86,8 @@ def test_command_chaining():
 
 def test_no_dependency():
     """依存関係がない場合のテスト"""
-    cmd1 = Q2CmdAssembly("cmd1").add_output("out", "file1.qza")
-    cmd2 = Q2CmdAssembly("cmd2").add_input("in", "file2.qza")
-    assert cmd1 == cmd2  # 順序は同等
+    cmd1 = Q2Cmd("cmd1").add_output("out", "file1.qza")
+    cmd2 = Q2Cmd("cmd2").add_input("in", "file2.qza")
     assert not cmd1 < cmd2
     assert not cmd2 < cmd1
 
@@ -97,19 +95,13 @@ def test_no_dependency():
 def test_cmd_sort_whithout_dependency():
     """依存関係がない場合のソートテスト"""
     cmd1 = (
-        Q2CmdAssembly("cmd1")
-        .add_input("in", "cmd1_in.qza")
-        .add_output("out", "cmd1_out.qza")
+        Q2Cmd("cmd1").add_input("in", "cmd1_in.qza").add_output("out", "cmd1_out.qza")
     )
     cmd2 = (
-        Q2CmdAssembly("cmd2")
-        .add_input("in", "cmd2_in.qza")
-        .add_output("out", "cmd2_out.qza")
+        Q2Cmd("cmd2").add_input("in", "cmd2_in.qza").add_output("out", "cmd2_out.qza")
     )
     cmd3 = (
-        Q2CmdAssembly("cmd3")
-        .add_input("in", "cmd3_in.qza")
-        .add_output("out", "cmd3_out.qza")
+        Q2Cmd("cmd3").add_input("in", "cmd3_in.qza").add_output("out", "cmd3_out.qza")
     )
 
     commands = [cmd2, cmd1, cmd3]
@@ -126,13 +118,9 @@ def test_cmd_sort_whithout_dependency():
 
 def test_is_equal():
     """is_equalメソッドのテスト"""
-    cmd1 = Q2CmdAssembly("cmd").add_input("in", "file.qza").add_output("out", "out.qza")
-    cmd2 = Q2CmdAssembly("cmd").add_input("in", "file.qza").add_output("out", "out.qza")
-    cmd3 = (
-        Q2CmdAssembly("cmd")
-        .add_input("in", "different.qza")
-        .add_output("out", "out.qza")
-    )
+    cmd1 = Q2Cmd("cmd").add_input("in", "file.qza").add_output("out", "out.qza")
+    cmd2 = Q2Cmd("cmd").add_input("in", "file.qza").add_output("out", "out.qza")
+    cmd3 = Q2Cmd("cmd").add_input("in", "different.qza").add_output("out", "out.qza")
 
-    assert cmd1.is_equal(cmd2)  # 内容が同じ場合
-    assert not cmd1.is_equal(cmd3)  # 内容が異なる場合
+    assert cmd1 == cmd2
+    assert not cmd1 == cmd3  # 内容が異なる場合
