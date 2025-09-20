@@ -75,3 +75,12 @@ def test_command_chaining():
     assert str(sorted_commands[0]) == str(import_cmd)
     assert str(sorted_commands[1]) == str(process_cmd)
     assert str(sorted_commands[2]) == str(export_cmd)
+
+
+def test_no_dependency():
+    """依存関係がない場合のテスト"""
+    cmd1 = Q2CmdAssembly("cmd1").add_output("out", "file1.qza")
+    cmd2 = Q2CmdAssembly("cmd2").add_input("in", "file2.qza")
+    assert cmd1 == cmd2  # 順序は同等
+    assert not cmd1 < cmd2
+    assert not cmd2 < cmd1
