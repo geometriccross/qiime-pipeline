@@ -36,7 +36,11 @@ class Q2CmdAssembly:
         """
         my_outputs = set(self._get_paths_from_parts("--o-"))
         other_inputs = set(other._get_paths_from_parts("--i-"))
-        return bool(my_outputs & other_inputs)
+        for my_output in my_outputs:
+            if my_output in other_inputs:
+                return True  # 中断する
+
+        return False
 
     def __gt__(self, other: Q2CmdAssembly) -> bool:
         """

@@ -35,15 +35,15 @@ def test_command_ordering():
     # ケース3: 複数の依存関係
     cmd4 = (
         Q2CmdAssembly("cmd4")
-        .add_input("in1", "file1.qza")
-        .add_input("in2", "file2.qza")
+        .add_input("in1", "cmd4_input.qza")
+        .add_output("in2", "cmd4_output.qza")
     )
     cmd5 = (
         Q2CmdAssembly("cmd5")
-        .add_output("out1", "file1.qza")
-        .add_output("out2", "file3.qza")
+        .add_input("in", "cmd4_output.qza")
+        .add_output("out", "final_output.qza")
     )
-    assert cmd5 < cmd4  # cmd5が先に実行される（file1.qzaの依存関係）
+    assert cmd4 < cmd5
 
 
 def test_command_chaining():
