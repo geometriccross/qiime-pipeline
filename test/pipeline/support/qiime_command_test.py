@@ -56,26 +56,33 @@ def test_command_chaining():
         .add_output("output-table", "imported_table.qza")
     )
 
-    process_cmd = (
-        Q2CmdAssembly("qiime process")
+    process1_cmd = (
+        Q2CmdAssembly("qiime process1")
         .add_input("data", "imported-seq.qza")
-        .add_output("output", "processed.qza")
+        .add_output("output", "processed-seq.qza")
     )
 
+    process2_cmd = (
+        Q2CmdAssembly("qiime process2")
+        .add_input("data", "imported_table.qza")
+        .add_output("output", "processed_table.qza")
+    )
     export_cmd = (
         Q2CmdAssembly("qiime tools export")
-        .add_input("data", "imported_table.qza")
-        .add_input("data", "processed.qza")
+        .add_input("data", "processed-seq.qza")
+        .add_input("data", "processed_table.qza")
         .add_output("output", "final.qza")
     )
 
     # リストのソートで正しい順序になることを確認
-    commands = [export_cmd, import_cmd, process_cmd]
+    commands = [process1_cmd, export_cmd, import_cmd, process2_cmd]
+
     sorted_commands = sorted(commands)
 
     assert str(sorted_commands[0]) == str(import_cmd)
-    assert str(sorted_commands[1]) == str(process_cmd)
-    assert str(sorted_commands[2]) == str(export_cmd)
+    assert str(sorted_commands[1]) == str(process1_cmd)
+    assert str(sorted_commands[2]) == str(process2_cmd)
+    assert str(sorted_commands[3]) == str(export_cmd)
 
 
 def test_no_dependency():
