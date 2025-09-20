@@ -72,6 +72,7 @@ def test_command_chaining():
     # リストのソートで正しい順序になることを確認
     commands = [export_cmd, import_cmd, process_cmd]
     sorted_commands = sorted(commands)
+
     assert str(sorted_commands[0]) == str(import_cmd)
     assert str(sorted_commands[1]) == str(process_cmd)
     assert str(sorted_commands[2]) == str(export_cmd)
@@ -84,6 +85,36 @@ def test_no_dependency():
     assert cmd1 == cmd2  # 順序は同等
     assert not cmd1 < cmd2
     assert not cmd2 < cmd1
+
+
+def test_cmd_sort_whithout_dependency():
+    """依存関係がない場合のソートテスト"""
+    cmd1 = (
+        Q2CmdAssembly("cmd1")
+        .add_input("in", "cmd1_in.qza")
+        .add_output("out", "cmd1_out.qza")
+    )
+    cmd2 = (
+        Q2CmdAssembly("cmd2")
+        .add_input("in", "cmd2_in.qza")
+        .add_output("out", "cmd2_out.qza")
+    )
+    cmd3 = (
+        Q2CmdAssembly("cmd3")
+        .add_input("in", "cmd3_in.qza")
+        .add_output("out", "cmd3_out.qza")
+    )
+
+    commands = [cmd2, cmd1, cmd3]
+    sorted_commands = sorted(commands)
+
+    while len(sorted_commands) > 0:
+        if (pre := None) is None:
+            pre = sorted_commands.pop(0)
+            continue
+
+        current = sorted_commands.pop(0)
+        assert not pre < current  # 依存関係が正しいことを確認
 
 
 def test_is_equal():
