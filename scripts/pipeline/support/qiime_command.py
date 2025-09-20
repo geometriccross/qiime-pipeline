@@ -135,16 +135,37 @@ class Q2CmdAssembly(Iterable[Q2Cmd]):
         """
         コマンドを依存関係に基づいてソートする
         依存関係はQ2Cmdの__lt__と__gt__メソッドで判定される
+        どのコマンドとも依存関係を持たない孤立したコマンドが検出された場合、
+        ValueError例外を投げる
         """
         sorted_commands = []
         visited = set()
         temp = set()
+
+        def has_any_dependency(cmd: Q2Cmd) -> bool:
+            """
+            コマンドが他のコマンドと依存関係を持っているかをチェックする
+
+            Args:
+                cmd (Q2Cmd): チェック対象のコマンド
+
+            Returns:
+                bool: 依存関係が存在する場合True、存在しない場合False
+            """
+            for other in self.commands:
+                if cmd != other and (cmd < other or cmd > other):
+                    return True
+            return False
 
         def visit(cmd: Q2Cmd) -> None:
             if cmd in temp:
                 raise ValueError("循環依存関係が検出されました")
             if cmd in visited:
                 return
+
+            # 依存関係のチェック
+            if not has_any_dependency(cmd):
+                raise ValueError(f"孤立したコマンドが検出されました: {str(cmd)}")
 
             temp.add(cmd)
             # このコマンドが依存するコマンドを先に処理

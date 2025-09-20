@@ -105,6 +105,29 @@ def test_command_chaining():
         assert str(e) == "循環依存関係が検出されました"
 
 
+def test_isolated_command():
+    """孤立したコマンドの検出テスト"""
+    assembly = Q2CmdAssembly()
+
+    # 孤立したコマンドを作成
+    isolated_cmd = assembly.new_cmd("qiime isolated-command")
+    isolated_cmd.add_input("in", "isolated.qza")
+    isolated_cmd.add_output("out", "isolated_out.qza")
+
+    # 依存関係のある2つのコマンドを作成
+    cmd1 = assembly.new_cmd("qiime command1")
+    cmd1.add_output("out", "file1.qza")
+    cmd2 = assembly.new_cmd("qiime command2")
+    cmd2.add_input("in", "file1.qza")
+
+    try:
+        assembly.sort_commands()
+        assert False, "孤立したコマンドが検出されるべき"
+    except ValueError as e:
+        assert str(e).startswith("孤立したコマンドが検出されました")
+        assert "qiime isolated-command" in str(e)
+
+
 def test_is_equal():
     """is_equalメソッドのテスト"""
     cmd1 = (
