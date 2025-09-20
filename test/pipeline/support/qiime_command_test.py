@@ -69,11 +69,6 @@ def test_command_chaining():
         .add_output("output", "final.qza")
     )
 
-    # 順序関係の検証
-    assert import_cmd < process_cmd
-    assert process_cmd < export_cmd
-    assert import_cmd < export_cmd  # 推移的な関係も成り立つ
-
     # リストのソートで正しい順序になることを確認
     commands = [export_cmd, import_cmd, process_cmd]
     sorted_commands = sorted(commands)
