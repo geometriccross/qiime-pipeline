@@ -39,13 +39,6 @@ def command_list(
         .add_option("quiet") \
         .add_input("sequences", base_dir / "denoised_seq.qza") \
         .add_output("alignment", out_dir / "aligned-rep-seqs.qza") \
-        .add_output("representative-sequences", out_dir / "denoised_seq.qza") \
-        .add_output("denoising-stats", out_dir / "denoised_stats.qza")
-
-    assembly.new_cmd("qiime phylogeny align-to-tree-mafft-fasttree") \
-        .add_option("quiet") \
-        .add_input("sequences", base_dir / "denoised_seq.qza") \
-        .add_output("alignment", out_dir / "aligned-rep-seqs.qza") \
         .add_output("masked-alignment", out_dir / "masked-aligned-rep-seqs.qza") \
         .add_output("tree", out_dir / "unrooted-tree.qza") \
         .add_output("rooted-tree", out_dir / "rooted-tree.qza")

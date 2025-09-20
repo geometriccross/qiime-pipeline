@@ -36,8 +36,14 @@ class Q2Cmd:
         < 演算子のオーバーライド
         selfの出力がotherの入力として使用される場合にTrue
         """
-        my_outputs = set(self._get_paths_from_parts("--o-"))
-        other_inputs = set(other._get_paths_from_parts("--i-"))
+        my_outputs = set()
+        my_outputs.update(self._get_paths_from_parts("--o-"))
+        my_outputs.update(self._get_paths_from_parts("--output-path"))
+
+        other_inputs = set()
+        other_inputs.update(other._get_paths_from_parts("--i-"))
+        other_inputs.update(other._get_paths_from_parts("--input-path"))
+
         for my_output in my_outputs:
             if my_output in other_inputs:
                 return True  # 中断する
