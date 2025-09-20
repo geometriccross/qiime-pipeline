@@ -133,3 +133,17 @@ class Q2CmdAssembly(Iterable[Q2Cmd]):
 
     def __iter__(self) -> Iterable[Q2Cmd]:
         return iter(self.commands)
+
+    def new_cmd(self, base_command: str) -> Q2Cmd:
+        """
+        新しいQ2Cmdインスタンスを作成し、アセンブリに追加する
+
+        Args:
+            base_command (str): コマンドの基本部分
+
+        Returns:
+            Q2Cmd: 作成されたQ2Cmdインスタンス
+        """
+        cmd = Q2Cmd(base_command)
+        self.commands.append(cmd)
+        return cmd
