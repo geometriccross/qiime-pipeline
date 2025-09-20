@@ -51,6 +51,9 @@ class Q2Cmd:
         """
         return other < self
 
+    def __hash__(self):
+        return hash((tuple(self.command_parts), tuple(self.__base_cmd)))
+
     def __eq__(self, other: Q2Cmd) -> bool:
         """
         == 演算子のオーバーライド
@@ -60,11 +63,8 @@ class Q2Cmd:
             return NotImplemented
 
         no_dependency = not (self < other or self > other)
-        same_value = (
-            self.command_parts == other.command_parts
-            and self.__base_cmd == other.__base_cmd
-        )
-        return no_dependency and same_value
+        same_hash = hash(self) == hash(other)
+        return no_dependency and same_hash
 
     def add_input(self, name: str, value: Union[str, Path]) -> Q2Cmd:
         """
@@ -130,6 +130,38 @@ class Q2CmdAssembly(Iterable[Q2Cmd]):
     def __init__(self):
         self.commands: list[Q2Cmd] = []
         self._index = 0
+
+    def sort_commands(self) -> None:
+        """
+        コマンドを依存関係に基づいてソートする
+        依存関係はQ2Cmdの__lt__と__gt__メソッドで判定される
+        """
+        sorted_commands = []
+        visited = set()
+        temp = set()
+
+        def visit(cmd: Q2Cmd) -> None:
+            if cmd in temp:
+                raise ValueError("循環依存関係が検出されました")
+            if cmd in visited:
+                return
+
+            temp.add(cmd)
+            # このコマンドが依存するコマンドを先に処理
+            for other in self.commands:
+                if other < cmd:  # otherの出力がcmdの入力として使用される
+                    visit(other)
+            temp.remove(cmd)
+            visited.add(cmd)
+            sorted_commands.append(cmd)
+
+        # 全てのコマンドに対してDFSを実行
+        for cmd in self.commands:
+            if cmd not in visited:
+                visit(cmd)
+
+        # ソート済みのリストで更新
+        self.commands = sorted_commands
 
     def __iter__(self) -> Iterable[Q2Cmd]:
         return iter(self.commands)
