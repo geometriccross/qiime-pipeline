@@ -77,6 +77,6 @@ def test_command_chaining():
     # リストのソートで正しい順序になることを確認
     commands = [export_cmd, import_cmd, process_cmd]
     sorted_commands = sorted(commands)
-    assert sorted_commands[0] == import_cmd
-    assert sorted_commands[1] == process_cmd
-    assert sorted_commands[2] == export_cmd
+    assert str(sorted_commands[0]) == str(import_cmd)
+    assert str(sorted_commands[1]) == str(process_cmd)
+    assert str(sorted_commands[2]) == str(export_cmd)
