@@ -11,7 +11,7 @@ def alpha_rare_context(namespace):
     yield context
 
     try:
-        context.executor.__container.stop()
+        context.executor.stop()
     except Exception as e:
         raise e
 
