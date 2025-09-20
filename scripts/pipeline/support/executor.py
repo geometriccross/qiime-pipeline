@@ -83,6 +83,10 @@ class Executor:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         """コンテナの停止"""
+        self.stop()
+
+    def stop(self):
+        """コンテナを停止する"""
         try:
             self.__container.stop()
         except exceptions.NoSuchContainer:
