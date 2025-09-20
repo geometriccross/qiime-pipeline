@@ -1,6 +1,6 @@
 from pathlib import Path
-import support
-from data.store import PairPath
+from scripts.pipeline import support
+from scripts.data.store import PairPath
 from .setup import PipelineContext
 from .util import copy_from_container
 
