@@ -40,52 +40,90 @@ def temporary_dataset(temporay_files):
         yield dataset
 
 
-def check_test_data_exist(store_folder: Path) -> bool:
-    if not store_folder.exists():
+def check_test_data_exist(root: Path) -> bool:
+    """テストデータディレクトリの構造を検証する"""
+    if not root.exists():
         return False
 
-    result = []
-    for folder in store_folder.iterdir():
-        if folder.is_file():
-            continue
+    # tarファイルを除外してディレクトリのみを検査
+    data_dirs = [
+        d for d in root.iterdir() if d.is_dir() and not str(d).endswith(".tar")
+    ]
+    if not data_dirs:
+        return False
 
-        files_str = "".join([p.name for p in folder.iterdir()])
-        result.append("_R1" in files_str)
-        result.append("_R2" in files_str)
-        result.append("metadata.csv" in files_str)
+    for data_dir in data_dirs:
+        required_files = {"metadata.csv": False, "R1": False, "R2": False}
 
-    return all(result)
+        for file_path in data_dir.iterdir():
+            match file_path.name:
+                case "metadata.csv":
+                    required_files["metadata.csv"] = True
+                case name if "_R1" in name:
+                    required_files["R1"] = True
+                case name if "_R2" in name:
+                    required_files["R2"] = True
+
+        # 全ての必要なファイルが存在しない場合はFalse
+        if not all(required_files.values()):
+            return False
+
+    return True
 
 
-def get_ids() -> dict[str, str]:
-    load_dotenv()
-    dic = {}
-    for item in getenv("GOOGLE_DRIVE_TEST_DATA_IDS").split(","):
-        key, value = item.split(":")
-        dic[key] = value
+def download_test_data(env_var: str, store_folder: Path):
+    """
+    テストデータをダウンロードして展開する
 
-    return dic
+    Args:
+        env_var: 環境変数名（Google DriveのファイルID）
+        store_folder: 保存先ディレクトリ
 
+    Raises:
+        RuntimeError: ダウンロードまたは展開に失敗した場合
+        FileNotFoundError: 必要な環境変数が見つからない場合
+    """
+    if not load_dotenv():
+        raise RuntimeError("Failed to load .env file")
 
-def download_test_data(store_folder: Path):
-    store_folder.mkdir(exist_ok=True)
-    for sample_name, file_id in get_ids().items():
-        url = f"https://drive.google.com/uc?export=download&id={file_id}"
-        tar_file = str(Path("/tmp") / f"{sample_name}.tar")
-        subprocess.run(["wget", url, "-O", tar_file])
-        subprocess.run(
-            [
-                "tar",
-                "-xf",
-                tar_file,
-                "-C",
-                str(store_folder),
-            ]
-        )
+    store_folder.mkdir(exist_ok=True, parents=True)
+    file_id = getenv(env_var)
+    if not file_id:
+        raise FileNotFoundError(f"Environment variable {env_var} not found")
+
+    url = f"https://drive.google.com/uc?export=download&id={file_id}"
+    tar_path = store_folder / f"{env_var}.tar"
+
+    # ダウンロード実行
+    result = subprocess.run(
+        ["wget", url, "-O", tar_path.as_posix()],
+        check=True,
+        capture_output=True,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(f"Failed to download test data: {result.stderr.decode()}")
+
+    if not tar_path.exists():
+        raise FileNotFoundError(f"Downloaded file not found: {tar_path}")
+
+    # 展開実行
+    result = subprocess.run(
+        [
+            "tar",
+            "-xf",
+            tar_path.as_posix(),
+            "-C",
+            store_folder.as_posix(),
+        ],
+        check=True,
+        capture_output=True,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(f"Failed to extract test data: {result.stderr.decode()}")
 
 
 @pytest.fixture
-def data_path_pairs() -> Generator[list[tuple[Path, Path]], None, None]:
+def data_path_pairs(request) -> Generator[list[tuple[Path, Path]], None, None]:
     """
     以下の構造を持つ一時ディレクトリを作成する
     使用後はこれらのファイルは削除される
@@ -117,13 +155,21 @@ def data_path_pairs() -> Generator[list[tuple[Path, Path]], None, None]:
         **[(test1/metadata.csv,test1),(test2/metadata.csv,test2),...]**
     """
 
-    store_path = Path("/tmp/qiime_pipeline_test_data")
+    if marker := request.node.get_closest_marker("gdrive_env_var"):
+        gdrive_env_var = marker
+    else:
+        gdrive_env_var = "DEFAULT_TEST_DATA"
+
+    store_path = Path(f"/tmp/qiime_pipeline_test_data/{gdrive_env_var}")
     if check_test_data_exist(store_path) is False:
-        download_test_data(store_path)
+        download_test_data(gdrive_env_var, store_path)
 
     # namespaceにすぐに渡せるよう、metadataとfastq_folderの組み合わせを作っておく
+    # ディレクトリのみを対象とし、tarファイルは除外
     yield [
-        (sample_dir / "metadata.csv", sample_dir) for sample_dir in store_path.iterdir()
+        (sample_dir / "metadata.csv", sample_dir)
+        for sample_dir in store_path.iterdir()
+        if sample_dir.is_dir() and not str(sample_dir).endswith(".tar")
     ]
 
 
