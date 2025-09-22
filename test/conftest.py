@@ -40,35 +40,37 @@ def temporary_dataset(temporay_files):
         yield dataset
 
 
+def _validate_data_directory(root: Path) -> list[Path]:
+    """データディレクトリの基本検証を行い、有効なディレクトリのリストを返す"""
+    if not root.exists():
+        return []
+
+    return [d for d in root.iterdir() if d.is_dir() and not str(d).endswith(".tar")]
+
+
+def _check_required_files(data_dir: Path) -> bool:
+    """必要なファイルが存在するか検証する"""
+    required_files = {"metadata.csv": False, "R1": False, "R2": False}
+
+    for file_path in data_dir.iterdir():
+        match file_path.name:
+            case "metadata.csv":
+                required_files["metadata.csv"] = True
+            case name if "_R1" in name:
+                required_files["R1"] = True
+            case name if "_R2" in name:
+                required_files["R2"] = True
+
+    return all(required_files.values())
+
+
 def check_test_data_exist(root: Path) -> bool:
     """テストデータディレクトリの構造を検証する"""
-    if not root.exists():
-        return False
-
-    # tarファイルを除外してディレクトリのみを検査
-    data_dirs = [
-        d for d in root.iterdir() if d.is_dir() and not str(d).endswith(".tar")
-    ]
+    data_dirs = _validate_data_directory(root)
     if not data_dirs:
         return False
 
-    for data_dir in data_dirs:
-        required_files = {"metadata.csv": False, "R1": False, "R2": False}
-
-        for file_path in data_dir.iterdir():
-            match file_path.name:
-                case "metadata.csv":
-                    required_files["metadata.csv"] = True
-                case name if "_R1" in name:
-                    required_files["R1"] = True
-                case name if "_R2" in name:
-                    required_files["R2"] = True
-
-        # 全ての必要なファイルが存在しない場合はFalse
-        if not all(required_files.values()):
-            return False
-
-    return True
+    return all(_check_required_files(dir_) for dir_ in data_dirs)
 
 
 def download_test_data(env_var: str, store_folder: Path):
