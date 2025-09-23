@@ -72,6 +72,9 @@ class Q2Cmd:
         same_hash = hash(self) == hash(other)
         return no_dependency and same_hash
 
+    def has_dependency(self, other: Q2Cmd) -> bool:
+        return self < other or self > other
+
     def add_input(self, name: str, value: Union[str, Path]) -> Q2Cmd:
         """
         渡されたnameとvalueを以下の形式でコマンドに追加する。\n

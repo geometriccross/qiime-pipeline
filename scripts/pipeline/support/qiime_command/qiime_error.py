@@ -26,7 +26,8 @@ class CircularDependencyError(DependencyError):
     @staticmethod
     def _build_cycle_path(stack_trace: list[Q2Cmd], current_cmd: Q2Cmd) -> list[Q2Cmd]:
         """
-        循環依存関係の完全なパスを構築する
+        循環依存関係の完全なパスを構築する。
+        依存関係の順序に従ってコマンドを並べ替え、サイクルを完成させる。
 
         Args:
             stack_trace: これまでの依存関係のパス
@@ -35,21 +36,26 @@ class CircularDependencyError(DependencyError):
         Returns:
             list[Q2Cmd]: 依存関係の順序に従って並べられたコマンドのリスト
         """
-        cmd_pos = stack_trace.index(current_cmd)
-        cycle = stack_trace[cmd_pos:]
-        cycle.append(current_cmd)  # サイクルを完成させるため、最後に開始点を追加
+        # サイクルの開始位置を特定し、そこからのパスを抽出
+        cycle_start_index = stack_trace.index(current_cmd)
+        cycle = stack_trace[cycle_start_index:]
 
-        # 依存関係の順序を確認
+        # サイクルを完成させるため、最後に開始点を追加
+        cycle.append(current_cmd)
+
+        # 依存関係に基づいて並べ替え
         for i in range(len(cycle) - 1):
             current = cycle[i]
             next_cmd = cycle[i + 1]
 
-            if not (current < next_cmd or next_cmd < current):
-                # 依存関係がない場合は順序を入れ替える
-                for j in range(i + 2, len(cycle)):
-                    if current < cycle[j] or cycle[j] < current:
-                        cycle[i + 1], cycle[j] = cycle[j], cycle[i + 1]
-                        break
+            if current.has_dependency(next_cmd):
+                continue
+
+            # 隣接するコマンド間に依存関係がない場合、さらに次のcmdを参照する
+            for j in range(i + 1, len(cycle)):
+                if current.has_dependency(cycle[j]):
+                    cycle[i + 1], cycle[j] = cycle[j], cycle[i + 1]
+                    break
 
         return cycle
 
