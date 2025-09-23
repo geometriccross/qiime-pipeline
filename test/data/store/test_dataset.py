@@ -1,6 +1,25 @@
+import pytest
 from pathlib import Path
 from tempfile import TemporaryDirectory, NamedTemporaryFile
 from scripts.data.store import Dataset, Datasets, Region
+
+
+@pytest.fixture()
+def temporary_dataset(tmp_path):
+    metafile = tmp_path / "metadata.csv"
+    metafile.write_text("#SampleID,feature1,feature2\n")
+    metafile.write_text("id1,abc,def\n")
+
+    fastq_dir = tmp_path / "fastq"
+    fastq_dir.mkdir(parents=True, exist_ok=True)
+    [fastq_dir.joinpath(f"test{i}.fastq").touch() for i in range(5)]
+
+    yield Dataset(
+        name="test_dataset",
+        fastq_folder=fastq_dir,
+        metadata_path=metafile,
+        region=Region("SampleRegion", 0, 0, 0, 0),
+    )
 
 
 def test_dataset_raise_error_when_specify_incorrect_path(temporay_files):

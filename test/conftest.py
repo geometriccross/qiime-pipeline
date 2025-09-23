@@ -9,7 +9,6 @@ from typing import Generator, Callable
 from scripts.data.store import (
     Dataset,
     Datasets,
-    Region,
     Regions,
     SettingData,
     ContainerData,
@@ -21,23 +20,6 @@ def temporay_files():
     with TemporaryDirectory() as fastq_dir:
         with NamedTemporaryFile(delete=True) as metadata_file:
             yield {"fastq": Path(fastq_dir), "meta": Path(metadata_file.name)}
-
-
-@pytest.fixture()
-def temporary_dataset(temporay_files):
-    with NamedTemporaryFile(delete=True) as temp_meta:
-        temp_meta.write(b"#SampleID,feature1,feature2\n")
-        temp_meta.write(b"id1,abc,def\n")
-        temp_meta.flush()
-        temporay_files["meta"] = Path(temp_meta.name)
-
-        dataset = Dataset(
-            name="test_dataset",
-            fastq_folder=temporay_files["fastq"],
-            metadata_path=temporay_files["meta"],
-            region=Region("SampleRegion", 0, 0, 0, 0),
-        )
-        yield dataset
 
 
 def _validate_data_directory(root: Path) -> list[Path]:
