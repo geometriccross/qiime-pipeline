@@ -21,6 +21,29 @@ def test_get_paths():
     assert "input2.qza" in paths
 
 
+def test_Q2Cmd_get_outputs_output_order():
+    assembly = Q2CmdAssembly()
+    cmd1_seq, cmd1_table = (
+        assembly.new_cmd("qiime tools import")
+        .add_output("output-seq", "cmd1_seq.qza")
+        .add_output("output-table", "cmd1_table.qza")
+    ).get_outputs()
+
+    cmd2_seq, cmd2_table = (
+        assembly.new_cmd("qiime tools export")
+        .add_input("data", "cmd1_seq.qza")
+        .add_output("modified", "cmd2_seq.qza")
+        .add_output("modified", "cmd2_table.qza")
+    ).get_outputs()
+
+    assembly.sort_commands()
+
+    assert cmd1_seq == "cmd1_seq.qza"
+    assert cmd1_table == "cmd1_table.qza"
+    assert cmd2_seq == "cmd2_seq.qza"
+    assert cmd2_table == "cmd2_table.qza"
+
+
 def test_command_ordering():
     """コマンド順序付けのテスト"""
     # ケース1: 直接的な依存関係あり

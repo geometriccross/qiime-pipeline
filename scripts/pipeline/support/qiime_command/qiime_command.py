@@ -72,6 +72,14 @@ class Q2Cmd:
         same_hash = hash(self) == hash(other)
         return no_dependency and same_hash
 
+    def get_outputs(self) -> list[str]:
+        """
+        コマンドの出力パスを取得する
+        """
+        return self._get_paths_from_parts("--o-") + self._get_paths_from_parts(
+            "--output-path"
+        )
+
     def has_dependency(self, other: Q2Cmd) -> bool:
         return self < other or self > other
 
