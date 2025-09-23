@@ -35,14 +35,15 @@ class CircularDependencyError(DependencyError):
         Returns:
             list[Q2Cmd]: 依存関係の順序に従って並べられたコマンドのリスト
         """
-        start_index = stack_trace.index(current_cmd)
-        cycle = stack_trace[start_index:]
+        cmd_pos = stack_trace.index(current_cmd)
+        cycle = stack_trace[cmd_pos:]
         cycle.append(current_cmd)  # サイクルを完成させるため、最後に開始点を追加
 
         # 依存関係の順序を確認
         for i in range(len(cycle) - 1):
             current = cycle[i]
             next_cmd = cycle[i + 1]
+
             if not (current < next_cmd or next_cmd < current):
                 # 依存関係がない場合は順序を入れ替える
                 for j in range(i + 2, len(cycle)):
