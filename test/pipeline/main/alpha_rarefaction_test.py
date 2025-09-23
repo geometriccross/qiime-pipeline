@@ -25,7 +25,7 @@ def test_command_list_check_current(alpha_rare_context):
     assembly.sort_commands()
 
 
-@pytest.mark.pipeline
+@pytest.mark.slow
 def test_run_rarefaction(alpha_rare_context):
     ctn_output_file = run_rarefaction(alpha_rare_context)
     files = alpha_rare_context.executor.run(["ls"]).split()

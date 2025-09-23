@@ -3,7 +3,7 @@ from scripts.pipeline.main.setup import setup_context
 from scripts.pipeline.main.db import run_setup_database
 
 
-@pytest.mark.pipeline
+@pytest.mark.slow
 def test_run_setup_database(namespace):
     context = setup_context(namespace)
     ctn_output_file = run_setup_database(context)
