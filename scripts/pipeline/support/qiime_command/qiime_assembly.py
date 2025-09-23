@@ -10,6 +10,9 @@ class Q2CmdAssembly(Iterable[Q2Cmd]):
     def __init__(self):
         self.commands: list[Q2Cmd] = []
 
+    def __iter__(self) -> Iterable[Q2Cmd]:
+        return iter(self.commands)
+
     def __add__(self, other: Q2CmdAssembly) -> Q2CmdAssembly:
         new_assembly = Q2CmdAssembly()
         new_assembly.commands = self.commands + other.commands
@@ -82,9 +85,6 @@ class Q2CmdAssembly(Iterable[Q2Cmd]):
 
         # ソート済みのリストで更新
         self.commands = sorted_commands
-
-    def __iter__(self) -> Iterable[Q2Cmd]:
-        return iter(self.commands)
 
     def new_cmd(self, base_command: str) -> Q2Cmd:
         """
