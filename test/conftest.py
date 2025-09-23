@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from argparse import Namespace
 from pathlib import Path
 from tempfile import NamedTemporaryFile, TemporaryDirectory
-from typing import Generator
+from typing import Generator, Callable
 from scripts.data.store import (
     Dataset,
     Datasets,
@@ -125,7 +125,9 @@ def download_test_data(env_var: str, store_folder: Path):
 
 
 @pytest.fixture
-def data_path_pairs(request) -> Generator[list[tuple[Path, Path]], None, None]:
+def data_path_pairs() -> (
+    Callable[[str], Generator[list[tuple[Path, Path]], None, None]]
+):
     """
     以下の構造を持つ一時ディレクトリを作成する
     使用後はこれらのファイルは削除される
@@ -157,22 +159,22 @@ def data_path_pairs(request) -> Generator[list[tuple[Path, Path]], None, None]:
         **[(test1/metadata.csv,test1),(test2/metadata.csv,test2),...]**
     """
 
-    if marker := request.node.get_closest_marker("gdrive_env_var"):
-        gdrive_env_var = marker
-    else:
-        gdrive_env_var = "DEFAULT_TEST_DATA"
+    def _data_path_pairs(
+        gdrive_env_var: str = "DEFAULT_TEST_DATA",
+    ) -> Generator[tuple[Path, Path], None, None]:
+        store_path = Path(f"/tmp/qiime_pipeline_test_data/{gdrive_env_var}")
+        if check_test_data_exist(store_path) is False:
+            download_test_data(gdrive_env_var, store_path)
 
-    store_path = Path(f"/tmp/qiime_pipeline_test_data/{gdrive_env_var}")
-    if check_test_data_exist(store_path) is False:
-        download_test_data(gdrive_env_var, store_path)
+        # namespaceにすぐに渡せるよう、metadataとfastq_folderの組み合わせを作っておく
+        # ディレクトリのみを対象とし、tarファイルは除外
+        for sample_dir in store_path.iterdir():
+            if not sample_dir.is_dir() or str(sample_dir).endswith(".tar"):
+                continue
 
-    # namespaceにすぐに渡せるよう、metadataとfastq_folderの組み合わせを作っておく
-    # ディレクトリのみを対象とし、tarファイルは除外
-    yield [
-        (sample_dir / "metadata.csv", sample_dir)
-        for sample_dir in store_path.iterdir()
-        if sample_dir.is_dir() and not str(sample_dir).endswith(".tar")
-    ]
+            yield (sample_dir / "metadata.csv", sample_dir)
+
+    return _data_path_pairs
 
 
 @pytest.fixture
@@ -186,7 +188,7 @@ def dummy_datasets(
         Datasets: data_path_pairsの内容を持つDatasetsオブジェクト
     """
     sets = set()
-    for meta, folder in data_path_pairs:
+    for meta, folder in data_path_pairs():
         sets.add(
             Dataset(
                 name=folder.name,
@@ -200,10 +202,15 @@ def dummy_datasets(
 
 
 @pytest.fixture
-def namespace(data_path_pairs) -> Namespace:
+def namespace(request, data_path_pairs) -> Namespace:
+    if request.node.get_closest_marker("gdrive_env_var"):
+        gdrive_env_var = request.node.get_closest_marker("gdrive_env_var").args[0]
+    else:
+        gdrive_env_var = "DEFAULT_TEST_DATA"
+
     with Path(TemporaryDirectory().name) as temp_host_dir:
         return Namespace(
-            data=data_path_pairs,
+            data=data_path_pairs(gdrive_env_var),
             dataset_region="V3V4",
             image="quay.io/qiime2/amplicon:latest",
             dockerfile=Path("dockerfiles/Dockerfile"),
