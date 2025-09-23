@@ -6,17 +6,16 @@ from python_on_whales import Container
 
 
 @pytest.fixture(scope="module")
-def trusted_provider():
-    provider = Provider(image="alpine", remove=True)
-
-    yield provider
-
-
-@pytest.fixture(scope="module")
 def shared_container(trusted_provider):
-    container = trusted_provider.provide()
+    container = Provider(image="alpine", remove=True).provide()
+
     yield container
-    container.stop()
+
+    try:
+        container.remove(force=True)
+        container.stop()
+    except Exception:
+        pass
 
 
 def test_provider_from_dockerfile():
