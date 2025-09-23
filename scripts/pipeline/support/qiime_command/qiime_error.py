@@ -18,26 +18,26 @@ class DependencyError(QiimePipelineError):
 class CircularDependencyError(DependencyError):
     """循環依存関係を検出した際のエラー"""
 
-    def __init__(self, dependency_path: list[Q2Cmd], cmd: Q2Cmd):
-        cycle_path = self._build_cycle_path(dependency_path, cmd)
+    def __init__(self, stack_trace: list[Q2Cmd], current_cmd: Q2Cmd):
+        cycle_path = self._build_cycle_path(stack_trace, current_cmd)
         message = self._format_error_message(cycle_path)
         super().__init__(message, cycle_path)
 
     @staticmethod
-    def _build_cycle_path(dependency_path: list[Q2Cmd], cmd: Q2Cmd) -> list[Q2Cmd]:
+    def _build_cycle_path(stack_trace: list[Q2Cmd], current_cmd: Q2Cmd) -> list[Q2Cmd]:
         """
         循環依存関係の完全なパスを構築する
 
         Args:
-            dependency_path: これまでの依存関係のパス
-            cmd: サイクルの開始点となるコマンド
+            stack_trace: これまでの依存関係のパス
+            current_cmd: サイクルの開始点となるコマンド
 
         Returns:
             list[Q2Cmd]: 依存関係の順序に従って並べられたコマンドのリスト
         """
-        start_index = dependency_path.index(cmd)
-        cycle = dependency_path[start_index:]
-        cycle.append(cmd)  # サイクルを完成させるため、最後に開始点を追加
+        start_index = stack_trace.index(current_cmd)
+        cycle = stack_trace[start_index:]
+        cycle.append(current_cmd)  # サイクルを完成させるため、最後に開始点を追加
 
         # 依存関係の順序を確認
         for i in range(len(cycle) - 1):
