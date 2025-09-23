@@ -1,12 +1,11 @@
 from pathlib import Path
 import pytest
-from tempfile import NamedTemporaryFile
 from scripts.pipeline.support.executor import Executor, Provider
 from python_on_whales import Container
 
 
 @pytest.fixture(scope="module")
-def shared_container(trusted_provider):
+def shared_container():
     container = Provider(image="alpine", remove=True).provide()
 
     yield container
@@ -18,20 +17,18 @@ def shared_container(trusted_provider):
         pass
 
 
-def test_provider_from_dockerfile():
-    with NamedTemporaryFile(suffix=".Dockerfile", delete=True) as tmp_file:
-        tmp_file.write(b"FROM alpine")
-        tmp_file.flush()
+def test_provider_from_dockerfile(tmp_path: Path):
+    dockerfile_path = tmp_path / "Dockerfile"
+    dockerfile_path.write_text("FROM alpine")
 
-        dockerfile_path = Path(tmp_file.name)
-        provider = Provider.from_dockerfile(dockerfile_path, remove=True)
-        assert isinstance(provider, Provider)
+    provider = Provider.from_dockerfile(dockerfile_path, remove=True)
+    assert isinstance(provider, Provider)
 
-        container = provider.provide()
-        assert isinstance(container, Container)
-        assert container.exists()
+    container = provider.provide()
+    assert isinstance(container, Container)
+    assert container.exists()
 
-        container.stop()
+    container.stop()
 
 
 @pytest.mark.parametrize("remove, expected", [(False, "exited"), (True, "absent")])
