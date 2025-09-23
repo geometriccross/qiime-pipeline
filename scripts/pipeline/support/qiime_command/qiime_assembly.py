@@ -40,9 +40,14 @@ class Q2CmdAssembly(Iterable[Q2Cmd]):
             Returns:
                 bool: 依存関係が存在する場合True、存在しない場合False
             """
+
             for other in self.commands:
-                if cmd != other and (cmd < other or cmd > other):
+                not_self = cmd != other
+                has_dependency = cmd < other or cmd > other
+
+                if not_self and has_dependency:
                     return True
+
             return False
 
         def visit(cmd: Q2Cmd) -> None:
