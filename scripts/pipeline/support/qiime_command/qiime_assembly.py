@@ -27,8 +27,11 @@ class Q2CmdAssembly(Iterable[Q2Cmd]):
         """
         sorted_commands = []
         visited = set()
-        temp = set()
-        dependency_path = []
+
+        # 一時的に訪問中のノードを保持するセット
+        # 実行上の性能面から、stack_traceとは別にsetとして使用する
+        cycle_detection_set = set()
+        stack_trace = []
 
         def has_any_dependency(cmd: Q2Cmd) -> bool:
             """
@@ -51,8 +54,8 @@ class Q2CmdAssembly(Iterable[Q2Cmd]):
             return False
 
         def visit(cmd: Q2Cmd) -> None:
-            if cmd in temp:
-                raise CircularDependencyError(dependency_path, cmd)
+            if cmd in cycle_detection_set:
+                raise CircularDependencyError(stack_trace, cmd)
             if cmd in visited:
                 return
 
@@ -60,23 +63,22 @@ class Q2CmdAssembly(Iterable[Q2Cmd]):
             if not has_any_dependency(cmd):
                 raise IsolatedCommandError(cmd)
 
-            temp.add(cmd)
-            dependency_path.append(cmd)
+            cycle_detection_set.add(cmd)
+            stack_trace.append(cmd)
 
-            # このコマンドが依存するコマンドを先に処理
-            for other in self.commands:
-                if other < cmd:  # otherの出力がcmdの入力として使用される
-                    visit(other)
+            # otherの出力がcmdの入力として使用される全てのコマンドに対してDFSを実行
+            for other in filter(lambda other: other < cmd, self.commands):
+                visit(other)
 
-            temp.remove(cmd)
-            dependency_path.pop()
+            cycle_detection_set.remove(cmd)
+            stack_trace.pop()
+
             visited.add(cmd)
             sorted_commands.append(cmd)
 
-        # 全てのコマンドに対してDFSを実行
-        for cmd in self.commands:
-            if cmd not in visited:
-                visit(cmd)
+        for other in self.commands:
+            if other not in visited:
+                visit(other)
 
         # ソート済みのリストで更新
         self.commands = sorted_commands
