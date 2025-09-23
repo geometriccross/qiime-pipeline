@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Iterable
 from .qiime_command import Q2Cmd
 from .qiime_error import CircularDependencyError, IsolatedCommandError
@@ -8,7 +9,12 @@ class Q2CmdAssembly(Iterable[Q2Cmd]):
 
     def __init__(self):
         self.commands: list[Q2Cmd] = []
-        self._index = 0
+
+    def __add__(self, other: Q2CmdAssembly) -> Q2CmdAssembly:
+        new_assembly = Q2CmdAssembly()
+        new_assembly.commands = self.commands + other.commands
+        new_assembly.sort_commands()
+        return new_assembly
 
     def sort_commands(self) -> None:
         """
