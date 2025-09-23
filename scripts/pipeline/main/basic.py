@@ -20,15 +20,18 @@ def command_list(context: PipelineContext, out_dir: Path) -> support.Q2CmdAssemb
         .add_option("input-path", str(context.ctn_manifest)) \
         .add_option("output-path", pre_dir / "paired_end_demux.qza")
 
+    dataset = next(iter(context.setting.datasets.sets))
+    region = dataset.region
+
     # Denoise paired sequences
     assembly.new_cmd("qiime dada2 denoise-paired") \
         .add_option("quiet") \
-        .add_parameter("n-threads", "0") \
-        .add_parameter("trim-left-f", "17") \
-        .add_parameter("trim-left-r", "21") \
-        .add_parameter("trunc-len-f", "250") \
-        .add_parameter("trunc-len-r", "250") \
         .add_input("demultiplexed-seqs", pre_dir / "paired_end_demux.qza") \
+        .add_parameter("n-threads", "0") \
+        .add_parameter("trim-left-f", str(region.trim_left_f)) \
+        .add_parameter("trim-left-r", str(region.trim_left_r)) \
+        .add_parameter("trunc-len-f", str(region.trunc_len_f)) \
+        .add_parameter("trunc-len-r", str(region.trunc_len_r)) \
         .add_output("table", pre_dir / "denoised_table.qza") \
         .add_output("representative-sequences", pre_dir / "denoised_seq.qza") \
         .add_output("denoising-stats", pre_dir / "denoised_stats.qza")
@@ -38,8 +41,8 @@ def command_list(context: PipelineContext, out_dir: Path) -> support.Q2CmdAssemb
     # Filter samples
     assembly.new_cmd("qiime feature-table filter-samples") \
         .add_option("quiet") \
-        .add_parameter("min-frequency", str(sampling_depth)) \
         .add_input("table", pre_dir / "denoised_table.qza") \
+        .add_parameter("min-frequency", str(sampling_depth)) \
         .add_output("filtered-table", pre_dir / "filtered_table.qza")
 
     # Filter sequences
@@ -49,19 +52,21 @@ def command_list(context: PipelineContext, out_dir: Path) -> support.Q2CmdAssemb
         .add_input("table", pre_dir / "filtered_table.qza") \
         .add_output("filtered-data", pre_dir / "filtered_seq.qza")
 
+    db_path = str(context.setting.container_data.database_path.local_pos)
+
     # Classify sequences
     assembly.new_cmd("qiime feature-classifier classify-sklearn") \
         .add_option("quiet") \
-        .add_input("classifier", "/db/classifier.qza") \
+        .add_input("classifier", db_path) \
         .add_input("reads", pre_dir / "filtered_seq.qza") \
         .add_output("classification", pre_dir / "classification.qza")
 
     # Filter table by taxonomy
     assembly.new_cmd("qiime taxa filter-table") \
         .add_option("quiet") \
-        .add_parameter("exclude", "mitochondria,cyanobacteria") \
         .add_input("table", pre_dir / "filtered_table.qza") \
         .add_input("taxonomy", pre_dir / "classification.qza") \
+        .add_parameter("exclude", "mitochondria,cyanobacteria") \
         .add_output("filtered-table", basic_dir / "common_biology_free_table.qza")
 
     # Filter sequences by taxonomy
@@ -103,10 +108,10 @@ def command_list(context: PipelineContext, out_dir: Path) -> support.Q2CmdAssemb
     # Core metrics calculation
     assembly.new_cmd("qiime diversity core-metrics-phylogenetic") \
         .add_option("quiet") \
-        .add_metadata("metadata-file", str(context.ctn_metadata)) \
-        .add_parameter("sampling-depth", str(sampling_depth)) \
         .add_input("phylogeny", basic_dir / "common_biology_free_rooted-tree.qza") \
         .add_input("table", basic_dir / "common_biology_free_table.qza") \
+        .add_metadata("metadata-file", str(context.ctn_metadata)) \
+        .add_parameter("sampling-depth", str(sampling_depth)) \
         .add_output("output-dir", core_dir)
 
     # fmt: on
