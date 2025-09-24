@@ -39,7 +39,7 @@ class RequiresDirectory:
 class Pipeline(ABC):
     @abstractmethod
     def __init__(self, context: PipelineContext):
-        self.__context = context
+        self._context = context
 
     @abstractmethod
     def command_list(self) -> Tuple[Q2CmdAssembly, RequiresDirectory, Any[str]]: ...
