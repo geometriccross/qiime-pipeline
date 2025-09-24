@@ -5,22 +5,24 @@ from scripts.pipeline.main.alpha import alpha_analysis_pipeline
 
 
 def test_alpha_rarefaction_commands_is_current(mocked_context):
-    assembly, result = alpha_rarefaction_pipeline(mocked_context).command_list()
+    assembly, dirs, result = alpha_rarefaction_pipeline(mocked_context).command_list()
 
 
 def test_db_commands_is_current(mocked_context):
-    assembly, result = db_pipeline(mocked_context).command_list()
+    assembly, dirs, result = db_pipeline(mocked_context).command_list()
 
 
 def test_basic_commands_is_current(mocked_context):
-    assembly, pre_dir, core_dir = basic_pipeline(mocked_context).command_list()
+    assembly, dirs, classified, coremetrics = basic_pipeline(
+        mocked_context
+    ).command_list()
 
 
 def test_alpha_commands_is_current(mocked_context, tmp_path):
     observed = str(tmp_path / "observed.qza")
     shannon = str(tmp_path / "shannon.qza")
     faith_pd = str(tmp_path / "faith_pd.qza")
-    assembly, result = alpha_analysis_pipeline(mocked_context).command_list(
+    assembly, dirs, result = alpha_analysis_pipeline(mocked_context).command_list(
         observed, shannon, faith_pd
     )
 

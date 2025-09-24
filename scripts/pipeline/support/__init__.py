@@ -1,6 +1,6 @@
 from .executor import Executor, Provider
 from .parse_arguments import argument_parser
-from .support_class import PipelineContext, Pipeline
+from .support_class import PipelineContext, Pipeline, RequiresDirectory
 from .qiime_command import (
     Q2CmdAssembly,
     CircularDependencyError,

@@ -10,15 +10,17 @@ class basic_pipeline(support.Pipeline):
 
     def command_list(self) -> tuple[support.Q2CmdAssembly, str, list[str]]:
         output = self.__context.setting.container_data.output_path.ctn_pos
-        assembly = support.Q2CmdAssembly()
-
         pre_dir = output / "pre"
         core_dir = output / "core"
 
-        db_path = self.__context.setting.container_data.database_path.ctn_pos
+        requires = support.RequiresDirectory()
+        requires.add(output)
+        requires.add(pre_dir)
+        requires.add(core_dir)
 
         # fmt: off
 
+        assembly = support.Q2CmdAssembly()
         imported = (
             assembly.new_cmd("qiime tools import")
             .add_option("type", "SampleData[PairedEndSequencesWithQuality]")
@@ -65,6 +67,8 @@ class basic_pipeline(support.Pipeline):
             .add_output("filtered-data", pre_dir / "filtered_seq.qza")
             .get_outputs()
         )
+
+        db_path = self.__context.setting.container_data.database_path.ctn_pos
 
         classfied = (
             assembly.new_cmd("qiime feature-classifier classify-sklearn")
@@ -166,4 +170,4 @@ class basic_pipeline(support.Pipeline):
         # fmt: on
 
         assembly.sort_commands()
-        return assembly, bio_free_classfied, core_metrics_files
+        return assembly, requires, bio_free_classfied, core_metrics_files

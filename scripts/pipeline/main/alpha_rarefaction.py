@@ -7,8 +7,13 @@ class alpha_rarefaction_pipeline(support.Pipeline):
     def __init__(self, context: support.PipelineContext):
         self.__context = context
 
-    def command_list(self) -> tuple[support.Q2CmdAssembly, str]:
+    def command_list(
+        self,
+    ) -> tuple[support.Q2CmdAssembly, support.RequiresDirectory, str]:
         output = self.__context.setting.container_data.output_path.ctn_pos
+        requires = support.RequiresDirectory()
+        requires.add(output)
+
         assembly = support.Q2CmdAssembly()
         # fmt: off
 
@@ -69,4 +74,4 @@ class alpha_rarefaction_pipeline(support.Pipeline):
         # fmt: on
 
         assembly.sort_commands()
-        return assembly, qzv
+        return assembly, requires, qzv
