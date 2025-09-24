@@ -5,6 +5,9 @@ from scripts.pipeline import support
 
 
 class basic_pipeline(support.Pipeline):
+    def __init__(self, context: support.PipelineContext):
+        self._context = context
+
     def command_list(self) -> tuple[support.Q2CmdAssembly, str, list[str]]:
         output = self._context.setting.container_data.output_path.ctn_pos
 
@@ -17,6 +20,8 @@ class basic_pipeline(support.Pipeline):
         requires.add(output)
         requires.add(pre_dir)
         requires.add(core_dir)
+        requires.add(alpha_dir)
+        requires.add(beta_dir)
 
         # region Preprocessing
         assembly = support.Q2CmdAssembly()
