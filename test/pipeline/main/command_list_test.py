@@ -2,6 +2,7 @@ from scripts.pipeline.main.alpha_rarefaction import alpha_rarefaction_pipeline
 from scripts.pipeline.main.db import db_pipeline
 from scripts.pipeline.main.basic import basic_pipeline
 from scripts.pipeline.main.alpha import alpha_analysis_pipeline
+from scripts.pipeline.main.beta import beta_analysis_pipeline
 
 
 def test_alpha_rarefaction_commands_is_current(mocked_context):
@@ -30,3 +31,15 @@ def test_alpha_commands_is_current(mocked_context, tmp_path):
     assert result[0].endswith("filtered_observed.qzv")
     assert result[1].endswith("filtered_shannon.qzv")
     assert result[2].endswith("filtered_faith_pd.qzv")
+
+
+def test_beta_commands_is_current(mocked_context, tmp_path):
+    weighted_unifrac = str(tmp_path / "weighted_unifrac.qza")
+    assembly, dirs, result = beta_analysis_pipeline(mocked_context).command_list(
+        weighted_unifrac
+    )
+
+    assert len(result) == 3
+    assert result[0].endswith("weighted_unifrac-Species.qzv")
+    assert result[1].endswith("weighted_unifrac-Location.qzv")
+    assert result[2].endswith("weighted_unifrac-SampleGender.qzv")
