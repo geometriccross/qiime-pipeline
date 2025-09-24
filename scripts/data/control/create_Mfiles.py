@@ -17,20 +17,30 @@ class Pair:
 
 
 def pairwised_files(files: list[Path]) -> dict[Pair]:
-    # 破壊的な変更が起きないようコピー
-    bulk: list[Path] = files.copy()
+    # ベース名をキーとした辞書を作成
+    file_groups = {}
+    for f in files:
+        base_name = extract_first_underscore(PurePath(str(f)).name)
+        if base_name not in file_groups:
+            file_groups[base_name] = []
+        file_groups[base_name].append(str(f))
 
     result = dict()
-    while len(bulk) > 1:
-        prob_fwd = str(bulk.pop())
-        prob_rvs = str(bulk.pop())
+    # 各グループでペアを作成
+    for base_name, group_files in file_groups.items():
+        if len(group_files) != 2:
+            continue
 
-        if check_current_pair(prob_fwd, prob_rvs):
-            key = extract_first_underscore(PurePath(prob_fwd).name)
-            result[key] = Pair(prob_fwd, prob_rvs)
-        else:
-            bulk.append(prob_fwd)
-            bulk.append(prob_rvs)
+        file1, file2 = group_files
+        try:
+            if check_current_pair(file1, file2):
+                result[base_name] = Pair(file1, file2)
+            elif check_current_pair(file2, file1):
+                result[base_name] = Pair(file2, file1)
+            else:
+                print(f"Warning: Files in group {base_name} don't form a valid pair")
+        except Exception as e:
+            print(f"Error processing pair {base_name}: {e}")
 
     return result
 
