@@ -10,16 +10,19 @@ from scripts.pipeline.commands import (
 
 def test_alpha_rarefaction_commands_is_current(mocked_context):
     assembly, dirs, result = alpha_rarefaction_pipeline(mocked_context).command_list()
+    assert len(assembly.build_all()) > 1
 
 
 def test_db_commands_is_current(mocked_context):
     assembly, dirs, result = db_pipeline(mocked_context).command_list()
+    assert len(assembly.build_all()) == 1
 
 
 def test_basic_commands_is_current(mocked_context):
     assembly, dirs, classified, coremetrics = basic_pipeline(
         mocked_context
     ).command_list()
+    assert len(assembly.build_all()) == 1
 
 
 def test_alpha_commands_is_current(mocked_context, tmp_path):
@@ -30,7 +33,7 @@ def test_alpha_commands_is_current(mocked_context, tmp_path):
         observed, shannon, faith_pd
     )
 
-    assert len(result) == 3
+    assert len(result) == 1
     assert result[0].endswith("filtered_observed.qzv")
     assert result[1].endswith("filtered_shannon.qzv")
     assert result[2].endswith("filtered_faith_pd.qzv")
