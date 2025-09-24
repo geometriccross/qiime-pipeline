@@ -1,7 +1,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Tuple, Any
+from typing import Tuple
 from scripts.data.store import SettingData
 from .executor import Executor
 from .qiime_command import Q2CmdAssembly
