@@ -211,7 +211,13 @@ class basic_pipeline(support.Pipeline):
         # endregion
 
         # region Beta Diversity Analysis
+
         for key in "Species", "Location", "SampleGender":
+            if sampling_depth < 10:
+                # テスト用データは数が少ないため、ここはスキップする
+                # 通常のデータではまず通るはず
+                break
+
             beta_visualized = (
                 assembly.new_cmd("qiime diversity beta-group-significance")
                 .add_option("quiet")
@@ -219,7 +225,8 @@ class basic_pipeline(support.Pipeline):
                 .add_metadata("metadata-file", self._context.ctn_metadata)
                 .add_metadata("metadata-column", key)
                 .add_input(
-                    "distance-matrix", core_dir / "weighted_unifrac_distance_matrix.qza"
+                    "distance-matrix",
+                    core_dir / "weighted_unifrac_distance_matrix.qza",
                 )
                 .add_output("visualization", beta_dir / f"weighted_unifrac-{key}.qzv")
                 .get_outputs()

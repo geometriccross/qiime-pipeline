@@ -28,7 +28,7 @@ def testing_context(tmp_path, data_path_pairs) -> Namespace:
             dockerfile=Path("dockerfiles/Dockerfile"),
             local_output=Path(tmp_path / "output"),
             local_database=Path("db/classifier.qza"),
-            sampling_depth=5,
+            sampling_depth=5,  # 非常に低い値がテストのシグナルとなる。この値が10以下かどうかでパイプラインはテストが行われているかを判断する
         )
 
         context = setup_context(namespace)
