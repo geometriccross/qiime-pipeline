@@ -94,12 +94,7 @@ class Dataset:
             f"src={self.fastq_folder.resolve()}",
             f"dst={container_base_dir / self.fastq_folder.name},readonly",
         ]
-        meta = [
-            "type=bind",
-            f"src={self.metadata_path.resolve()}",
-            f"dst={container_base_dir / self.fastq_folder.name}/metadata.csv,readonly",
-        ]
-        return [fastq, meta]
+        return [fastq]
 
 
 @dataclasses.dataclass
