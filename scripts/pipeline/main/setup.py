@@ -10,7 +10,12 @@ from scripts.data.store import (
     PairPath,
     Regions,
 )
-from scripts.pipeline.support import Executor, Provider, argument_parser
+from scripts.pipeline.support import (
+    Executor,
+    Provider,
+    argument_parser,
+    PipelineContext,
+)
 
 
 def setup_datasets(arg: Namespace) -> Datasets:
@@ -98,20 +103,6 @@ def setup_executor(mounts: list[str], setting: SettingData) -> Executor:
     )
 
     return Executor(provider.provide())
-
-
-class PipelineContext:
-    def __init__(
-        self,
-        ctn_metadata: Path,
-        ctn_manifest: Path,
-        executor: Executor,
-        setting: SettingData,
-    ):
-        self.ctn_metadata: Path = ctn_metadata
-        self.ctn_manifest: Path = ctn_manifest
-        self.executor: Executor = executor
-        self.setting: SettingData = setting
 
 
 def setup_context(args: Namespace) -> PipelineContext:
