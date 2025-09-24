@@ -1,57 +1,39 @@
-from pathlib import Path
 from scripts.pipeline import support
-from scripts.data.store import PairPath
 from .setup import PipelineContext
-from .util import copy_from_container
 
 
 def command_list(context: PipelineContext) -> list[str]:
-    workspace = context.setting.container_data.workspace_path
+    output = context.setting.container_data.output_path.ctn_pos
 
-    lib_fresh = ["bash", "-c", "apt update && apt upgrade -y"]
-    mkdir = ["mkdir", "-p", str(workspace)]
+    assembly = support.Q2CmdAssembly()
 
-    download = (
-        support.Q2CmdAssembly("qiime rescript get-silva-data")
+    silva_seq, silva_tax = (
+        assembly.new_cmd("qiime rescript get-silva-data")
         .add_parameter("p-version", "138.2")
         .add_parameter("target", "SSURef_NR99")
-        .add_output("silva-sequences", (seqs := str(workspace / "silva-seqs.qza")))
-        .add_output("silva-taxonomy", (tax := str(workspace / "silva-tax.qza")))
+        .add_output("silva-sequences", output / "silva-seqs.qza")
+        .add_output("silva-taxonomy", output / "silva-tax.qza")
+        .get_outputs()
     )
 
-    extract_reads = (
-        support.Q2CmdAssembly("qiime feature-classifier extract-reads")
-        .add_input("sequences", seqs)
+    silva_read = (
+        assembly.new_cmd("qiime feature-classifier extract-reads")
+        .add_input("sequences", silva_seq)
         .add_parameter("min-length", "350")
         .add_parameter("max-length", "500")
         .add_parameter("f-primer", "CCTACGGGNGGCWGCAG")
         .add_parameter("r-primer", "GACTACHVGGGTATCTAATCC")
-        .add_output("reads", (reads := str(workspace / "silva-reads.qza")))
+        .add_output("reads", output / "silva-reads.qza")
+        .get_outputs()
     )
 
-    train = (
-        support.Q2CmdAssembly("qiime feature-classifier fit-classifier-naive-bayes")
-        .add_input("reference-reads", reads)
-        .add_input("reference-taxonomy", tax)
-        .add_output("classifier", str(workspace / "classifier-silva138.qza"))
+    result = (
+        assembly.new_cmd("qiime feature-classifier fit-classifier-naive-bayes")
+        .add_input("reference-reads", silva_read)
+        .add_input("reference-taxonomy", silva_tax)
+        .add_output("classifier", output / "classifier-silva138.qza")
+        .get_outputs()
     )
 
-    return [lib_fresh, mkdir, download.build(), extract_reads.build(), train.build()]
-
-
-def run_setup_database(context: PipelineContext) -> str:
-    for cmd in command_list(context):
-        print(cmd)
-        output, error = context.executor.run(cmd)
-        if error:
-            raise RuntimeError(f"データベースのセットアップに失敗しました: {error}")
-
-    return str(
-        (context.setting.container_data.workspace_path / "classifier-silva138.qza")
-    )
-
-
-def execute(context: PipelineContext) -> PairPath:
-    ctn_db_file = run_setup_database(context)
-    local_file = copy_from_container(context, Path(ctn_db_file))
-    return PairPath(local_pos=local_file, container_pos=ctn_db_file)
+    assembly.sort_commands()
+    return assembly, result
