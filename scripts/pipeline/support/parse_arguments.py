@@ -2,31 +2,22 @@ from pathlib import Path
 import argparse
 
 
-def parse_pair(pair_str: str) -> list[tuple[Path, Path]]:
+def parse_pair(pair: str) -> tuple[Path, Path]:
     """Parse a string of the form 'metadata_path:fastq_folder' into a tuple of Paths."""
-    result = []
-    for pair in pair_str.split(","):
-        if ":" not in pair:
-            raise ValueError(
-                f"Invalid pair format: {pair}. Expected 'metadata_path:fastq_folder'."
-            )
-
-        metadata_path_str, fastq_folder_str = pair.split(":")
-
-        if not metadata_path_str or not fastq_folder_str:
-            raise ValueError(
-                f"""Invalid pair format: {pair}.
-                    Both metadata path and fastq folder must be provided."""
-            )
-
-        result.append(
-            (
-                Path(metadata_path_str.strip()),
-                Path(fastq_folder_str.strip()),
-            )
+    if ":" not in pair:
+        raise ValueError(
+            f"Invalid pair format: {pair}. Expected 'metadata_path:fastq_folder'."
         )
 
-        return result
+    metadata_path_str, fastq_folder_str = pair.split(":")
+
+    if not metadata_path_str or not fastq_folder_str:
+        raise ValueError(
+            f"""Invalid pair format: {pair}.
+                Both metadata path and fastq folder must be provided."""
+        )
+
+    return Path(metadata_path_str.strip()), Path(fastq_folder_str.strip())
 
 
 def argument_parser():
