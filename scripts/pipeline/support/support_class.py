@@ -43,11 +43,3 @@ class Pipeline(ABC):
 
     @abstractmethod
     def command_list(self) -> Tuple[Q2CmdAssembly, RequiresDirectory, Any[str]]: ...
-
-    def run(self) -> Path:
-        self.__context.executor.run(["bash", "-c", "apt update && apt upgrade -y"])
-        self.__context.executor.run(
-            ["mkdir", "-p", self.__context.setting.container_data.output_path.ctn_pos]
-        )
-
-        [self.__context.executor.run(cmd) for cmd in self.command_list().build_all()]
