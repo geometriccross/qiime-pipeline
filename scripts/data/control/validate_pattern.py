@@ -40,7 +40,7 @@ def extract_first_underscore(string: str) -> str:
     """
     Extract the sample name from the row.
     """
-    return string.replace(".fastq", "").replace(".gz", "").split("_")[0]
+    return string.replace(".fastq", "").replace(".gz", "").split("_")[0].lower()
 
 
 def check_direction(string: str) -> Direction:
