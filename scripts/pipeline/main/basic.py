@@ -8,7 +8,7 @@ class basic_pipeline(support.Pipeline):
     def __init__(self, context: support.PipelineContext):
         self.__context = context
 
-    def command_list(self) -> tuple[support.Q2CmdAssembly, str, str]:
+    def command_list(self) -> tuple[support.Q2CmdAssembly, str, list[str]]:
         output = self.__context.setting.container_data.output_path.ctn_pos
         assembly = support.Q2CmdAssembly()
 
@@ -115,18 +115,55 @@ class basic_pipeline(support.Pipeline):
             .get_outputs()
         )
 
-        core_metrics_dir = (
+
+
+        # core-metrics-phylogenetic requires the following outputs:
+        #  --o-rarefied-table
+        #  --o-faith-pd-vector
+        #  --o-observed-features-vector
+        #  --o-shannon-vector
+        #  --o-evenness-vector
+        #  --o-unweighted-unifrac-distance-matrix
+        #  --o-weighted-unifrac-distance-matrix
+        #  --o-jaccard-distance-matrix
+        #  --o-bray-curtis-distance-matrix
+        #  --o-unweighted-unifrac-pcoa-results
+        #  --o-weighted-unifrac-pcoa-results
+        #  --o-jaccard-pcoa-results
+        #  --o-bray-curtis-pcoa-results
+        #  --o-unweighted-unifrac-emperor
+        #  --o-weighted-unifrac-emperor
+        #  --o-jaccard-emperor
+        #  --o-bray-curtis-emperor
+
+        core_metrics_files = (
             assembly.new_cmd("qiime diversity core-metrics-phylogenetic")
             .add_option("quiet")
             .add_input("phylogeny", rooted_tree)
             .add_input("table", bio_free_table)
             .add_metadata("metadata-file", self.__context.ctn_metadata)
             .add_parameter("sampling-depth", str(sampling_depth))
-            .add_output("output-dir", core_dir)
+            .add_output("rarefied-table", core_dir / "rarefied_table.qza")
+            .add_output("faith-pd-vector", core_dir / "faith_pd_vector.qza")
+            .add_output("observed-features-vector", core_dir / "observed_features_vector.qza")
+            .add_output("shannon-vector", core_dir / "shannon_vector.qza")
+            .add_output("evenness-vector", core_dir / "evenness_vector.qza")
+            .add_output("unweighted-unifrac-distance-matrix", core_dir / "unweighted_unifrac_distance_matrix.qza")
+            .add_output("weighted-unifrac-distance-matrix", core_dir / "weighted_unifrac_distance_matrix.qza")
+            .add_output("jaccard-distance-matrix", core_dir / "jaccard_distance_matrix.qza")
+            .add_output("bray-curtis-distance-matrix", core_dir / "bray_curtis_distance_matrix.qza")
+            .add_output("unweighted-unifrac-pcoa-results", core_dir / "unweighted_unifrac_pcoa_results.qza")
+            .add_output("weighted-unifrac-pcoa-results", core_dir / "weighted_unifrac_pcoa_results.qza")
+            .add_output("jaccard-pcoa-results", core_dir / "jaccard_pcoa_results.qza")
+            .add_output("bray-curtis-pcoa-results", core_dir / "bray_curtis_pcoa_results.qza")
+            .add_output("unweighted-unifrac-emperor", core_dir / "unweighted_unifrac_emperor.qzv")
+            .add_output("weighted-unifrac-emperor", core_dir / "weighted_unifrac_emperor.qzv")
+            .add_output("jaccard-emperor", core_dir / "jaccard_emperor.qzv")
+            .add_output("bray-curtis-emperor", core_dir / "bray_curtis_emperor.qzv")
             .get_outputs()
         )
 
         # fmt: on
 
         assembly.sort_commands()
-        return assembly, core_metrics_dir, bio_free_classfied
+        return assembly, bio_free_classfied, core_metrics_files
