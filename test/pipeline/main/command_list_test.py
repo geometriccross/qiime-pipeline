@@ -3,6 +3,7 @@ from scripts.pipeline.main.db import db_pipeline
 from scripts.pipeline.main.basic import basic_pipeline
 from scripts.pipeline.main.alpha import alpha_analysis_pipeline
 from scripts.pipeline.main.beta import beta_analysis_pipeline
+from scripts.pipeline.main.taxonomy import taxonomy_pipeline
 
 
 def test_alpha_rarefaction_commands_is_current(mocked_context):
@@ -43,3 +44,14 @@ def test_beta_commands_is_current(mocked_context, tmp_path):
     assert result[0].endswith("weighted_unifrac-Species.qzv")
     assert result[1].endswith("weighted_unifrac-Location.qzv")
     assert result[2].endswith("weighted_unifrac-SampleGender.qzv")
+
+
+def test_taxonomy_commands_is_current(mocked_context, tmp_path):
+    table = str(tmp_path / "table.qza")
+    classifier = str(tmp_path / "classifier.qza")
+    assembly, dirs, result = taxonomy_pipeline(mocked_context).command_list(
+        table, classifier
+    )
+
+    assert len(result) == 1
+    assert result[0].endswith("taxa-bar-plots.qzv")
