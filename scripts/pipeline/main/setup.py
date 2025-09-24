@@ -77,6 +77,7 @@ def setup_files(setting: SettingData) -> Tuple[PairPath, PairPath]:
 def setup_mounts(
     metafile_pairpath: PairPath,
     manifest_pairpath: PairPath,
+    db_pairpath: PairPath,
     ctn_workspace_dir: Path,
     datasets: Datasets,
 ) -> list[str]:
@@ -91,6 +92,7 @@ def setup_mounts(
     return [
         __convert_path_into_mount_format(metafile_pairpath),
         __convert_path_into_mount_format(manifest_pairpath),
+        __convert_path_into_mount_format(db_pairpath),
         *datasets.mounts(ctn_workspace_dir / "data"),
     ]
 
@@ -114,6 +116,7 @@ def setup_context(args: Namespace) -> PipelineContext:
         metafile_pairpath=metadata,
         manifest_pairpath=manifest,
         ctn_workspace_dir=setting.container_data.workspace_path,
+        db_pairpath=setting.container_data.database_path,
         datasets=setting.datasets,
     )
     executor = setup_executor(mounts, setting)
