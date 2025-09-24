@@ -215,8 +215,7 @@ class basic_pipeline(support.Pipeline):
             beta_visualized = (
                 assembly.new_cmd("qiime diversity beta-group-significance")
                 .add_option("quiet")
-                .add_parameter("p-value-correction", "fdr")
-                .add_parameter("pairwise", "--p-pairwise")
+                .add_parameter("pairwise", True)
                 .add_metadata("metadata-file", self._context.ctn_metadata)
                 .add_metadata("metadata-column", key)
                 .add_input(
