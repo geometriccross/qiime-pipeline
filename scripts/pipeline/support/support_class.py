@@ -42,4 +42,10 @@ class Pipeline(ABC):
         self._context = context
 
     @abstractmethod
-    def command_list(self) -> Tuple[Q2CmdAssembly, RequiresDirectory, Any[str]]: ...
+    def command_list(self) -> Tuple[Q2CmdAssembly, RequiresDirectory]: ...
+
+    def run(self):
+        assembly, requires = self.command_list()
+        requires.ensure(self._context.executor)
+        for cmd in assembly.build_all():
+            self._context.executor.run(cmd)
