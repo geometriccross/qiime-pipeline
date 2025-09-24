@@ -2,6 +2,9 @@ from scripts.pipeline import support
 
 
 class db_pipeline(support.Pipeline):
+    def __init__(self, context: support.PipelineContext):
+        self._context = context
+
     def command_list(
         self,
     ) -> tuple[support.Q2CmdAssembly, support.RequiresDirectory, str]:
