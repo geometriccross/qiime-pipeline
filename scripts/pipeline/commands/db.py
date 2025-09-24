@@ -2,13 +2,10 @@ from scripts.pipeline import support
 
 
 class db_pipeline(support.Pipeline):
-    def __init__(self, context: support.PipelineContext):
-        self.__context = context
-
     def command_list(
         self,
     ) -> tuple[support.Q2CmdAssembly, support.RequiresDirectory, str]:
-        output = self.__context.setting.container_data.output_path.ctn_pos
+        output = self._context.setting.container_data.output_path.ctn_pos
         requires = support.RequiresDirectory()
         requires.add(output)
 
@@ -34,7 +31,7 @@ class db_pipeline(support.Pipeline):
             .get_outputs()
         )
 
-        result = (
+        _ = (
             assembly.new_cmd("qiime feature-classifier fit-classifier-naive-bayes")
             .add_input("reference-reads", silva_read)
             .add_input("reference-taxonomy", silva_tax)
@@ -43,4 +40,4 @@ class db_pipeline(support.Pipeline):
         )
 
         assembly.sort_commands()
-        return assembly, requires, result
+        return assembly, requires

@@ -5,11 +5,8 @@ from scripts.pipeline import support
 
 
 class basic_pipeline(support.Pipeline):
-    def __init__(self, context: support.PipelineContext):
-        self.__context = context
-
     def command_list(self) -> tuple[support.Q2CmdAssembly, str, list[str]]:
-        output = self.__context.setting.container_data.output_path.ctn_pos
+        output = self._context.setting.container_data.output_path.ctn_pos
 
         pre_dir = output / "pre"
         core_dir = output / "core"
@@ -27,12 +24,12 @@ class basic_pipeline(support.Pipeline):
             assembly.new_cmd("qiime tools import")
             .add_option("type", "SampleData[PairedEndSequencesWithQuality]")
             .add_option("input-format", "PairedEndFastqManifestPhred33V2")
-            .add_option("input-path", self.__context.ctn_manifest)
+            .add_option("input-path", self._context.ctn_manifest)
             .add_option("output-path", pre_dir / "paired_end_demux.qza")
             .get_outputs()
         )
 
-        dataset = next(iter(self.__context.setting.datasets.sets))
+        dataset = next(iter(self._context.setting.datasets.sets))
         region = dataset.region
 
         denoised_seq, denoised_table, denoised_stat = (
@@ -50,7 +47,7 @@ class basic_pipeline(support.Pipeline):
             .get_outputs()
         )
 
-        sampling_depth = self.__context.setting.sampling_depth
+        sampling_depth = self._context.setting.sampling_depth
 
         filtered_table = (
             assembly.new_cmd("qiime feature-table filter-samples")
@@ -70,7 +67,7 @@ class basic_pipeline(support.Pipeline):
             .get_outputs()
         )
 
-        db_path = self.__context.setting.container_data.database_path.ctn_pos
+        db_path = self._context.setting.container_data.database_path.ctn_pos
 
         classfied = (
             assembly.new_cmd("qiime feature-classifier classify-sklearn")
@@ -134,7 +131,7 @@ class basic_pipeline(support.Pipeline):
             .add_option("quiet")
             .add_input("phylogeny", rooted_tree)
             .add_input("table", bio_free_table)
-            .add_metadata("metadata-file", self.__context.ctn_metadata)
+            .add_metadata("metadata-file", self._context.ctn_metadata)
             .add_parameter("sampling-depth", str(sampling_depth))
             .add_output("rarefied-table", core_dir / "rarefied_table.qza")
             .add_output("faith-pd-vector", core_dir / "faith_pd_vector.qza")
@@ -192,7 +189,7 @@ class basic_pipeline(support.Pipeline):
             filtered = (
                 assembly.new_cmd("qiime diversity filter-alpha-diversity")
                 .add_input("alpha-diversity", alpha_index)
-                .add_metadata("metadata-file", self.__context.ctn_metadata)
+                .add_metadata("metadata-file", self._context.ctn_metadata)
                 .add_output(
                     "filtered-alpha-diversity", alpha_dir / f"filtered_{name}.qza"
                 )
@@ -202,7 +199,7 @@ class basic_pipeline(support.Pipeline):
             alpha_visualized = (
                 assembly.new_cmd("qiime diversity alpha-group-significance")
                 .add_input("alpha-diversity", filtered)
-                .add_metadata("metadata-file", self.__context.ctn_metadata)
+                .add_metadata("metadata-file", self._context.ctn_metadata)
                 .add_output("visualization", filtered.replace(".qza", ".qzv"))
                 .get_outputs()
             )
@@ -215,7 +212,7 @@ class basic_pipeline(support.Pipeline):
                 .add_option("quiet")
                 .add_parameter("p-value-correction", "fdr")
                 .add_parameter("pairwise", "--p-pairwise")
-                .add_metadata("metadata-file", self.__context.ctn_metadata)
+                .add_metadata("metadata-file", self._context.ctn_metadata)
                 .add_metadata("metadata-column", key)
                 .add_input(
                     "distance-matrix", core_dir / "weighted_unifrac_distance_matrix.qza"
@@ -231,7 +228,7 @@ class basic_pipeline(support.Pipeline):
             .add_option("quiet")
             .add_input("table", bio_free_table)
             .add_input("taxonomy", bio_free_classfied)
-            .add_metadata("metadata-file", self.__context.ctn_metadata)
+            .add_metadata("metadata-file", self._context.ctn_metadata)
             .add_output("visualization", output / "taxa-bar-plots.qzv")
             .get_outputs()
         )
