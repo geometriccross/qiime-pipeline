@@ -184,22 +184,21 @@ def dummy_datasets(
 
 
 @pytest.fixture
-def namespace(request, data_path_pairs) -> Namespace:
+def namespace(request, tmp_path, data_path_pairs) -> Namespace:
     if request.node.get_closest_marker("gdrive_env_var"):
         gdrive_env_var = request.node.get_closest_marker("gdrive_env_var").args[0]
     else:
         gdrive_env_var = "DEFAULT_TEST_DATA"
 
-    with Path(TemporaryDirectory().name) as temp_host_dir:
-        return Namespace(
-            data=data_path_pairs(gdrive_env_var),
-            dataset_region="V3V4",
-            image="quay.io/qiime2/amplicon:latest",
-            dockerfile=Path("dockerfiles/Dockerfile"),
-            local_output=Path(temp_host_dir / "output"),
-            local_database=Path("db/classifier.qza"),
-            sampling_depth=5,
-        )
+    return Namespace(
+        data=data_path_pairs(gdrive_env_var),
+        dataset_region="V3V4",
+        image="quay.io/qiime2/amplicon:latest",
+        dockerfile=Path("dockerfiles/Dockerfile"),
+        local_output=Path(tmp_path / "output"),
+        local_database=Path("db/classifier.qza"),
+        sampling_depth=5,
+    )
 
 
 @pytest.fixture
