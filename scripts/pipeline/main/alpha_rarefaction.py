@@ -54,8 +54,8 @@ def command_list(
     # steps, iterationsはサンプルのmax featureよりも十分に小さくする
     assembly.new_cmd("qiime diversity alpha-rarefaction") \
         .add_option("quiet") \
-        .add_input("table", base_dir / denoised_table) \
-        .add_input("phylogeny", base_dir / rooted_tree) \
+        .add_input("table", denoised_table) \
+        .add_input("phylogeny", rooted_tree) \
         .add_parameter("min-depth", "1") \
         .add_parameter("max-depth", sampling_depth) \
         .add_parameter("steps", str(2) if sampling_depth < 10 else str(10)) \
