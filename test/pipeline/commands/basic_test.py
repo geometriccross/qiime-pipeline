@@ -8,8 +8,8 @@ def test_command_list_check_current(mocked_context):
 
 def test_run_rarefaction(testing_context):
     context = testing_context("BASIC_TEST_DATA").__next__()
-    alpha_rarefaction = basic_pipeline(context)
-    alpha_rarefaction.run()
+    basic = basic_pipeline(context)
+    basic.run()
 
     output = copy_from_container(
         context, context.setting.container_data.output_path.ctn_pos
