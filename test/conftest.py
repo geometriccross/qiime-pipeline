@@ -184,14 +184,9 @@ def dummy_datasets(
 
 
 @pytest.fixture
-def namespace(request, tmp_path, data_path_pairs) -> Namespace:
-    if request.node.get_closest_marker("gdrive_env_var"):
-        gdrive_env_var = request.node.get_closest_marker("gdrive_env_var").args[0]
-    else:
-        gdrive_env_var = "DEFAULT_TEST_DATA"
-
+def namespace(tmp_path, data_path_pairs) -> Namespace:
     return Namespace(
-        data=data_path_pairs(gdrive_env_var),
+        data=data_path_pairs("DEFAULT_TEST_DATA"),
         dataset_region="V3V4",
         image="quay.io/qiime2/amplicon:latest",
         dockerfile=Path("dockerfiles/Dockerfile"),
