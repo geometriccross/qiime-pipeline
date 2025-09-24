@@ -5,12 +5,12 @@ from scripts.pipeline import support
 
 class alpha_rarefaction_pipeline(support.Pipeline):
     def __init__(self, context: support.PipelineContext):
-        self.__context = context
+        self._context = context
 
     def command_list(
         self,
     ) -> tuple[support.Q2CmdAssembly, support.RequiresDirectory, str]:
-        output = self.__context.setting.container_data.output_path.ctn_pos
+        output = self._context.setting.container_data.output_path.ctn_pos
         requires = support.RequiresDirectory()
         requires.add(output)
 
@@ -21,12 +21,12 @@ class alpha_rarefaction_pipeline(support.Pipeline):
         imported = assembly.new_cmd("qiime tools import") \
             .add_option("type", "SampleData[PairedEndSequencesWithQuality]") \
             .add_option("input-format", "PairedEndFastqManifestPhred33V2") \
-            .add_option("input-path", self.__context.ctn_manifest) \
+            .add_option("input-path", self._context.ctn_manifest) \
             .add_option("output-path", output / "paired_end_demux.qza") \
             .get_outputs()
 
         # Get region settings from the first dataset
-        dataset = next(iter(self.__context.setting.datasets.sets))
+        dataset = next(iter(self._context.setting.datasets.sets))
         region = dataset.region
 
         denoised_table, denoised_seq, denoised_stats =  \
@@ -53,7 +53,7 @@ class alpha_rarefaction_pipeline(support.Pipeline):
             .add_output("rooted-tree", output / "rooted-tree.qza") \
             .get_outputs()
 
-        sampling_depth = self.__context.setting.sampling_depth
+        sampling_depth = self._context.setting.sampling_depth
 
         # 実行時のエラーを避けるため
         # steps, iterationsはサンプルのmax featureよりも十分に小さくする
@@ -65,7 +65,7 @@ class alpha_rarefaction_pipeline(support.Pipeline):
             .add_parameter("max-depth", sampling_depth)
             .add_parameter("steps", str(2) if sampling_depth < 10 else str(10))
             .add_parameter("iterations", str(1) if sampling_depth < 10 else str(10))
-            .add_metadata("metadata-file", str(self.__context.ctn_metadata))
+            .add_metadata("metadata-file", str(self._context.ctn_metadata))
             .add_output("visualization", output / "alpha_rarefaction.qzv"))
 
         # fmt: on
