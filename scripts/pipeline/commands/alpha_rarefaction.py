@@ -57,8 +57,7 @@ class alpha_rarefaction_pipeline(support.Pipeline):
 
         # 実行時のエラーを避けるため
         # steps, iterationsはサンプルのmax featureよりも十分に小さくする
-        qzv = (
-            assembly.new_cmd("qiime diversity alpha-rarefaction")
+        (assembly.new_cmd("qiime diversity alpha-rarefaction")
             .add_option("quiet")
             .add_input("table", denoised_table)
             .add_input("phylogeny", rooted_tree)
@@ -67,11 +66,9 @@ class alpha_rarefaction_pipeline(support.Pipeline):
             .add_parameter("steps", str(2) if sampling_depth < 10 else str(10))
             .add_parameter("iterations", str(1) if sampling_depth < 10 else str(10))
             .add_metadata("metadata-file", str(self.__context.ctn_metadata))
-            .add_output("visualization", output / "alpha_rarefaction.qzv")
-            .get_outputs()
-        )
+            .add_output("visualization", output / "alpha_rarefaction.qzv"))
 
         # fmt: on
 
         assembly.sort_commands()
-        return assembly, requires, qzv
+        return assembly, requires
