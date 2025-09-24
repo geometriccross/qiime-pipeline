@@ -1,9 +1,11 @@
-from scripts.pipeline.main.alpha_rarefaction import alpha_rarefaction_pipeline
-from scripts.pipeline.main.db import db_pipeline
-from scripts.pipeline.main.basic import basic_pipeline
-from scripts.pipeline.main.alpha import alpha_analysis_pipeline
-from scripts.pipeline.main.beta import beta_analysis_pipeline
-from scripts.pipeline.main.taxonomy import taxonomy_pipeline
+from scripts.pipeline.commands import (
+    alpha_rarefaction_pipeline,
+    db_pipeline,
+    basic_pipeline,
+    alpha_analysis_pipeline,
+    beta_analysis_pipeline,
+    taxonomy_pipeline,
+)
 
 
 def test_alpha_rarefaction_commands_is_current(mocked_context):
