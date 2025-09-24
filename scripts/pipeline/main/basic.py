@@ -1,160 +1,132 @@
 #!/usr/bin/env python
+# flake8: noqa
 
-from pathlib import Path
 from scripts.pipeline import support
-from .setup import PipelineContext
 
 
-def command_list(context: PipelineContext, out_dir: Path) -> support.Q2CmdAssembly:
-    assembly = support.Q2CmdAssembly()
-    # fmt: off
+class basic_pipeline(support.Pipeline):
+    def __init__(self, context: support.PipelineContext):
+        self.__context = context
 
-    pre_dir = out_dir / "pre"
-    basic_dir = out_dir / "basic"
-    core_dir = out_dir / "core"
+    def command_list(self) -> tuple[support.Q2CmdAssembly, str, str]:
+        output = self.__context.setting.container_data.output_path.ctn_pos
+        assembly = support.Q2CmdAssembly()
 
-    # Import sequences
-    assembly.new_cmd("qiime tools import") \
-        .add_option("type", "SampleData[PairedEndSequencesWithQuality]") \
-        .add_option("input-format", "PairedEndFastqManifestPhred33V2") \
-        .add_option("input-path", str(context.ctn_manifest)) \
-        .add_option("output-path", pre_dir / "paired_end_demux.qza")
+        pre_dir = output / "pre"
+        core_dir = output / "core"
 
-    dataset = next(iter(context.setting.datasets.sets))
-    region = dataset.region
+        db_path = self.__context.setting.container_data.database_path.ctn_pos
 
-    # Denoise paired sequences
-    assembly.new_cmd("qiime dada2 denoise-paired") \
-        .add_option("quiet") \
-        .add_input("demultiplexed-seqs", pre_dir / "paired_end_demux.qza") \
-        .add_parameter("n-threads", "0") \
-        .add_parameter("trim-left-f", str(region.trim_left_f)) \
-        .add_parameter("trim-left-r", str(region.trim_left_r)) \
-        .add_parameter("trunc-len-f", str(region.trunc_len_f)) \
-        .add_parameter("trunc-len-r", str(region.trunc_len_r)) \
-        .add_output("table", pre_dir / "denoised_table.qza") \
-        .add_output("representative-sequences", pre_dir / "denoised_seq.qza") \
-        .add_output("denoising-stats", pre_dir / "denoised_stats.qza")
+        # fmt: off
 
-    sampling_depth = context.setting.sampling_depth
-
-    # Filter samples
-    assembly.new_cmd("qiime feature-table filter-samples") \
-        .add_option("quiet") \
-        .add_input("table", pre_dir / "denoised_table.qza") \
-        .add_parameter("min-frequency", str(sampling_depth)) \
-        .add_output("filtered-table", pre_dir / "filtered_table.qza")
-
-    # Filter sequences
-    assembly.new_cmd("qiime feature-table filter-seqs") \
-        .add_option("quiet") \
-        .add_input("data", pre_dir / "denoised_seq.qza") \
-        .add_input("table", pre_dir / "filtered_table.qza") \
-        .add_output("filtered-data", pre_dir / "filtered_seq.qza")
-
-    db_path = str(context.setting.container_data.database_path.local_pos)
-
-    # Classify sequences
-    assembly.new_cmd("qiime feature-classifier classify-sklearn") \
-        .add_option("quiet") \
-        .add_input("classifier", db_path) \
-        .add_input("reads", pre_dir / "filtered_seq.qza") \
-        .add_output("classification", pre_dir / "classification.qza")
-
-    # Filter table by taxonomy
-    assembly.new_cmd("qiime taxa filter-table") \
-        .add_option("quiet") \
-        .add_input("table", pre_dir / "filtered_table.qza") \
-        .add_input("taxonomy", pre_dir / "classification.qza") \
-        .add_parameter("exclude", "mitochondria,cyanobacteria") \
-        .add_output("filtered-table", basic_dir / "common_biology_free_table.qza")
-
-    # Filter sequences by taxonomy
-    assembly.new_cmd("qiime taxa filter-seqs") \
-        .add_option("quiet") \
-        .add_parameter("exclude", "mitochondria,cyanobacteria") \
-        .add_input("sequences", pre_dir / "filtered_seq.qza") \
-        .add_input("taxonomy", pre_dir / "classification.qza") \
-        .add_output(
-            "filtered-sequences",
-            basic_dir / "common_biology_free_seq.qza"
+        imported = (
+            assembly.new_cmd("qiime tools import")
+            .add_option("type", "SampleData[PairedEndSequencesWithQuality]")
+            .add_option("input-format", "PairedEndFastqManifestPhred33V2")
+            .add_option("input-path", self.__context.ctn_manifest)
+            .add_option("output-path", pre_dir / "paired_end_demux.qza")
+            .get_outputs()
         )
 
-    # Phylogenetic tree construction
-    assembly.new_cmd("qiime phylogeny align-to-tree-mafft-fasttree") \
-        .add_option("quiet") \
-        .add_input("sequences", basic_dir / "common_biology_free_seq.qza") \
-        .add_output(
-            "alignment",
-            basic_dir / "common_biology_free_aligned-rep-seqs.qza"
-        ) \
-        .add_output(
-            "masked-alignment",
-            basic_dir / "common_biology_free_masked-aligned-rep-seqs.qza"
-        ) \
-        .add_output("tree", basic_dir / "common_biology_free_unrooted-tree.qza") \
-        .add_output("rooted-tree", basic_dir / "common_biology_free_rooted-tree.qza")
+        dataset = next(iter(self.__context.setting.datasets.sets))
+        region = dataset.region
 
-    # Classify filtered sequences
-    assembly.new_cmd("qiime feature-classifier classify-sklearn") \
-        .add_option("quiet") \
-        .add_input("classifier", "/db/classifier.qza") \
-        .add_input("reads", basic_dir / "common_biology_free_seq.qza") \
-        .add_output(
-            "classification",
-            basic_dir / "common_biology_free_classification.qza"
+        denoised_seq, denoised_table, denoised_stat = (
+            assembly.new_cmd("qiime dada2 denoise-paired")
+            .add_option("quiet")
+            .add_input("demultiplexed-seqs", imported)
+            .add_parameter("n-threads", "0")
+            .add_parameter("trim-left-f", str(region.trim_left_f))
+            .add_parameter("trim-left-r", str(region.trim_left_r))
+            .add_parameter("trunc-len-f", str(region.trunc_len_f))
+            .add_parameter("trunc-len-r", str(region.trunc_len_r))
+            .add_output("representative-sequences", pre_dir / "denoised_seq.qza")
+            .add_output("table", pre_dir / "denoised_table.qza")
+            .add_output("denoising-stats", pre_dir / "denoised_stats.qza")
+            .get_outputs()
         )
 
-    # Core metrics calculation
-    assembly.new_cmd("qiime diversity core-metrics-phylogenetic") \
-        .add_option("quiet") \
-        .add_input("phylogeny", basic_dir / "common_biology_free_rooted-tree.qza") \
-        .add_input("table", basic_dir / "common_biology_free_table.qza") \
-        .add_metadata("metadata-file", str(context.ctn_metadata)) \
-        .add_parameter("sampling-depth", str(sampling_depth)) \
-        .add_output("output-dir", core_dir)
+        sampling_depth = self.__context.setting.sampling_depth
 
-    # fmt: on
-    assembly.sort_commands()
-    return assembly
+        filtered_table = (
+            assembly.new_cmd("qiime feature-table filter-samples")
+            .add_option("quiet")
+            .add_input("table", denoised_table)
+            .add_parameter("min-frequency", str(sampling_depth))
+            .add_output("filtered-table", pre_dir / "filtered_table.qza")
+            .get_outputs()
+        )
 
+        filtered_seq = (
+            assembly.new_cmd("qiime feature-table filter-seqs")
+            .add_option("quiet")
+            .add_input("data", denoised_seq)
+            .add_input("table", filtered_table)
+            .add_output("filtered-data", pre_dir / "filtered_seq.qza")
+            .get_outputs()
+        )
 
-def run_basic(context: PipelineContext) -> Path:
-    """
-    Run the basic QIIME2 analysis pipeline.
+        classfied = (
+            assembly.new_cmd("qiime feature-classifier classify-sklearn")
+            .add_option("quiet")
+            .add_input("classifier", db_path)
+            .add_input("reads", filtered_seq)
+            .add_output("classification", pre_dir / "classification.qza")
+            .get_outputs()
+        )
 
-    Returns:
-        Path to the output directory
-    """
-    pre_dir = Path(context.setting.container_data.output_path) / "pre"
-    basic_dir = Path(context.setting.container_data.output_path) / "basic"
-    core_dir = Path(context.setting.container_data.output_path) / "core"
+        bio_free_seq = (
+            assembly.new_cmd("qiime taxa filter-seqs")
+            .add_option("quiet")
+            .add_parameter("exclude", "mitochondria,cyanobacteria")
+            .add_input("sequences", filtered_seq)
+            .add_input("taxonomy", classfied)
+            .add_output("filtered-sequences", output / "common_biology_free_seq.qza")
+            .get_outputs()
+        )
 
-    context.executor.run(["bash", "-c", "apt update && apt upgrade -y"])
+        bio_free_table = (
+            assembly.new_cmd("qiime taxa filter-table")
+            .add_option("quiet")
+            .add_parameter("exclude", "mitochondria,cyanobacteria")
+            .add_input("table", filtered_table)
+            .add_input("taxonomy", classfied)
+            .add_output("filtered-table", output / "common_biology_free_table.qza")
+            .get_outputs()
+        )
 
-    # Create necessary directories
-    for dir_path in [pre_dir, basic_dir, core_dir]:
-        context.executor.run(["mkdir", "-p", dir_path.as_posix()])
+        align_seq, masked_align_seq, unrooted_tree, rooted_tree = (
+            assembly.new_cmd("qiime phylogeny align-to-tree-mafft-fasttree")
+            .add_option("quiet")
+            .add_input("sequences", bio_free_seq)
+            .add_output("alignment", output / "common_biology_free_aligned-rep-seqs.qza")
+            .add_output("masked-alignment", output / "common_biology_free_masked-aligned-rep-seqs.qza")
+            .add_output("tree", output / "common_biology_free_unrooted-tree.qza")
+            .add_output("rooted-tree", output / "common_biology_free_rooted-tree.qza")
+            .get_outputs()
+        )
 
-    [
-        context.executor.run(cmd)
-        for cmd in command_list(
-            context, context.setting.container_data.output_path
-        ).build_all()
-    ]
+        bio_free_classfied = (
+            assembly.new_cmd("qiime feature-classifier classify-sklearn")
+            .add_option("quiet")
+            .add_input("classifier", db_path)
+            .add_input("reads", bio_free_seq)
+            .add_output("classification", output / "common_biology_free_classification.qza")
+            .get_outputs()
+        )
 
-    return core_dir
+        core_metrics_dir = (
+            assembly.new_cmd("qiime diversity core-metrics-phylogenetic")
+            .add_option("quiet")
+            .add_input("phylogeny", rooted_tree)
+            .add_input("table", bio_free_table)
+            .add_metadata("metadata-file", self.__context.ctn_metadata)
+            .add_parameter("sampling-depth", str(sampling_depth))
+            .add_output("output-dir", core_dir)
+            .get_outputs()
+        )
 
+        # fmt: on
 
-def execute(context: PipelineContext) -> None:
-    """
-    Execute the full basic analysis workflow.
-    """
-    try:
-        run_basic(context)
-        # Additional analysis scripts can be called here if needed
-        # Note: In the original shell script, alpha.sh and beta.sh were sourced
-
-    except Exception as e:
-        print(f"Error during execution: {str(e)}")
-        raise
+        assembly.sort_commands()
+        return assembly, core_metrics_dir, bio_free_classfied
