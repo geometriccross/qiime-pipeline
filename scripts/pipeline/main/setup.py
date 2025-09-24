@@ -98,6 +98,7 @@ def setup_mounts(
 def setup_executor(mounts: list[str], setting: SettingData) -> Executor:
     provider = Provider(
         image=setting.container_data.image_or_dockerfile,
+        name=setting.batch_id,
         mounts=mounts,
         workspace=setting.container_data.workspace_path,
     )

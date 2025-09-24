@@ -9,6 +9,7 @@ class Provider:
     def __init__(
         self,
         image: str | Image,
+        name: str = None,
         mounts: Iterable[List[str]] = (),
         workspace: Path = Path("."),
         remove=True,
@@ -18,6 +19,7 @@ class Provider:
         else:
             self.__image = image
 
+        self.__name = name
         self.__mounts = mounts
         self.__workspace = workspace
         self.__remove = remove
@@ -27,6 +29,7 @@ class Provider:
     def provide(self) -> Container:
         self.__container = docker.container.run(
             image=self.__image,
+            name=self.__name,
             mounts=self.__mounts,
             workdir=self.__workspace.absolute(),
             command=["tail", "-f", "/dev/null"],
@@ -40,12 +43,15 @@ class Provider:
     def from_dockerfile(
         cls,
         dockerfile: Path,
+        name: str = None,
         mounts: Iterable[List[str]] = (),
         workspace: Path = Path("."),
         remove=True,
     ):
         image = docker.image.build(context_path=dockerfile.parent, file=dockerfile)
-        return cls(image=image, mounts=mounts, workspace=workspace, remove=remove)
+        return cls(
+            image=image, name=name, mounts=mounts, workspace=workspace, remove=remove
+        )
 
     @classmethod
     def get_status(cls, ctn: Container) -> str:
