@@ -94,7 +94,7 @@ def linked_table_expose(
     metadata_table = [["#SampleID", *metadata[0]]]
     for i, row in enumerate(metadata[1:], start=1):
         id_name = id_prefix + str(i)
-        metadata_table.append([id_name, *row[1:]])
+        metadata_table.append([id_name, *row])
 
     manifest_table = [
         ["sample-id", "forward-absolute-filepath", "reverse-absolute-filepath"]

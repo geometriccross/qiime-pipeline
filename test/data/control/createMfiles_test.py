@@ -82,6 +82,7 @@ def test_linked_table_expose(dummy_datasets):
     assert isinstance(manifest, list)
 
     assert len(metatable[0]) == len(metadata[0]) + 1
+    assert metatable[1] == ["id1", *metadata[1]]
     assert len(metatable) == len(manifest)
 
     for i in range(len(metatable)):
