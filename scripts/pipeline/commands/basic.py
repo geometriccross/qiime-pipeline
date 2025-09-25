@@ -131,6 +131,19 @@ class basic_pipeline(support.Pipeline):
         )
         # endregion
 
+        # region Taxonomy
+        taxonomy_visualized = (
+            assembly.new_cmd("qiime taxa barplot")
+            .add_option("quiet")
+            .add_input("table", bio_free_table)
+            .add_input("taxonomy", bio_free_classfied)
+            .add_metadata("metadata-file", self._context.ctn_metadata)
+            .add_output("visualization", output / "taxa-bar-plots.qzv")
+            .get_outputs()
+        )
+        # endregion
+
+        # region Core Metrics
         core_metrics_files = (
             assembly.new_cmd("qiime diversity core-metrics-phylogenetic")
             .add_option("quiet")
@@ -212,7 +225,7 @@ class basic_pipeline(support.Pipeline):
 
         # region Beta Diversity Analysis
 
-        for key in "Species", "Location", "SampleGender":
+        for key in "Host", "Species":
             if sampling_depth < 10:
                 # テスト用データは数が少ないため、ここはスキップする
                 # 通常のデータではまず通るはず
@@ -223,7 +236,7 @@ class basic_pipeline(support.Pipeline):
                 .add_option("quiet")
                 .add_parameter("pairwise", True)
                 .add_metadata("metadata-file", self._context.ctn_metadata)
-                .add_metadata("metadata-column", key)
+                .add_metadata("metadata-column", f"{key}")
                 .add_input(
                     "distance-matrix",
                     core_dir / "weighted_unifrac_distance_matrix.qza",
@@ -233,17 +246,7 @@ class basic_pipeline(support.Pipeline):
             )
         # endregion
 
-        # region Taxonomy
-        taxonomy_visualized = (
-            assembly.new_cmd("qiime taxa barplot")
-            .add_option("quiet")
-            .add_input("table", bio_free_table)
-            .add_input("taxonomy", bio_free_classfied)
-            .add_metadata("metadata-file", self._context.ctn_metadata)
-            .add_output("visualization", output / "taxa-bar-plots.qzv")
-            .get_outputs()
-        )
-        # endregion
+        # qiime diversity beta-group-significance --p-pairwise True --m-metadata-file /workspace/metadata.tsv --m-metadata-column "Species" --i-distance-matrix /workspace/out/core/weighted_unifrac_distance_matrix.qza --o-visualization /workspace/out/beta/weighted_unifrac-Species.qzv
 
         # fmt: on
 
