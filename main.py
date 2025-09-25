@@ -13,5 +13,5 @@ if __name__ == "__main__":
     )
 
     print("Output:")
-    for file in find(output):
+    for file in find(output.iterdir(), ["qzv", "qza"]):
         print(file)
