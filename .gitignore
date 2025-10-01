@@ -1,6 +1,7 @@
 __pycache__
 sandbox
 data
+.venv
 !scripts/data
 !test/data
 
