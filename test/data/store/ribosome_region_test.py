@@ -1,5 +1,5 @@
 import pytest
-from scripts.data.store.ribosome_regions import Region
+from src.data.store.ribosome_regions import Region
 
 
 @pytest.fixture

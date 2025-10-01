@@ -1,6 +1,6 @@
 from pathlib import Path
 import pytest
-from scripts.pipeline.support.executor import Executor, Provider
+from src.pipeline.support.executor import Executor, Provider
 from python_on_whales import Container
 
 

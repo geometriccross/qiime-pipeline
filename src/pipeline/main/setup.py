@@ -1,8 +1,8 @@
 from pathlib import Path
 from typing import Tuple
 from argparse import Namespace
-from scripts.data.control import check_manifest, create_Mfiles
-from scripts.data.store import (
+from src.data.control import check_manifest, create_Mfiles
+from src.data.store import (
     Datasets,
     Dataset,
     ContainerData,
@@ -10,7 +10,7 @@ from scripts.data.store import (
     PairPath,
     Regions,
 )
-from scripts.pipeline.support import (
+from src.pipeline.support import (
     Executor,
     Provider,
     argument_parser,

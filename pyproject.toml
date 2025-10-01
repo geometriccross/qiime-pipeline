@@ -16,5 +16,5 @@ dependencies = [
     "tomlkit>=0.13.3",
 ]
 
-[project.entry-points.modules]
-qiime-pipeline = "qiime_pipeline.scripts"
+[project.scripts]
+pipeline = "src.main:main"

@@ -1,5 +1,5 @@
 from tempfile import NamedTemporaryFile
-from scripts.data.control.check_manifest import check_manifest
+from src.data.control.check_manifest import check_manifest
 
 
 def test_can_currentry_check():

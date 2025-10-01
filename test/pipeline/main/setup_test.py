@@ -1,4 +1,4 @@
-from scripts.pipeline.main.setup import setup_datasets
+from src.pipeline.main.setup import setup_datasets
 
 
 def test_setup_datasets(namespace):

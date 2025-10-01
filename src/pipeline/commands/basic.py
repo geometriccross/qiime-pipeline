@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # flake8: noqa
 
-from scripts.pipeline import support
+from src.pipeline import support
 
 
 class basic_pipeline(support.Pipeline):

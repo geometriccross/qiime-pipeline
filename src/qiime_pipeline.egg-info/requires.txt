@@ -1,0 +1,9 @@
+debugpy>=1.8.17
+dotenv>=0.9.9
+pytest>=8.4.2
+pytest-cov>=7.0.0
+pytest-mock>=3.15.1
+pytest-skip-slow>=0.0.5
+pytest-xdist>=3.8.0
+python-on-whales>=0.78.0
+tomlkit>=0.13.3

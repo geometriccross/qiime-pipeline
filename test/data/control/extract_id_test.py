@@ -2,7 +2,7 @@
 import pytest
 import tempfile
 import os
-from scripts.data.control.extract_id import extract_id, ExtractError
+from src.data.control.extract_id import extract_id, ExtractError
 
 
 def create_test_file(content: str) -> str:

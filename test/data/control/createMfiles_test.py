@@ -2,8 +2,8 @@
 
 from pathlib import Path, PurePath
 import pytest
-from scripts.data.control.validate_pattern import extract_first_underscore
-from scripts.data.control.create_Mfiles import (
+from src.data.control.validate_pattern import extract_first_underscore
+from src.data.control.create_Mfiles import (
     Pair,
     get_header,
     combine_all_metadata,

@@ -1,5 +1,5 @@
-from scripts.pipeline.commands import basic_pipeline
-from scripts.pipeline.main.util import copy_from_container
+from src.pipeline.commands import basic_pipeline
+from src.pipeline.main.util import copy_from_container
 
 
 def test_command_list_check_current(mocked_context):

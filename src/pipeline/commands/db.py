@@ -1,4 +1,4 @@
-from scripts.pipeline import support
+from src.pipeline import support
 
 
 class db_pipeline(support.Pipeline):

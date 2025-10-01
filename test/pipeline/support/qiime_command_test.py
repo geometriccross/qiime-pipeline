@@ -1,4 +1,4 @@
-from scripts.pipeline.support import (
+from src.pipeline.support import (
     Q2CmdAssembly,
     CircularDependencyError,
     IsolatedCommandError,

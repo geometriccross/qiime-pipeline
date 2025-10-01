@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from scripts.pipeline import support
+from src.pipeline import support
 
 
 class alpha_rarefaction_pipeline(support.Pipeline):
