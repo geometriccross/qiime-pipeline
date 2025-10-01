@@ -8,3 +8,5 @@ temp*
 *.qza
 *.qzv
 out/
+.pytest_cache
+*egg-info
