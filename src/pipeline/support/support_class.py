@@ -72,7 +72,7 @@ class Pipeline(ABC):
         if inputs is None:
             inputs = self._result
 
-        ...
+        return self._result
 
     def run(self):
         self._requires.ensure(self._context.executor)
