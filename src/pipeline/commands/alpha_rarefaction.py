@@ -5,6 +5,8 @@ from src.pipeline import support
 
 class file_import(support.Pipeline):
     def _cmd_build(self, inputs: dict[str] = None) -> dict[str]:
+        super()._cmd_build(inputs)
+
         imported = (
             self._assembly.new_cmd("qiime tools import")
             .add_option("type", "SampleData[PairedEndSequencesWithQuality]")
@@ -43,9 +45,7 @@ class file_import(support.Pipeline):
 
 class alpha_rarefaction(support.Pipeline):
     def _cmd_build(self, inputs: dict[str] = None) -> dict[str]:
-        if inputs is None:
-            inputs = self._result
-
+        super()._cmd_build(inputs)
         # fmt: off
 
         align_seq, masked_align_seq, unrooted_tree, rooted_tree = (

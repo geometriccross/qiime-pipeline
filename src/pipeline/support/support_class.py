@@ -68,7 +68,11 @@ class Pipeline(ABC):
         self._assembly.sort_commands()
         return new_pipeline
 
-    def _cmd_build(self, inputs: dict[str] = None) -> dict[str]: ...
+    def _cmd_build(self, inputs: dict[str] = None) -> dict[str]:
+        if inputs is None:
+            inputs = self._result
+
+        ...
 
     def run(self):
         self._requires.ensure(self._context.executor)
