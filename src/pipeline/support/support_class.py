@@ -78,3 +78,5 @@ class Pipeline(ABC):
         self._requires.ensure(self._context.executor)
         for cmd in self._assembly.build_all():
             self._context.executor.run(cmd)
+
+        return self._result

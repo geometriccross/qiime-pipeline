@@ -1,4 +1,4 @@
-from src.pipeline import support
+import support
 
 
 class db_generate(support.Pipeline):
