@@ -28,7 +28,7 @@ def test_run_rarefaction(testing_context):
     )
 
     pipeline_result = total_pipeline()
-    assert len(pipeline_result) == 24
+    assert len(pipeline_result) == 38
 
     total_pipeline.run()
 
