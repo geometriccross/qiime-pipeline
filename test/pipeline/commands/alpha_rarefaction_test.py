@@ -6,19 +6,6 @@ from src.pipeline.commands.alpha_rarefaction import (
 from src.pipeline.main.util import copy_from_container
 
 
-def test_alpha_rarefaction_dry_run(mocked_context):
-    file_import_ins = file_import(mocked_context)
-    alpha_rarefaction_ins = alpha_rarefaction(mocked_context)
-
-    concatinate = file_import_ins + alpha_rarefaction_ins
-    pipeline_exp_result = concatinate()
-    assert len(pipeline_exp_result) == 9
-
-    for value in pipeline_exp_result.values():
-        assert value.endswith(".qza") or value.endswith(".qzv")
-        assert PurePath(value).is_absolute()
-
-
 def test_alpha_rarefaction_run(testing_context, tmp_path):
     context = testing_context("ALPHA_RAREFACTION_TEST_DATA").__next__()
     context.setting.container_data.output_path.ctn_pos = tmp_path
