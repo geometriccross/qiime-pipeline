@@ -1,3 +1,3 @@
-from .alpha_rarefaction import alpha_rarefaction_pipeline
+from .alpha_rarefaction import file_import, alpha_rarefaction
 from .db import db_pipeline
 from .basic import basic_pipeline

@@ -1,7 +1,6 @@
 from __future__ import annotations
-from abc import ABC, abstractmethod
+from abc import ABC
 from pathlib import Path
-from typing import Tuple
 from src.data.store import SettingData
 from .executor import Executor
 from .qiime_command import Q2CmdAssembly
@@ -26,7 +25,9 @@ class RequiresDirectory:
         self.__pathes: set[Path] = set()
 
     def __add__(self, other: RequiresDirectory):
-        return self.__pathes.union(other.__pathes)
+        new_requires = RequiresDirectory()
+        new_requires.__pathes = self.__pathes.union(other.__pathes)
+        return new_requires
 
     def add(self, path: Path):
         self.__pathes.add(path)
@@ -37,15 +38,40 @@ class RequiresDirectory:
 
 
 class Pipeline(ABC):
-    @abstractmethod
-    def __init__(self, context: PipelineContext):
+    def __init__(self, context: PipelineContext, ctn_output: str = None):
         self._context = context
+        self._assembly = Q2CmdAssembly()
+        self._requires = RequiresDirectory()
+        self._result = {}
 
-    @abstractmethod
-    def command_list(self) -> Tuple[Q2CmdAssembly, RequiresDirectory]: ...
+        if ctn_output is None:
+            self._output = self._context.setting.container_data.output_path.ctn_pos
+
+        self._requires.add(self._output)
+
+    def __call__(
+        self,
+        inputs: dict[str] = None,
+    ):
+        """Only return the result without execution. This is a dry run."""
+        return self._result
+
+    def __add__(self, other: Pipeline) -> Pipeline:
+        self_result = self._cmd_build()
+        other_result = other._cmd_build(self_result)  #
+
+        new_pipeline = Pipeline(self._context)
+        new_pipeline._assembly = self._assembly + other._assembly
+        new_pipeline._requires = self._requires + other._requires
+        new_pipeline._result = {**self_result, **other_result}
+
+        self._assembly.sort_commands()
+        return new_pipeline
+
+    def _cmd_build(self, inputs: dict[str] = None) -> dict[str]: ...
 
     def run(self):
-        assembly, requires = self.command_list()
-        requires.ensure(self._context.executor)
-        for cmd in assembly.build_all():
+        self._result = self._cmd_build(self._result)
+        self._requires.ensure(self._context.executor)
+        for cmd in self._assembly.build_all():
             self._context.executor.run(cmd)

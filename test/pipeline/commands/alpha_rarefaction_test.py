@@ -1,26 +1,40 @@
-from src.pipeline.commands.alpha_rarefaction import alpha_rarefaction_pipeline
+from pathlib import PurePath
+from src.pipeline.commands.alpha_rarefaction import (
+    file_import,
+    alpha_rarefaction,
+)
 from src.pipeline.main.util import copy_from_container
 
 
-def test_command_list_check_current(mocked_context):
-    alpha_rarefaction_pipeline(mocked_context).command_list()
+def test_alpha_rarefaction_dry_run(mocked_context):
+    file_import_ins = file_import(mocked_context)
+    alpha_rarefaction_ins = alpha_rarefaction(mocked_context)
+
+    concatinate = file_import_ins + alpha_rarefaction_ins
+    pipeline_exp_result = concatinate()
+    assert len(pipeline_exp_result) == 9
+
+    for value in pipeline_exp_result.values():
+        assert value.endswith(".qza") or value.endswith(".qzv")
+        assert PurePath(value).is_absolute()
 
 
-def test_run_rarefaction(testing_context):
+def test_alpha_rarefaction_run(testing_context, tmp_path):
     context = testing_context("ALPHA_RAREFACTION_TEST_DATA").__next__()
-    alpha_rarefaction = alpha_rarefaction_pipeline(context)
-    alpha_rarefaction.run()
+    context.setting.container_data.output_path.ctn_pos = tmp_path
 
-    output = copy_from_container(
-        context, context.setting.container_data.output_path.ctn_pos
-    )
+    file_import_ins = file_import(context)
+    alpha_rarefaction_ins = alpha_rarefaction(context)
 
-    assert (output / "alpha_rarefaction.qzv").exists()
-    assert (output / "denoised_stats.qza").exists()
-    assert (output / "denoised_seq.qza").exists()
-    assert (output / "denoised_table.qza").exists()
-    assert (output / "paired_end_demux.qza").exists()
-    assert (output / "rooted-tree.qza").exists()
-    assert (output / "unrooted-tree.qza").exists()
-    assert (output / "masked-aligned-rep-seqs.qza").exists()
-    assert (output / "aligned-rep-seqs.qza").exists()
+    concatinate = file_import_ins + alpha_rarefaction_ins
+    pipeline_result = concatinate()
+    concatinate.run()
+
+    for value in pipeline_result.values():
+        local_path = copy_from_container(
+            context,
+            PurePath(value),
+        )
+
+        assert local_path.exists()
+        assert local_path.is_file()
