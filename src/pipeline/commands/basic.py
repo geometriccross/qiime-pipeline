@@ -233,13 +233,13 @@ class alpha_analysis(support.Pipeline):
         super()._cmd_build(inputs)
 
         for index_file_name in [
+            "faith_pd_vector",
             "observed_features_vector",
             "shannon_vector",
-            "faith_pd_vector",
         ]:
             filtered = (
                 self._assembly.new_cmd("qiime diversity filter-alpha-diversity")
-                .add_input("alpha-diversity", index_file_name)
+                .add_input("alpha-diversity", inputs[index_file_name])
                 .add_metadata("metadata-file", self._context.ctn_metadata)
                 .add_output(
                     "filtered-alpha-diversity",
