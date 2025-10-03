@@ -10,11 +10,9 @@ def test_alpha_rarefaction_run(testing_context, tmp_path):
     context = testing_context("ALPHA_RAREFACTION_TEST_DATA").__next__()
     context.setting.container_data.output_path.ctn_pos = tmp_path
 
-    file_import_ins = file_import(context)
-    alpha_rarefaction_ins = alpha_rarefaction(context)
-
-    concatinate = file_import_ins + alpha_rarefaction_ins
+    concatinate = file_import(context) + alpha_rarefaction(context)
     pipeline_result = concatinate()
+    assert len(pipeline_result) == 9
     concatinate.run()
 
     for value in pipeline_result.values():

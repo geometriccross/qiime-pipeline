@@ -71,7 +71,6 @@ class Pipeline(ABC):
     def _cmd_build(self, inputs: dict[str] = None) -> dict[str]: ...
 
     def run(self):
-        self._result = self._cmd_build(self._result)
         self._requires.ensure(self._context.executor)
         for cmd in self._assembly.build_all():
             self._context.executor.run(cmd)
