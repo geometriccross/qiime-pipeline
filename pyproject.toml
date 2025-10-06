@@ -16,5 +16,8 @@ dependencies = [
     "tomlkit>=0.13.3",
 ]
 
+[tool.setuptools]
+packages = ["src"]
+
 [project.scripts]
 pipeline = "src.main:main"
