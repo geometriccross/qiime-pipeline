@@ -12,11 +12,8 @@ from src.pipeline.main.util import copy_from_container
         ("BASIC_TEST_DATA", pipelines.pipeline_ancom, 38),
     ],
 )
-def test_pipeline(
-    testing_context, tmp_path, gdrive_env, target_func, expected_file_count
-):
+def test_pipeline(testing_context, gdrive_env, target_func, expected_file_count):
     context = testing_context(gdrive_env).__next__()
-    context.setting.container_data.output_path.ctn_pos = tmp_path
 
     result = target_func(context)
 
