@@ -55,11 +55,13 @@ def argument_parser():
     parser.add_argument(
         "--local-output",
         type=Path,
+        default=Path("./out"),
         help="Output directory for the results.",
     )
     parser.add_argument(
         "--local-database",
         type=Path,
+        default=Path("./classifier.qza"),
         help="Path to the local database file.",
     )
     parser.add_argument(
