@@ -1,5 +1,6 @@
 from pathlib import Path
 import argparse
+from textwrap import dedent
 
 
 def parse_pair(pair: str) -> tuple[Path, Path]:
@@ -22,17 +23,39 @@ def parse_pair(pair: str) -> tuple[Path, Path]:
 
 def argument_parser():
     """Create and return an argument parser for the QIIME pipeline."""
-    parser = argparse.ArgumentParser(description="Run the QIIME pipeline.")
+    parser = argparse.ArgumentParser(
+        description="Run the QIIME pipeline.",
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    parser.add_argument(
+        "pipeline",
+        type=str,
+        help=dedent(
+            """
+            Specify the type of pipeline to execute.
+            These three pipelines exist:
+                basic:
+                    Basic pipeline for 16S rRNA gene amplicon analysis.
+                    alpha and beta diversity, taxonomic analysis.
+                rarefaction_curve:
+                    Generate rarefaction curves.
+                ancom:
+                    Perform ANCOM analysis targeting the Species column in the metadata.
+            """
+        ),
+    )
     parser.add_argument(
         "--data",
         type=parse_pair,
         nargs="+",
-        help="""
+        help=dedent(
+            """
             Pairs of fastq and metadata paths to use for the pipeline.
             Example:
                 --data path/to/metadata_path:path/to/fastq_folder,
                        path/to/another_metadata:path/to/another_fastq_folder
-            """,
+            """
+        ),
     )
     parser.add_argument(
         "--dataset-region",
