@@ -1,4 +1,4 @@
-import support
+from src.pipeline import support
 
 
 class beta_analysis(support.Pipeline):

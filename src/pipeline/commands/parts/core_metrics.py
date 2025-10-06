@@ -1,4 +1,4 @@
-import support
+from src.pipeline import support
 
 
 class core_metrics(support.Pipeline):
