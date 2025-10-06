@@ -9,6 +9,6 @@ from .filtering import filtering
 from .phylogeny import phylogeny
 from .remove_biology import remove_biology
 from .taxonomy import taxonomy
-from .ancombc import ancom
+from .ancombc import ancombc
 from .adonis import adonis
 from .taxa_collapse import taxa_collapse
