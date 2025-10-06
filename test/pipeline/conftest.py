@@ -31,9 +31,8 @@ def testing_context(tmp_path, data_path_pairs) -> Namespace:
 
         context = setup_context(namespace)
 
-        yield context
-
         try:
+            yield context
             context.executor.stop()
         except Exception as e:
             raise e
