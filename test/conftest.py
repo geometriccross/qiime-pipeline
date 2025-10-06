@@ -186,6 +186,7 @@ def dummy_datasets(
 @pytest.fixture
 def namespace(tmp_path, data_path_pairs) -> Namespace:
     return Namespace(
+        pipeline="basic",
         data=data_path_pairs("DEFAULT_TEST_DATA"),
         dataset_region="V3V4",
         image="quay.io/qiime2/amplicon:latest",

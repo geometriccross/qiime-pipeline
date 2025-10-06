@@ -1,9 +1,23 @@
 from __future__ import annotations
 from abc import ABC
+from enum import Enum
 from pathlib import Path
 from src.data.store import SettingData
 from .executor import Executor
 from .qiime_command import Q2CmdAssembly
+
+
+class PipelineType(Enum):
+    BASIC = "basic"
+    RAREFACTION_CURVE = "rarefaction_curve"
+    ANCOM = "ancom"
+
+    def from_str(label: str) -> PipelineType:
+        label = label.lower()
+        if label in ("basic", "rarefaction_curve", "ancom"):
+            return PipelineType(label)
+        else:
+            raise ValueError(f"Unknown pipeline type: {label}")
 
 
 class PipelineContext:
@@ -13,11 +27,13 @@ class PipelineContext:
         ctn_manifest: Path,
         executor: Executor,
         setting: SettingData,
+        pipeline_type: PipelineType,
     ):
         self.ctn_metadata: Path = ctn_metadata
         self.ctn_manifest: Path = ctn_manifest
         self.executor: Executor = executor
         self.setting: SettingData = setting
+        self.pipeline_type: PipelineType = pipeline_type
 
 
 class RequiresDirectory:

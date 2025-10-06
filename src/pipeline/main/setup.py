@@ -15,6 +15,7 @@ from src.pipeline.support import (
     Provider,
     argument_parser,
     PipelineContext,
+    PipelineType,
 )
 
 
@@ -126,6 +127,7 @@ def setup_context(args: Namespace) -> PipelineContext:
         ctn_manifest=manifest.ctn_pos,
         executor=executor,
         setting=setting,
+        pipeline_type=PipelineType.from_str(args.pipeline),
     )
 
 

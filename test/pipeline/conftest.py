@@ -20,6 +20,7 @@ def mocked_context(namespace, mocker):
 def testing_context(tmp_path, data_path_pairs) -> Namespace:
     def _testing_context(gdrive_env_var):
         namespace = Namespace(
+            pipeline="basic",
             data=data_path_pairs(gdrive_env_var),
             dataset_region="V3V4",
             image="quay.io/qiime2/amplicon:latest",
