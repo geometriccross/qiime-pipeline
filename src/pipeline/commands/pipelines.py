@@ -39,3 +39,24 @@ def pipeline_basic(context):
             parts.beta_analysis,
         ],
     )
+
+
+def pipeline_ancom(context):
+    cmds = [
+        parts.file_import,
+        parts.filtering,
+        parts.classified,
+        parts.remove_biology,
+        parts.phylogeny,
+        parts.core_metrics,
+        parts.taxa_collapse,
+        parts.ancombc,
+        lambda context: parts.adonis(
+            context, beta_index="unweighted_unifrac_distance_matrix"
+        ),
+        lambda context: parts.adonis(
+            context, beta_index="weighted_unifrac_distance_matrix"
+        ),
+    ]
+
+    return pipeline_run(context, cmds)

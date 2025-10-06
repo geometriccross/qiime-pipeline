@@ -4,15 +4,15 @@ from src.pipeline.commands import pipelines
 from src.pipeline.main.util import copy_from_container
 
 
-@pytest.mark.slow()
 @pytest.mark.parametrize(
     "gdrive_env,target_func,expected_file_count",
     [
         ("ALPHA_RAREFACTION_TEST_DATA", pipelines.pipeline_alpha_rarefaction, 9),
         ("BASIC_TEST_DATA", pipelines.pipeline_basic, 38),
+        ("BASIC_TEST_DATA", pipelines.pipeline_ancom, 38),
     ],
 )
-def test_pipeline_alpha_rarefaction(
+def test_pipeline(
     testing_context, tmp_path, gdrive_env, target_func, expected_file_count
 ):
     context = testing_context(gdrive_env).__next__()
