@@ -2,7 +2,8 @@ from . import parts
 
 
 def pipeline_run(context, cmd_parts: list):
-    pipeline = sum(map(lambda part: part(context), cmd_parts))
+    first_one = cmd_parts[0](context)
+    pipeline = sum(map(lambda part: part(context), cmd_parts[1:]), first_one)
     return pipeline.run()
 
 
