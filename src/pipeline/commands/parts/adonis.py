@@ -18,11 +18,11 @@ class adonis(support.Pipeline):
 
         adonis = (
             self._assembly.new_cmd("qiime diversity adonis")
-            .add_input("i-distance-matrix", self.__beta_index)
-            .add_input("m-metadata-file", self._context.ctn_metadata)
-            .add_parameter("p-formula", self.__formula)
+            .add_input("distance-matrix", inputs[self.__beta_index])
+            .add_metadata("metadata-file", self._context.ctn_metadata)
+            .add_parameter("formula", self.__formula)
             .add_output(
-                "o-visualization", self._output / f"adonis_{self.__beta_index}.qzv"
+                "visualization", self._output / f"adonis_{self.__beta_index}.qzv"
             )
             .get_outputs()
         )

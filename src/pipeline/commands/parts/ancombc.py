@@ -9,20 +9,20 @@ class ancombc(support.Pipeline):
     def _cmd_build(self, inputs=None) -> dict[str]:
         ancombc = (
             self._assembly.new_cmd("qiime composition ancombc")
-            .add_input("i-table", inputs["collapsed_table"])
-            .add_input("m-metadata-file", self._context.ctn_metadata)
-            .add_parameter("p-formula", self.__formula)
-            .add_parameter("p-prv-cut", 0.1)
-            .add_output("o-differentials", self._output / "ancombc.qza")
+            .add_input("table", inputs["collapsed_table"])
+            .add_metadata("metadata-file", self._context.ctn_metadata)
+            .add_parameter("formula", self.__formula)
+            .add_parameter("prv-cut", 0.1)
+            .add_output("differentials", self._output / "ancombc.qza")
             .get_outputs()
         )
 
         da_barplot = (
             self._assembly.new_cmd("qiime composition da-barplot")
-            .add_input("i-data", ancombc)
-            .add_parameter("p-label-limit", 2000)
-            .add_parameter("p-significance-threshold", 0.01)
-            .add_output("o-visualization", self._output / "da_barplot.qzv")
+            .add_input("data", ancombc)
+            .add_parameter("label-limit", 2000)
+            .add_parameter("significance-threshold", 0.01)
+            .add_output("visualization", self._output / "da_barplot.qzv")
             .get_outputs()
         )
 
