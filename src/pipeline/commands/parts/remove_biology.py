@@ -35,6 +35,8 @@ class remove_biology(support.Pipeline):
             .add_option("quiet")
             .add_input("classifier", db_path)
             .add_input("reads", bio_free_seq)
+            .add_parameter("n-jobs", 2)
+            .add_parameter("reads-per-batch", 2000)
             .add_output(
                 "classification",
                 self._output / "common_biology_free_classification.qza",

@@ -11,6 +11,8 @@ class classified(support.Pipeline):
             .add_option("quiet")
             .add_input("classifier", db_path)
             .add_input("reads", inputs["filtered_seq"])
+            .add_parameter("n-jobs", 2)
+            .add_parameter("reads-per-batch", 2000)
             .add_output("classification", self._output / "classification.qza")
             .get_outputs()
         )
