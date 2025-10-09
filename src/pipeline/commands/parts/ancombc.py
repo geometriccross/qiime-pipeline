@@ -22,11 +22,13 @@ class ancombc(support.Pipeline):
             .add_input("data", ancombc)
             .add_parameter("label-limit", 2000)
             .add_parameter("significance-threshold", 0.01)
-            .add_output("visualization", self._output / "da_barplot.qzv")
+            .add_output(
+                "visualization", self._output / f"da_barplot_{self.__formula}.qzv"
+            )
             .get_outputs()
         )
 
         self._result["ancombc"] = ancombc
-        self._result["da_barplot"] = da_barplot
+        self._result[f"da_barplot_{self.__formula}"] = da_barplot
 
         return {**inputs, **self._result}
