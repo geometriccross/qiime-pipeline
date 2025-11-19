@@ -103,6 +103,11 @@ class Executor:
         self.__container.reload()
         return self.__container.status
 
+    def id(self) -> str:
+        """コンテナのIDを取得"""
+        self.__container.reload()
+        return self.__container.id
+
     def run(self, command: list[str]) -> tuple[str, str]:
         """コンテナ内でコマンドを実行する
 
