@@ -22,9 +22,8 @@ def main():
     context = setup()
 
     _pipeline_func(context.pipeline_type)(context)
-
-    context.executor.stop()
     copy_from_container(context, context.setting.container_data.output_path.ctn_pos)
+    context.executor.stop()
 
 
 if __name__ == "__main__":
