@@ -4,6 +4,7 @@ from src.pipeline.commands import pipelines
 from src.pipeline.main.util import copy_from_container
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize(
     "gdrive_env,target_func,expected_file_count",
     [
