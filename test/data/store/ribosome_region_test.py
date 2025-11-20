@@ -1,5 +1,5 @@
 import pytest
-from src.data.store.ribosome_regions import Region
+from qiime_pipeline.data.store.ribosome_regions import Region
 
 
 @pytest.fixture

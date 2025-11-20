@@ -1,6 +1,6 @@
 import pytest
 from pathlib import Path
-from src.pipeline.support.parse_arguments import parse_pair
+from qiime_pipeline.pipeline.support.parse_arguments import parse_pair
 
 
 @pytest.mark.parametrize(

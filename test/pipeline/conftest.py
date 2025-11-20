@@ -1,14 +1,14 @@
 import pytest
 from pathlib import Path
 from argparse import Namespace
-from src.pipeline.main.setup import setup_context
+from qiime_pipeline.pipeline.main.setup import setup_context
 
 
 @pytest.fixture
 def mocked_context(namespace, mocker):
     # setup_executorの戻り値をモック化
     mock_executor = mocker.Mock()
-    mocker.patch("src.pipeline.main.setup.setup_executor", return_value=mock_executor)
+    mocker.patch("qiime_pipeline.pipeline.main.setup.setup_executor", return_value=mock_executor)
 
     context = setup_context(namespace)
     context.setting.sampling_depth = 4

@@ -1,6 +1,6 @@
 from pathlib import PurePath
-from src.pipeline.support.support_class import Pipeline
-from src.pipeline.commands import parts
+from qiime_pipeline.pipeline.support.support_class import Pipeline
+from qiime_pipeline.pipeline.commands import parts
 
 
 def test_pipeline_concatination_pipeline(mocked_context):

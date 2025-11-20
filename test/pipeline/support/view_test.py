@@ -3,7 +3,7 @@ import pytest
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from zipfile import ZipFile
-from src.pipeline.support.view import QzvViewer, ViewError
+from qiime_pipeline.pipeline.support.view import QzvViewer, ViewError
 
 
 @pytest.fixture
@@ -92,7 +92,7 @@ def test_cleanup(mock_env, mock_qzv_file):
 
 def test_is_in_container(monkeypatch, tmp_path):
     """Dockerコンテナ環境の判定テスト"""
-    from src.pipeline.support.view import _is_in_container
+    from qiime_pipeline.pipeline.support.view import _is_in_container
 
     # コンテナ外
     assert not _is_in_container()

@@ -6,7 +6,7 @@ from argparse import Namespace
 from pathlib import Path
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 from typing import Generator, Callable
-from src.data.store import (
+from qiime_pipeline.data.store import (
     Dataset,
     Datasets,
     Regions,

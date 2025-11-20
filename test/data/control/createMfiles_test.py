@@ -2,8 +2,8 @@
 
 from pathlib import Path, PurePath
 import pytest
-from src.data.control.validate_pattern import extract_first_underscore
-from src.data.control.create_Mfiles import (
+from qiime_pipeline.data.control.validate_pattern import extract_first_underscore
+from qiime_pipeline.data.control.create_Mfiles import (
     Pair,
     get_header,
     combine_all_metadata,

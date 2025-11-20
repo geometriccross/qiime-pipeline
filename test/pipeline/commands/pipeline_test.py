@@ -1,7 +1,7 @@
 from pathlib import PurePath
 import pytest
-from src.pipeline.commands import pipelines
-from src.pipeline.main.util import copy_from_container
+from qiime_pipeline.pipeline.commands import pipelines
+from qiime_pipeline.pipeline.main.util import copy_from_container
 
 
 @pytest.mark.slow

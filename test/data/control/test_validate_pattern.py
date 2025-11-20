@@ -1,5 +1,5 @@
 import pytest
-from src.data.control.validate_pattern import (
+from qiime_pipeline.data.control.validate_pattern import (
     Direction,
     Pattern,
     extract_filename,

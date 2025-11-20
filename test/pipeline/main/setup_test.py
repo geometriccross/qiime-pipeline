@@ -1,4 +1,4 @@
-from src.pipeline.main.setup import setup_datasets
+from qiime_pipeline.pipeline.main.setup import setup_datasets
 
 
 def test_setup_datasets(namespace):

@@ -1,5 +1,5 @@
 from tempfile import NamedTemporaryFile
-from src.data.control.check_manifest import check_manifest
+from qiime_pipeline.data.control.check_manifest import check_manifest
 
 
 def test_can_currentry_check():

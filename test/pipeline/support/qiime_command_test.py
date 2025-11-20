@@ -1,4 +1,4 @@
-from src.pipeline.support import (
+from qiime_pipeline.pipeline.support import (
     Q2CmdAssembly,
     CircularDependencyError,
     IsolatedCommandError,

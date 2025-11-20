@@ -1,7 +1,7 @@
 import pytest
 from pathlib import Path
 from tempfile import TemporaryDirectory, NamedTemporaryFile
-from src.data.store import Dataset, Datasets, Region
+from qiime_pipeline.data.store import Dataset, Datasets, Region
 
 
 @pytest.fixture()
