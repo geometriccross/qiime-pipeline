@@ -1,6 +1,6 @@
 import python_on_whales
 from pathlib import Path
-from src.pipeline.support import PipelineContext
+from qiime_pipeline.pipeline.support import PipelineContext
 
 
 def find(key: str, iterable: list) -> str:

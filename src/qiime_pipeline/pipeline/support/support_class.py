@@ -2,7 +2,7 @@ from __future__ import annotations
 from abc import ABC
 from enum import Enum
 from pathlib import Path
-from src.data.store import SettingData
+from qiime_pipeline.data.store import SettingData
 from .executor import Executor
 from .qiime_command import Q2CmdAssembly
 

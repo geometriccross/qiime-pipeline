@@ -1,4 +1,4 @@
-from src.pipeline import support
+from qiime_pipeline.pipeline import support
 
 
 class alpha_rarefaction(support.Pipeline):

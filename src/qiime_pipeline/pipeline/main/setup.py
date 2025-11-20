@@ -1,8 +1,8 @@
 from pathlib import Path
 from typing import Tuple
 from argparse import Namespace
-from src.data.control import check_manifest, create_Mfiles
-from src.data.store import (
+from qiime_pipeline.data.control import check_manifest, create_Mfiles
+from qiime_pipeline.data.store import (
     Datasets,
     Dataset,
     ContainerData,
@@ -10,7 +10,7 @@ from src.data.store import (
     PairPath,
     Regions,
 )
-from src.pipeline.support import (
+from qiime_pipeline.pipeline.support import (
     Executor,
     Provider,
     argument_parser,

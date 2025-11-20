@@ -2,7 +2,7 @@
 
 import csv
 from pathlib import Path, PurePath
-from src.data.store import Datasets
+from qiime_pipeline.data.store import Datasets
 from .validate_pattern import Direction, check_current_pair, extract_first_underscore
 
 
