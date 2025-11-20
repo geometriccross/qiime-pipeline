@@ -1,9 +1,12 @@
 [project]
 name = "qiime-pipeline"
 version = "0.1.0"
+authors = [
+  { name="geometriccross", email="geometriccross@gmail.com" },
+]
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = "==3.11"
 dependencies = [
     "debugpy>=1.8.17",
     "dotenv>=0.9.9",
@@ -15,9 +18,20 @@ dependencies = [
     "python-on-whales>=0.78.0",
     "tomlkit>=0.13.3",
 ]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+
+[build-system]
+requires = ["setuptools >= 77.0.3"]
+build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 packages = ["src"]
+
 
 [project.scripts]
 pipeline = "src.main:main"
