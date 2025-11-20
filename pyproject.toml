@@ -30,8 +30,8 @@ requires = ["setuptools >= 77.0.3"]
 build-backend = "setuptools.build_meta"
 
 [tool.pytest.ini_options]
-pythonpath = "src.qiime-pipeline"
+pythonpath = "src.qiime_pipeline"
 testpaths = ["test"]
 
 [project.scripts]
-pipeline = "main:main"
+pipeline = "qiime_pipeline.main:main"
