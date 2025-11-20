@@ -7,6 +7,7 @@ qiimeのコマンドはコンテナ内部で実行されます
 python >=3.11
 
 ## useage
+```
 usage: pipeline [-h] [--data DATA [DATA ...]] [--dataset-region DATASET_REGION] [--image IMAGE] [--dockerfile DOCKERFILE] [--local-output LOCAL_OUTPUT] [--local-database LOCAL_DATABASE] [--sampling_depth SAMPLING_DEPTH] pipeline
 
 Run the QIIME pipeline.
@@ -41,3 +42,4 @@ options:
   --local-database LOCAL_DATABASE
                         Path to the local database file.
   --sampling_depth SAMPLING_DEPTH
+```
