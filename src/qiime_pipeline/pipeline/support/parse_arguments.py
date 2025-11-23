@@ -37,6 +37,8 @@ def argument_parser():
                 basic:
                     Basic pipeline for 16S rRNA gene amplicon analysis.
                     alpha and beta diversity, taxonomic analysis.
+                taxonomy:
+                    classification and barplot
                 rarefaction_curve:
                     Generate rarefaction curves.
                 ancom:

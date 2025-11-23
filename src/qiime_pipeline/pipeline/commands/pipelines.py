@@ -24,6 +24,21 @@ def pipeline_db(context):
     )
 
 
+def pipeline_taxonomy(context):
+    return pipeline_run(
+        context,
+        [
+            parts.file_import,
+            parts.filtering,
+            parts.classified,
+            parts.remove_biology,
+            parts.phylogeny,
+            parts.core_metrics,
+            parts.taxonomy,
+        ],
+    )
+
+
 def pipeline_basic(context):
     return pipeline_run(
         context,

@@ -10,6 +10,8 @@ def _pipeline_func(pipeline_type: PipelineType) -> callable:
     match pipeline_type:
         case PipelineType.BASIC:
             return commands.pipelines.pipeline_basic
+        case PipelineType.TAXONOMY:
+            return commands.pipelines.pipeline_taxonomy
         case PipelineType.RAREFACTION_CURVE:
             return commands.pipelines.pipeline_alpha_rarefaction
         case PipelineType.ANCOM:

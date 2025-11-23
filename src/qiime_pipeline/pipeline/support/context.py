@@ -19,13 +19,14 @@ class PipelineType(Enum):
     """パイプラインの実行タイプ"""
 
     BASIC = "basic"
+    TAXONOMY = "taxonomy"
     RAREFACTION_CURVE = "rarefaction_curve"
     ANCOM = "ancom"
 
     def from_str(label: str) -> PipelineType:
         """文字列からPipelineTypeを生成"""
         label = label.lower()
-        if label in ("basic", "rarefaction_curve", "ancom"):
+        if label in ("basic", "rarefaction_curve", "ancom", "taxonomy"):
             return PipelineType(label)
         else:
             raise ValueError(f"Unknown pipeline type: {label}")
