@@ -36,7 +36,7 @@ class Pipeline(ABC):
         self._result = {}
 
         if ctn_output is None:
-            self._output = self._context.setting.container_data.output_path.ctn_pos
+            self._output = self._context.setting.ctn_output_path
 
         self._requires.add(self._output)
 

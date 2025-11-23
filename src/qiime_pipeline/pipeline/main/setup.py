@@ -46,7 +46,7 @@ def setup_config(arg: Namespace) -> SettingData:
         ),
         database_path=PairPath(
             local_pos=arg.local_database,
-            ctn_pos=ctn_workspace.joinpath("/db").joinpath(arg.local_database.name),
+            ctn_pos=Path("/db") / arg.local_database.name,
         ),
     )
     setting = SettingData(
@@ -59,8 +59,8 @@ def setup_config(arg: Namespace) -> SettingData:
 
 def setup_files(setting: SettingData) -> Tuple[PairPath, PairPath]:
     local_metafile, local_manifest = create_Mfiles(
-        local_output=setting.container_data.output_path.local_pos,
-        container_fastq_path=(setting.container_data.workspace_path / "data"),
+        local_output=setting.local_output_path,
+        container_fastq_path=(setting.ctn_workspace_path / "data"),
         data=setting.datasets,
     )
 
@@ -69,7 +69,7 @@ def setup_files(setting: SettingData) -> Tuple[PairPath, PairPath]:
 
     def __builder(p: Path) -> PairPath:
         return PairPath(
-            local_pos=p, ctn_pos=setting.container_data.workspace_path / p.name
+            local_pos=p, ctn_pos=setting.ctn_workspace_path / p.name
         )
 
     return __builder(local_metafile), __builder(local_manifest)
@@ -84,11 +84,7 @@ def setup_mounts(
 ) -> list[str]:
 
     def __convert_path_into_mount_format(pairpath: PairPath):
-        return [
-            "type=bind",
-            f"src={pairpath.local_pos.resolve()}",
-            f"dst={pairpath.ctn_pos},readonly",
-        ]
+        return pairpath.to_mount_option(readonly=True)
 
     return [
         __convert_path_into_mount_format(metafile_pairpath),
@@ -100,10 +96,10 @@ def setup_mounts(
 
 def setup_executor(mounts: list[str], setting: SettingData) -> Executor:
     provider = Provider(
-        image=setting.container_data.image_or_dockerfile,
+        image=setting.image,
         name=setting.batch_id,
         mounts=mounts,
-        workspace=setting.container_data.workspace_path,
+        workspace=setting.ctn_workspace_path,
     )
 
     return Executor(provider.provide())
@@ -116,8 +112,8 @@ def setup_context(args: Namespace) -> PipelineContext:
     mounts = setup_mounts(
         metafile_pairpath=metadata,
         manifest_pairpath=manifest,
-        ctn_workspace_dir=setting.container_data.workspace_path,
-        db_pairpath=setting.container_data.database_path,
+        ctn_workspace_dir=setting.ctn_workspace_path,
+        db_pairpath=setting.database_pair,
         datasets=setting.datasets,
     )
     executor = setup_executor(mounts, setting)

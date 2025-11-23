@@ -140,8 +140,8 @@ class PipelineContext:
         paths = ContainerPaths(
             metadata=ctn_metadata,
             manifest=ctn_manifest,
-            output=setting.container_data.output_path.ctn_pos,
-            workspace=setting.container_data.workspace_path,
+            output=setting.ctn_output_path,
+            workspace=setting.ctn_workspace_path,
         )
 
         config = ExecutionConfig(
@@ -188,7 +188,7 @@ class PipelineContext:
 
     def get_database_path(self) -> Path:
         """データベースファイルのパスを取得"""
-        return self.setting.container_data.database_path.ctn_pos
+        return self.setting.ctn_database_path
 
     def get_first_dataset_region(self):
         """最初のデータセットのリージョン設定を取得"""

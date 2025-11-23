@@ -22,7 +22,7 @@ def main():
     context = setup()
 
     _pipeline_func(context.pipeline_type)(context)
-    copy_from_container(context, context.setting.container_data.output_path.ctn_pos)
+    copy_from_container(context, context.setting.ctn_output_path)
     context.executor.stop()
 
 

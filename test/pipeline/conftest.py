@@ -2,6 +2,8 @@ import pytest
 from pathlib import Path
 from argparse import Namespace
 from qiime_pipeline.pipeline.main.setup import setup_context
+from qiime_pipeline.data.store import SettingData
+from dataclasses import replace
 
 
 @pytest.fixture
@@ -11,7 +13,10 @@ def mocked_context(namespace, mocker):
     mocker.patch("qiime_pipeline.pipeline.main.setup.setup_executor", return_value=mock_executor)
 
     context = setup_context(namespace)
-    context.setting.sampling_depth = 4
+    
+    # SettingData, Contextは不変オブジェクトなので、replaceで新しいインスタンスを作成
+    new_setting = replace(context.setting, sampling_depth=4)
+    context = replace(context, setting=new_setting)
 
     return context
 

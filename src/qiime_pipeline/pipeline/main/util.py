@@ -10,7 +10,7 @@ def find(key: str, iterable: list) -> str:
 
 
 def copy_from_container(context: PipelineContext, ctn_target_file: Path) -> Path:
-    out_dir = context.setting.container_data.output_path.local_pos.joinpath(
+    out_dir = context.setting.local_output_path.joinpath(
         str(context.setting.batch_id)
     )
     out_dir.mkdir(parents=True, exist_ok=True)
