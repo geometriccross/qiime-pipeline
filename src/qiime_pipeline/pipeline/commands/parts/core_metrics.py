@@ -4,7 +4,7 @@ from qiime_pipeline.pipeline import support
 class core_metrics(support.Pipeline):
     def _cmd_build(self, inputs: dict[str] = None) -> dict[str]:
         super()._cmd_build(inputs)
-        sampling_depth = self._context.setting.sampling_depth
+        sampling_depth = self._context.get_sampling_depth()
 
         def add_suffix(name: str, suffix: str = "qza") -> str:
             return self._output / f"{name}.{suffix}"
@@ -34,7 +34,7 @@ class core_metrics(support.Pipeline):
             .add_option("quiet")
             .add_input("phylogeny", inputs["bio_free_rooted_tree"])
             .add_input("table", inputs["bio_free_table"])
-            .add_metadata("metadata-file", self._context.ctn_metadata)
+            .add_metadata("metadata-file", self._context.paths.metadata)
             .add_parameter("sampling-depth", str(sampling_depth))
             .add_output("rarefied-table", add_suffix(rarefied_table))
             .add_output("faith-pd-vector", add_suffix(faith_pd_vector))

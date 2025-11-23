@@ -10,7 +10,7 @@ class ancombc(support.Pipeline):
         ancombc = (
             self._assembly.new_cmd("qiime composition ancombc")
             .add_input("table", inputs["collapsed_table"])
-            .add_metadata("metadata-file", self._context.ctn_metadata)
+            .add_metadata("metadata-file", self._context.paths.metadata)
             .add_parameter("formula", self.__formula)
             .add_parameter("prv-cut", 0.1)
             .add_output("differentials", self._output / "ancombc.qza")

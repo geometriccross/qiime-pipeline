@@ -9,14 +9,13 @@ class file_import(support.Pipeline):
             self._assembly.new_cmd("qiime tools import")
             .add_option("type", "SampleData[PairedEndSequencesWithQuality]")
             .add_option("input-format", "PairedEndFastqManifestPhred33V2")
-            .add_option("input-path", self._context.ctn_manifest)
+            .add_option("input-path", self._context.paths.manifest)
             .add_option("output-path", self._output / "paired_end_demux.qza")
             .get_outputs()
         )
 
         # Get region settings from the first dataset
-        dataset = next(iter(self._context.setting.datasets.sets))
-        region = dataset.region
+        region = self._context.get_first_dataset_region()
 
         denoised_table, denoised_seq, denoised_stats, base_transition = (
             self._assembly.new_cmd("qiime dada2 denoise-paired")

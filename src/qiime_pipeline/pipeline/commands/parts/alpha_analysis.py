@@ -13,7 +13,7 @@ class alpha_analysis(support.Pipeline):
             filtered = (
                 self._assembly.new_cmd("qiime diversity filter-alpha-diversity")
                 .add_input("alpha-diversity", inputs[index_file_name])
-                .add_metadata("metadata-file", self._context.ctn_metadata)
+                .add_metadata("metadata-file", self._context.paths.metadata)
                 .add_output(
                     "filtered-alpha-diversity",
                     self._output / f"filtered_{index_file_name}.qza",
@@ -24,7 +24,7 @@ class alpha_analysis(support.Pipeline):
             alpha_visualized = (
                 self._assembly.new_cmd("qiime diversity alpha-group-significance")
                 .add_input("alpha-diversity", filtered)
-                .add_metadata("metadata-file", self._context.ctn_metadata)
+                .add_metadata("metadata-file", self._context.paths.metadata)
                 .add_output("visualization", filtered.replace(".qza", ".qzv"))
                 .get_outputs()
             )

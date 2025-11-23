@@ -5,7 +5,7 @@ class beta_analysis(support.Pipeline):
     def _cmd_build(self, inputs: dict[str] = None, *target_keys) -> dict[str]:
         super()._cmd_build(inputs)
 
-        if self._context.setting.sampling_depth < 10:
+        if self._context.get_sampling_depth() < 10:
             # テスト用データは数が少ないため、ここはスキップする
             # 通常のデータではまず通るはず
             return {**inputs, **self._result}
@@ -23,7 +23,7 @@ class beta_analysis(support.Pipeline):
                 beta_visualized = (
                     self._assembly.new_cmd("qiime diversity beta-group-significance")
                     .add_parameter("pairwise", True)
-                    .add_metadata("metadata-file", self._context.ctn_metadata)
+                    .add_metadata("metadata-file", self._context.paths.metadata)
                     .add_metadata("metadata-column", f"{key}")
                     .add_input("distance-matrix", inputs[index_file_name])
                     .add_output(

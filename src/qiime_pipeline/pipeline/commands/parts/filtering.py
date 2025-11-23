@@ -4,7 +4,7 @@ from qiime_pipeline.pipeline import support
 class filtering(support.Pipeline):
     def _cmd_build(self, inputs: dict[str] = None) -> dict[str]:
         super()._cmd_build(inputs)
-        sampling_depth = self._context.setting.sampling_depth
+        sampling_depth = self._context.get_sampling_depth()
 
         filtered_table = (
             self._assembly.new_cmd("qiime feature-table filter-samples")

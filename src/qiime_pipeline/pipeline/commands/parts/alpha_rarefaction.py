@@ -17,7 +17,7 @@ class alpha_rarefaction(support.Pipeline):
             .get_outputs()
         )
 
-        sampling_depth = self._context.setting.sampling_depth
+        sampling_depth = self._context.get_sampling_depth()
 
         # 実行時のエラーを避けるため
         # steps, iterationsはサンプルのmax featureよりも十分に小さくする
@@ -30,7 +30,7 @@ class alpha_rarefaction(support.Pipeline):
             .add_parameter("max-depth", sampling_depth)
             .add_parameter("steps", str(2) if sampling_depth < 10 else str(10))
             .add_parameter("iterations", str(1) if sampling_depth < 10 else str(10))
-            .add_metadata("metadata-file", str(self._context.ctn_metadata))
+            .add_metadata("metadata-file", str(self._context.paths.metadata))
             .add_output("visualization", self._output / "alpha_rarefaction.qzv")
             .get_outputs()
         )

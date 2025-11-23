@@ -10,7 +10,7 @@ class taxonomy(support.Pipeline):
             .add_option("quiet")
             .add_input("table", inputs["bio_free_table"])
             .add_input("taxonomy", inputs["bio_free_classfied"])
-            .add_metadata("metadata-file", self._context.ctn_metadata)
+            .add_metadata("metadata-file", self._context.paths.metadata)
             .add_output("visualization", self._output / "taxa-bar-plots.qzv")
             .get_outputs()
         )

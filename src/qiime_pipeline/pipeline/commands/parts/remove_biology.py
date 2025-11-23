@@ -4,7 +4,7 @@ from qiime_pipeline.pipeline import support
 class remove_biology(support.Pipeline):
     def _cmd_build(self, inputs: dict[str] = None) -> dict[str]:
         super()._cmd_build(inputs)
-        db_path = self._context.setting.container_data.database_path.ctn_pos
+        db_path = self._context.get_database_path()
 
         bio_free_seq = (
             self._assembly.new_cmd("qiime taxa filter-seqs")
