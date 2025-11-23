@@ -1,39 +1,14 @@
 from __future__ import annotations
 from abc import ABC
-from enum import Enum
 from pathlib import Path
-from qiime_pipeline.data.store import SettingData
 from .executor import Executor
 from .qiime_command import Q2CmdAssembly
 
+# PipelineContext と PipelineType は context.py に移動
+from typing import TYPE_CHECKING
 
-class PipelineType(Enum):
-    BASIC = "basic"
-    RAREFACTION_CURVE = "rarefaction_curve"
-    ANCOM = "ancom"
-
-    def from_str(label: str) -> PipelineType:
-        label = label.lower()
-        if label in ("basic", "rarefaction_curve", "ancom"):
-            return PipelineType(label)
-        else:
-            raise ValueError(f"Unknown pipeline type: {label}")
-
-
-class PipelineContext:
-    def __init__(
-        self,
-        ctn_metadata: Path,
-        ctn_manifest: Path,
-        executor: Executor,
-        setting: SettingData,
-        pipeline_type: PipelineType,
-    ):
-        self.ctn_metadata: Path = ctn_metadata
-        self.ctn_manifest: Path = ctn_manifest
-        self.executor: Executor = executor
-        self.setting: SettingData = setting
-        self.pipeline_type: PipelineType = pipeline_type
+if TYPE_CHECKING:
+    from .context import PipelineContext
 
 
 class RequiresDirectory:
@@ -54,7 +29,7 @@ class RequiresDirectory:
 
 
 class Pipeline(ABC):
-    def __init__(self, context: PipelineContext, ctn_output: str = None):
+    def __init__(self, context: "PipelineContext", ctn_output: str = None):
         self._context = context
         self._assembly = Q2CmdAssembly()
         self._requires = RequiresDirectory()

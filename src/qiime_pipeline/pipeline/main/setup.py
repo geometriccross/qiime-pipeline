@@ -14,9 +14,9 @@ from qiime_pipeline.pipeline.support import (
     Executor,
     Provider,
     argument_parser,
-    PipelineContext,
     PipelineType,
 )
+from qiime_pipeline.pipeline.support.context import PipelineContext
 
 
 def setup_datasets(arg: Namespace) -> Datasets:
@@ -122,7 +122,7 @@ def setup_context(args: Namespace) -> PipelineContext:
     )
     executor = setup_executor(mounts, setting)
 
-    return PipelineContext(
+    return PipelineContext.create(
         ctn_metadata=metadata.ctn_pos,
         ctn_manifest=manifest.ctn_pos,
         executor=executor,
