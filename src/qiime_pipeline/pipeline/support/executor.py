@@ -155,8 +155,11 @@ class CommandRunner:
             if ".log" in err:
                 err += "\nPlease check the log file for details."
                 log_file = re.findall(r"/tmp/qiime2-q2cli-err-[\w]+\.log", err).pop()
-                log_content = self.run(["cat", log_file])
-                err += f"\nLog content:\n{log_content}"
+                try:
+                    log_content = self.__container.execute(["cat", log_file])
+                    err += f"\nLog content:\n{log_content}"
+                except Exception as log_error:
+                    err += f"\nFailed to read log file {log_file}: {log_error}"
             raise RuntimeError(err)
 
         return out
