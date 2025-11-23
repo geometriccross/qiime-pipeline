@@ -18,7 +18,7 @@ class file_import(support.Pipeline):
         dataset = next(iter(self._context.setting.datasets.sets))
         region = dataset.region
 
-        denoised_table, denoised_seq, denoised_stats = (
+        denoised_table, denoised_seq, denoised_stats, base_transition = (
             self._assembly.new_cmd("qiime dada2 denoise-paired")
             .add_option("quiet")
             .add_input("demultiplexed-seqs", imported)
@@ -30,6 +30,7 @@ class file_import(support.Pipeline):
             .add_output("table", self._output / "denoised_table.qza")
             .add_output("representative-sequences", self._output / "denoised_seq.qza")
             .add_output("denoising-stats", self._output / "denoised_stats.qza")
+            .add_output("base-transition-stats", self._output / "base-transition-stats.qza")
             .get_outputs()
         )
 
@@ -37,5 +38,6 @@ class file_import(support.Pipeline):
         self._result["denoised_table"] = denoised_table
         self._result["denoised_seq"] = denoised_seq
         self._result["denoised_stats"] = denoised_stats
+        self._result["base_transition"] = base_transition
 
         return self._result
