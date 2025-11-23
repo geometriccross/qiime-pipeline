@@ -12,7 +12,7 @@ def test_pipeline_concatination_pipeline(mocked_context):
     assert isinstance(concatinate, Pipeline)
 
     pipeline_exp_result = concatinate()
-    assert len(pipeline_exp_result) == 11
+    assert len(pipeline_exp_result) == 12
 
     for value in pipeline_exp_result.values():
         assert value.endswith(".qza") or value.endswith(".qzv")
