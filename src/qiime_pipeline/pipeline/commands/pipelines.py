@@ -1,3 +1,4 @@
+from functools import partial
 from . import parts
 
 
@@ -66,12 +67,8 @@ def pipeline_ancom(context):
         parts.core_metrics,
         parts.taxa_collapse,
         parts.ancombc,
-        lambda context: parts.adonis(
-            context, beta_index="unweighted_unifrac_distance_matrix"
-        ),
-        lambda context: parts.adonis(
-            context, beta_index="weighted_unifrac_distance_matrix"
-        ),
+        partial(parts.adonis, beta_index="unweighted_unifrac_distance_matrix"),
+        partial(parts.adonis, beta_index="weighted_unifrac_distance_matrix"),
     ]
 
     return pipeline_run(context, cmds)
