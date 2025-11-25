@@ -6,7 +6,7 @@ class taxonomy(support.Pipeline):
         super()._cmd_build(inputs)
 
         taxonomy_barplot = (
-            self._assembly.new_cmd("qiime taxa barplot")
+            self._assembly.new_cmd("qiime taxa barplot2")
             .add_option("quiet")
             .add_input("table", inputs["bio_free_table"])
             .add_input("taxonomy", inputs["bio_free_classfied"])
