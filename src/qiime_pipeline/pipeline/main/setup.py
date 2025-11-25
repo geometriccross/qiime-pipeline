@@ -68,9 +68,7 @@ def setup_files(setting: SettingData) -> Tuple[PairPath, PairPath]:
         raise ValueError("Manifest file is invalid")
 
     def __builder(p: Path) -> PairPath:
-        return PairPath(
-            local_pos=p, ctn_pos=setting.ctn_workspace_path / p.name
-        )
+        return PairPath(local_pos=p, ctn_pos=setting.ctn_output_path / p.name)
 
     return __builder(local_metafile), __builder(local_manifest)
 
@@ -82,7 +80,6 @@ def setup_mounts(
     ctn_workspace_dir: Path,
     datasets: Datasets,
 ) -> list[str]:
-
     def __convert_path_into_mount_format(pairpath: PairPath):
         return pairpath.to_mount_option(readonly=True)
 
