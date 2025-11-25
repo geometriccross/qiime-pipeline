@@ -1,5 +1,5 @@
-import python_on_whales
 from pathlib import Path
+import python_on_whales
 from qiime_pipeline.pipeline.support import PipelineContext
 
 
@@ -9,15 +9,14 @@ def find(key: str, iterable: list) -> str:
             return file
 
 
-def copy_from_container(context: PipelineContext, ctn_target_file: Path) -> Path:
+def copy_from_container(context: PipelineContext, target: Path) -> Path:
     out_dir = context.setting.local_output_path.joinpath(
-        str(context.setting.batch_id)
-    )
+        str(context.setting.batch_id))
     out_dir.mkdir(parents=True, exist_ok=True)
 
     # Copy QZV file from container
     python_on_whales.docker.copy(
-        source=f"{context.setting.batch_id}:{ctn_target_file}", destination=str(out_dir)
+        source=f"{context.setting.batch_id}:{target}", destination=str(out_dir)
     )
 
-    return out_dir / ctn_target_file.name
+    return out_dir / target.name
