@@ -59,7 +59,7 @@ def setup_config(arg: Namespace) -> SettingData:
 
 def setup_files(setting: SettingData) -> Tuple[PairPath, PairPath]:
     local_metafile, local_manifest = create_Mfiles(
-        local_output=setting.local_output_path,
+        local_output=setting.local_output_path / setting.batch_id,
         container_fastq_path=(setting.ctn_workspace_path / "data"),
         data=setting.datasets,
     )
