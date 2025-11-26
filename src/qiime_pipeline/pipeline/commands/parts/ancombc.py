@@ -13,7 +13,7 @@ class ancombc(support.Pipeline):
             .add_metadata("metadata-file", self._context.paths.metadata)
             .add_parameter("formula", self.__formula)
             .add_parameter("prv-cut", 0.1)
-            .add_output("differentials", self._output / "ancombc.qza")
+            .add_output("differentials", self._output / f"ancombc_{self.__formula}.qza")
             .get_outputs()
         )
 
