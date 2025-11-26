@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import csv
+from natsort import natsorted
 from pathlib import Path, PurePath
 from qiime_pipeline.data.store import Datasets
 from .validate_pattern import Direction, check_current_pair, extract_first_underscore
@@ -81,7 +82,7 @@ def combine_all_metadata(datasets: Datasets) -> list[list[str]]:
         header_removed = dataset.metadata[1:]
         all_metadata.extend(header_removed)
 
-    all_metadata.sort(key=lambda x: x[0])  # RawIDでソート（test1, test2, ...の順）
+    all_metadata = natsorted(all_metadata)
     return [get_header(list(datasets.sets)[0].metadata_path), *all_metadata]
 
 
