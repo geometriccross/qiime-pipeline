@@ -66,9 +66,18 @@ def pipeline_ancom(context):
         parts.phylogeny,
         parts.core_metrics,
         parts.taxa_collapse,
-        parts.ancombc,
-        partial(parts.adonis, beta_index="unweighted_unifrac_distance_matrix"),
-        partial(parts.adonis, beta_index="weighted_unifrac_distance_matrix"),
+        partial(parts.ancombc, formula="LiceBartPos"),
+        partial(
+            parts.adonis,
+            formula="LiceBartPos",
+            beta_index="unweighted_unifrac_distance_matrix",
+        ),
+        partial(parts.ancombc, formula="HostBartPos"),
+        partial(
+            parts.adonis,
+            formula="HostBartPos",
+            beta_index="weighted_unifrac_distance_matrix",
+        ),
     ]
 
     return pipeline_run(context, cmds)
